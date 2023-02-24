@@ -1,19 +1,16 @@
 <template>
-    <myToolbar/>
-    <about />
-    <Collaborateur />
+    <Dashboard />
 </template>
 
 <script>
 // Components
-import Collaborateur from "@/components/Collaborateur.vue";
-import myToolbar from "@/components/MyToolbar";
+import Dashboard from "@/components/Dashboard";
+
 export default ({
   name: "HomeView",
 
   components: {
-    Collaborateur,
-    myToolbar,
+    Dashboard,
   },
 });
 </script>
