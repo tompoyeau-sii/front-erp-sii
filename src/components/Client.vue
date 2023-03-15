@@ -8,7 +8,7 @@
             Ajouter un client
           </v-btn>
         </template>
-        <v-card style="background: linear-gradient(135deg, #75519b 0%, #e84654 100%);color: white;">
+        <v-card class="gradient">
           <v-form v-on:submit.prevent="formAddCustomer">
             <v-card-title>
               <v-row justify="center" class="mt-3">
@@ -48,21 +48,38 @@
                 Créer
               </v-btn>
             </v-card-actions>
-            <v-snackbar v-if='state != "" ' v-model="snackbar" color="red-darken-2" timeout="5000">
-              {{ state }}
+            <v-snackbar
+              v-if="CreateState == true"
+              v-model="snackbar"
+              w-auto
+              color="red-darken-2"
+              timeout="5000"
+            >
+              <v-icon start icon="mdi-cancel"></v-icon>
+              {{ error }}
             </v-snackbar>
           </v-form>
         </v-card>
       </v-dialog>
+      <v-snackbar
+        v-if="SuccessState == true"
+        v-model="snackbar"
+        w-auto
+        color="green"
+        timeout="3000"
+      >
+        <v-icon start icon="mdi-checkbox-marked-circle"></v-icon>
+        {{ success }}
+      </v-snackbar>
     </v-row>
 
     <div class="row">
-      <div
-        class="col-2 client rounded-3 m-2 shadow-sm"
+      <div class="col-2 client rounded-3 m-2 pt-3 shadow-sm"
         v-for="customer in customers"
-        :key="customer.id"
-      >
-        <p v-text="customer.label"></p>
+        :key="customer.id">
+        <p class="text-h5" v-text="customer.label"></p>
+        <p>100 000€</p>
+        <p>6 collaborateurs</p>
       </div>
     </div>
   </div>
@@ -79,7 +96,8 @@ export default {
       },
       dialog: false,
       customers: [],
-      state: "",
+      CreateState: false,
+      SuccessState: false,
       snackbar: false,
     };
   },
@@ -94,19 +112,24 @@ export default {
             (response) => {
               console.log(response);
               this.dialog = false;
-              this.state = "";
+              this.CreateState = false;
+              this.SuccessState = true;
+              this.success = "Nouveau client créé";
             },
-            (error, response) => {
-              console.log(response);
+            (response) => {
+              console.log(response.headers);
+              this.CreateState = true;
+              this.error = response.headers;
             }
           );
       } else {
-        this.state = "Vous devez au moins ajouter un libelle.";
+        this.CreateState = true;
+        this.error = "Veuillez ajouter un libelle.";
       }
     },
   },
   created() {
-    axios.get("http://localhost:8080/api/customer").then((res) => {
+    axios.get("http://localhost:8080/api/customers").then((res) => {
       this.customers = res.data?.customer;
     });
   },
@@ -119,9 +142,16 @@ td {
   margin-bottom: auto;
   vertical-align: middle;
 }
+.gradient {
+  background: linear-gradient(135deg, #75519b 0%, #e84654 100%);
+  color: white;
+}
 
 .client {
   background: linear-gradient(135deg, #7117ea 0%, #ea6060 100%);
   color: white;
+  width: 20vh;
+  min-width: 200px;
+
 }
 </style>

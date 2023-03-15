@@ -1,15 +1,17 @@
 <template>
-  <Collaborateur />
+  <Collaborateurs />
   <myToolbar />
 </template>
 
 <script>
-import Collaborateur from "@/components/Collaborateur.vue";
+import Collaborateurs from "@/components/Collaborateurs.vue";
+import myToolbar from "@/components/MyToolbar";
 export default {
   name: "CollabView",
 
   components: {
-    Collaborateur,
+    Collaborateurs,
+    myToolbar,
   },
 };
 </script>

@@ -1,13 +1,8 @@
 <template>
   <v-navigation-drawer
-    style="background: linear-gradient(180deg, rgba(117,81,155,1) 0%, rgba(232,70,84,1) 100%);"
+    style="background: linear-gradient(180deg,rgba(117, 81, 155, 1) 0%,rgba(232, 70, 84, 1) 100%);"
   >
-  <v-img
-  aspect-ratio
-  class="sii "
-  src="../assets/SIIlogo.svg"
-  >
-  </v-img>
+    <v-img aspect-ratio class="sii" load src="../assets/SIIlogo.svg"></v-img>
     <v-list nav>
       <router-link to="/dashboard">
         <v-list-item
@@ -32,6 +27,8 @@
           value="clients"
         ></v-list-item>
       </router-link>
+    </v-list>
+    <template v-slot:append>
       <router-link to="/">
         <v-list-item
           prepend-icon="mdi-logout"
@@ -39,7 +36,7 @@
           value="logout"
         ></v-list-item>
       </router-link>
-    </v-list>
+    </template>
   </v-navigation-drawer>
 </template>
 
@@ -56,7 +53,7 @@ a {
 
 .sii {
   width: 12vh;
-  display: flex;
+  display: block;
   align-content: center;
   align-self: center;
 }

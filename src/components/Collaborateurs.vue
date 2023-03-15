@@ -1,7 +1,6 @@
 <template>
   <div class="container">
     <h1 class="title pt-3">Collaborateurs SII Le Mans</h1>
-
     <v-row justify="end" class="m-3">
       <v-dialog v-model="dialog" width="750px">
         <template v-slot:activator="{ props }">
@@ -9,12 +8,7 @@
             Ajouter un collaborateur
           </v-btn>
         </template>
-        <v-card
-          style="
-            background: linear-gradient(135deg, #75519b 0%, #e84654 100%);
-            color: white;
-          "
-        >
+        <v-card>
           <v-form v-on:submit.prevent="formAddCollab">
             <v-card-title>
               <v-row justify="center" class="mt-3">
@@ -88,11 +82,20 @@
                   </v-col>
                   <v-col cols="12">
                     <v-autocomplete
-                      :items="['Staff', 'Dev', 'Data', 'Chef de projet']"
+                      :value="jobs.id"
+                      :items="jobs.label"
+                      v-model="form.job"
                       label="Métier"
                       variant="solo"
                     ></v-autocomplete>
                   </v-col>
+                  <!-- <v-col cols="12">
+                    <v-select v-model="form.RessourceID">
+                      <items v-for="job in jobs" :key="job.id" :value="job.id">
+                        {{ job.label }}
+                      </items>
+                    </v-select>
+                  </v-col> -->
                 </v-row>
               </v-container>
               <small>*champs obligatoire</small>
@@ -159,16 +162,19 @@ export default {
   data() {
     return {
       form: {
-        name:"",
-        first_name :"",
-        birthdate :"",
-        telephone :"",
-        mail :"",
-        start_date :"",
+        name: "",
+        first_name: "",
+        birthdate: "",
+        telephone: "",
+        mail: "",
+        start_date: "",
+        job: "",
       },
       dialog: false,
       associates: [],
-      customers: [],
+      jobs: [],
+      error: "",
+      model:null,
     };
   },
   methods: {
@@ -196,7 +202,7 @@ export default {
               this.dialog = false;
               this.state = "";
             },
-            (error, response) => {
+            (response) => {
               console.log(response);
             }
           );
@@ -204,15 +210,15 @@ export default {
         this.state = "Vous devez ajouter au moins un libelle.";
       }
     },
-    getAge(age) {
-      var diff = Date.now() - date.getTime();
-      var age = new Date(diff);
-      return Math.abs(age.getUTCFullYear() - 1970);
-    },
   },
   created() {
-    axios.get("http://localhost:8080/api/associate").then((res) => {
+    axios.get("http://localhost:8080/api/associates").then((res) => {
       this.associates = res.data?.associate;
+      console.log(this.associates);
+    });
+    axios.get("http://localhost:8080/api/jobs").then((res) => {
+      this.jobs = res.data?.job;
+      console.log(this.jobs);
     });
   },
 };
@@ -224,5 +230,10 @@ td {
   margin-bottom: auto;
   vertical-align: middle;
   border-style: none;
+}
+
+.v-card {
+  background: linear-gradient(135deg, #75519b 0%, #e84654 100%);
+  color: white;
 }
 </style>

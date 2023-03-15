@@ -1,8 +1,8 @@
 <template>
-  <div class="container">
-    <v-card class="p-4 mx-auto m-5" elevation="0" max-width="800">
+  <div class="container p-5">
+    <v-card class="p-4 ma-auto m-5" elevation="0" max-width="800">
       <v-row justify="center">
-        <div class="text-h3 mt-5">SII LE MANS | COLLABORATEURS</div>
+        <div class="text-h3 mt-5">SII LE MANS | PIXOU </div>
       </v-row>
       <v-card-text>
         <v-form v-on:submit.prevent="formConnect">
@@ -25,10 +25,19 @@
                 v-model="form.password"
                 type="password"
               ></v-text-field>
+              <v-alert
+                v-if="error != ''"
+                class="mb-5"
+                icon="mdi-cancel"
+                type="error"
+                :text="error"
+                m-5
+              ></v-alert>
             </v-col>
           </v-row>
           <v-row justify="center">
-            <v-btn rounded="lg" type="submit"> Connexion </v-btn>
+              <v-btn rounded="lg" type="submit"> Connexion </v-btn>
+              
           </v-row>
         </v-form>
       </v-card-text>
@@ -47,6 +56,9 @@ export default {
         username: "",
         password: "",
       },
+      ErrorState: false,
+      error: "",
+      snackbar: false,
     };
   },
   methods: {
@@ -63,13 +75,17 @@ export default {
             //utiliser un interceptor pour le jwt
           });
       } else {
-        console.log("Pas de id ni de mdp");
+        (this.ErrorState = true), (this.error = "Erreur d'identifiant");
+        console.log(this.error);
       }
     },
   },
 };
 </script>
 <style scoped>
+/* .v-navigation-drawer {
+  display: none;
+} */
 .container {
   background: transparent;
 }
