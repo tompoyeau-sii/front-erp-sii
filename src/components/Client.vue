@@ -74,19 +74,25 @@
     </v-row>
 
     <div class="row">
-      <div class="col-2 client rounded-3 m-2 pt-3 shadow-sm"
+      <router-link
+        class="col-2 client rounded-3 m-2 pt-3 shadow-sm"
         v-for="customer in customers"
-        :key="customer.id">
-        <p class="text-h5" v-text="customer.label"></p>
-        <p>100 000€</p>
-        <p>6 collaborateurs</p>
-      </div>
+        :key="customer.id"
+        :to="{ name: 'FicheClientView', params: { label: customer.label } }"
+      >
+        <div>
+          <p class="text-h5 name" v-text="customer.label"></p>
+          <p>100 000€</p>
+          <p>6 collaborateurs</p>
+        </div>
+      </router-link>
     </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import { mapGetters } from "vuex";
 export default {
   name: "Client",
   data() {
@@ -99,6 +105,7 @@ export default {
       CreateState: false,
       SuccessState: false,
       snackbar: false,
+      test: this.$store.getters.getToken,
     };
   },
   methods: {
@@ -133,6 +140,9 @@ export default {
       this.customers = res.data?.customer;
     });
   },
+  computed: {
+    ...mapGetters(["getToken"]),
+  },
 };
 </script>
 
@@ -149,9 +159,14 @@ td {
 
 .client {
   background: linear-gradient(135deg, #7117ea 0%, #ea6060 100%);
+  /* background: linear-gradient(135deg, #0FF0B3 0%, #036ED9 100%);
+  background: linear-gradient(135deg, #65799B 0%, #5E2563 100%); */
   color: white;
   width: 20vh;
   min-width: 200px;
+}
 
+.name {
+  font-weight: 600;
 }
 </style>

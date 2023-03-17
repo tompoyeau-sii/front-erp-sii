@@ -7,14 +7,18 @@
 </template>
 
 <script>
-  export default {
-    name: "app",
-  };
+export default {
+  name: "app",
+};
 </script>
 
 <style scoped>
-*{
-  background: #F2F2F2;
+* {
+  background: #f2f2f2;
   text-decoration: none;
+}
+
+router-link {
+  text-decoration: none!important
 }
 </style>

@@ -1,18 +1,18 @@
 <template>
-    <Client />
-    <myToolbar />
-  </template>
+  <Client />
+  <myToolBar />
+</template>
   
   <script>
-  import Client from "@/components/Client.vue";
-  import myToolbar from "@/components/MyToolbar";
-  export default {
-    name: "ClientView",
-  
-    components: {
-      Client,
-      myToolbar,
-    },
-  };
-  </script>
+import Client from "@/components/Client.vue";
+import myToolBar from "@/components/MyToolbar.vue";
+export default {
+  name: "ClientView",
+
+  components: {
+    Client,
+    myToolBar,
+  },
+};
+</script>
   

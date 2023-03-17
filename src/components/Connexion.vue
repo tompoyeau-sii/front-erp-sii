@@ -2,7 +2,7 @@
   <div class="container p-5">
     <v-card class="p-4 ma-auto m-5" elevation="0" max-width="800">
       <v-row justify="center">
-        <div class="text-h3 mt-5">SII LE MANS | PIXOU </div>
+        <div class="text-h3 mt-5">SII LE MANS | PIXOU</div>
       </v-row>
       <v-card-text>
         <v-form v-on:submit.prevent="formConnect">
@@ -11,7 +11,7 @@
               <label class="mb-2">Identifiant</label>
               <v-text-field
                 variant="solo"
-                v-model="form.username"
+                v-model="login.username"
                 type="email"
                 required
               ></v-text-field>
@@ -22,7 +22,7 @@
               <label class="mb-2">Mot de passe</label>
               <v-text-field
                 variant="solo"
-                v-model="form.password"
+                v-model="login.password"
                 type="password"
               ></v-text-field>
               <v-alert
@@ -36,8 +36,7 @@
             </v-col>
           </v-row>
           <v-row justify="center">
-              <v-btn rounded="lg" type="submit"> Connexion </v-btn>
-              
+            <v-btn rounded="lg" type="submit"> Connexion </v-btn>
           </v-row>
         </v-form>
       </v-card-text>
@@ -47,12 +46,12 @@
 
 <script>
 import router from "@/router";
-import axios from "axios";
+import { accountService } from "@/_services";
 export default {
   name: "connexion",
   data() {
     return {
-      form: {
+      login: {
         username: "",
         password: "",
       },
@@ -63,23 +62,36 @@ export default {
   },
   methods: {
     formConnect: function () {
-      if (this.form.username !== "" || this.form.password !== "") {
-        axios
-          .post("http://localhost:8080/api/login", {
-            username: this.form.username,
-            password: this.form.password,
-          })
-          .then((response) => {
+      if (this.login.username !== "" || this.login.password !== "") {
+        accountService
+          .login(this.login)
+          .then((res) => {
+            console.log(res.data);
+            accountService.saveToken(res.data.token);
+            console.log(this.$store.state.connected);
             router.push("/dashboard");
-            console.log("Connecté");
-            //utiliser un interceptor pour le jwt
+          })
+          .catch((err) => {
+            console.log(err), (this.error = err.response.data.error);
           });
+
+        // axios
+        //   .post("http://localhost:8080/api/login", {
+        //     username: this.login.username,
+        //     password: this.login.password,
+        //   })
+        //   .then((response) => {
+        //     router.push("/dashboard");
+        //     console.log("Connecté");
+        //     //utiliser un interceptor pour le jwt
+        //   });
       } else {
-        (this.ErrorState = true), (this.error = "Erreur d'identifiant");
+        (this.ErrorState = true),
+          (this.error = "Veuillez remplir tous les champs");
         console.log(this.error);
       }
     },
-  },
+  }
 };
 </script>
 <style scoped>

@@ -1,7 +1,8 @@
 <template>
   <v-navigation-drawer
-    style="background: linear-gradient(180deg,rgba(117, 81, 155, 1) 0%,rgba(232, 70, 84, 1) 100%);"
-  >
+    v-if="isLog()"
+    class="toolBar"
+    style="background: linear-gradient(180deg,rgba(117, 81, 155, 1) 0%,rgba(232, 70, 84, 1) 100%) !important;">
     <v-img aspect-ratio class="sii" load src="../assets/SIIlogo.svg"></v-img>
     <v-list nav>
       <router-link to="/dashboard">
@@ -27,10 +28,19 @@
           value="clients"
         ></v-list-item>
       </router-link>
+
+      <router-link to="/parametres">
+        <v-list-item
+          prepend-icon="mdi-cog"
+          title="Paramètres"
+          value="parametres"
+        ></v-list-item>
+      </router-link>
     </v-list>
     <template v-slot:append>
       <router-link to="/">
         <v-list-item
+          v-on:click="disconnect"
           prepend-icon="mdi-logout"
           title="Se déconnecter"
           value="logout"
@@ -41,14 +51,31 @@
 </template>
 
 <script>
+import { accountService } from "@/_services";
 export default {
   name: "myToolbar",
+  methods: {
+    disconnect: function (event) {
+      accountService.logout()
+    },
+    isLog: function () {
+      return accountService.isLogged()
+    },
+  },
 };
 </script>
 
 <style scoped>
 a {
   color: white;
+}
+
+.toolBar {
+  background: linear-gradient(
+    180deg,
+    rgba(117, 81, 155, 1) 0%,
+    rgba(232, 70, 84, 1) 100%
+  ) !important;
 }
 
 .sii {

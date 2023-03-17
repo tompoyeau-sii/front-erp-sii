@@ -1,18 +1,17 @@
 <template>
-  <Dashboard />
+  <FicheCollab />
   <myToolBar />
 </template>
 
 <script>
 // Components
-import Dashboard from "@/components/Dashboard";
-
+import FicheCollab from "@/components/FicheCollab.vue";
 import myToolBar from "@/components/MyToolbar.vue";
 export default {
-  name: "HomeView",
+  name: "FicheClientView",
 
   components: {
-    Dashboard,
+    FicheCollab,
     myToolBar,
   },
 };

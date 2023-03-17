@@ -41,7 +41,13 @@
                     </v-radio-group>
                   </v-col>
                   <v-col cols="12" sm="6">
-                    <v-text-field label="Diplôme" variant="solo"></v-text-field>
+                    <v-autocomplete
+                      :value="graduations.id"
+                      :items="graduations.label"
+                      v-model="form.graduation"
+                      label="Diplôme"
+                      variant="solo"
+                    ></v-autocomplete>
                   </v-col>
                   <v-col cols="12" sm="6">
                     <v-text-field
@@ -81,13 +87,30 @@
                     <v-text-field label="PRU" variant="solo"></v-text-field>
                   </v-col>
                   <v-col cols="12">
-                    <v-autocomplete
+                    <!-- <v-autocomplete
+                    :items="jobs"
                       :value="jobs.id"
-                      :items="jobs.label"
+                      :item-text="jobs.label"
                       v-model="form.job"
                       label="Métier"
                       variant="solo"
-                    ></v-autocomplete>
+                    ></v-autocomplete> -->
+                    <!-- <select
+                      v-model="form.job"
+                      class="v-field v-field--active v-field--appended v-field--dirty v-field--variant-solo v-theme--light p-2"
+                      name="bureau"
+                      id="RessourceID"
+
+                    >
+                      <option disabled value>Poste</option>
+                      <option
+                        v-for="job in jobs"
+                        :key="job.id"
+                        :value="job.label"
+                      >
+                        {{ job.label }}
+                      </option>
+                    </select> -->
                   </v-col>
                   <!-- <v-col cols="12">
                     <v-select v-model="form.RessourceID">
@@ -105,12 +128,7 @@
               <v-btn color="white" variant="text" @click="dialog = false">
                 Annuler
               </v-btn>
-              <v-btn
-                color="white"
-                variant="text"
-                type="submit"
-                @click="dialog = false"
-              >
+              <v-btn color="white" variant="text" type="submit">
                 Bienvenue !
               </v-btn>
             </v-card-actions>
@@ -125,8 +143,8 @@
           <tr style="border: white">
             <th>Collaborateur</th>
             <th>Métier</th>
-            <th>Client</th>
             <th>Manager</th>
+            <th>Client</th>
             <th>Projet</th>
           </tr>
         </thead>
@@ -146,8 +164,27 @@
             </td>
             <td>none</td>
             <td>none</td>
-            <td>none</td>
-            <td>none</td>
+            <!-- Affichage du nom de client -->
+            <td
+              class="mt-auto mb-auto"
+              v-text="
+                associate.Projects.map(
+                  (project) => project.Customer.label
+                ).join(', ')">
+              </td>
+            <!-- Affichage du nom de projet -->
+            <td
+              v-text="
+                associate.Projects.map((project) => project.label).join(', ')
+              "
+            ></td>
+            <td>
+              <router-link
+                :to="{ name: 'FicheCollabView', params: { id: associate.id } }"
+              >
+                <v-icon start icon="mdi-open-in-new"></v-icon>
+              </router-link>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -168,13 +205,16 @@ export default {
         telephone: "",
         mail: "",
         start_date: "",
+        graduation: "",
         job: "",
       },
       dialog: false,
       associates: [],
       jobs: [],
+      graduations: [],
       error: "",
-      model:null,
+      items: [],
+      model: null,
     };
   },
   methods: {
@@ -217,8 +257,14 @@ export default {
       console.log(this.associates);
     });
     axios.get("http://localhost:8080/api/jobs").then((res) => {
+      // console.log(res.data?.job);
       this.jobs = res.data?.job;
+      console.log(this.items);
       console.log(this.jobs);
+    });
+    axios.get("http://localhost:8080/api/graduations").then((res) => {
+      this.graduations = res.data?.graduation;
+      // console.log(this.graduations);
     });
   },
 };
