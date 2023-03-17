@@ -147,7 +147,6 @@ export default {
   created() {
     axios.get("http://localhost:8080/api/graduations").then((res) => {
       this.graduations = res.data?.graduation;
-      console.log(this.graduations);
     });
   },
 };

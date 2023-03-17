@@ -163,19 +163,26 @@
               ></p>
             </td>
             <td>none</td>
-            <td>none</td>
+            <td
+              class="mt-auto mb-auto"
+              v-text="
+                associate.Missions.map(
+                  (mission) => mission.Project.Associate.name
+                ).join(', ')">
+              </td>
             <!-- Affichage du nom de client -->
             <td
               class="mt-auto mb-auto"
               v-text="
-                associate.Projects.map(
-                  (project) => project.Customer.label
-                ).join(', ')">
+                associate.Missions.map(
+                  (mission) => mission.Project.Customer.label
+                ).join(', ')"
+                >
               </td>
             <!-- Affichage du nom de projet -->
             <td
               v-text="
-                associate.Projects.map((project) => project.label).join(', ')
+                associate.Missions.map((project) => project.Project.label).join(', ')
               "
             ></td>
             <td>
@@ -254,13 +261,9 @@ export default {
   created() {
     axios.get("http://localhost:8080/api/associates").then((res) => {
       this.associates = res.data?.associate;
-      console.log(this.associates);
     });
     axios.get("http://localhost:8080/api/jobs").then((res) => {
-      // console.log(res.data?.job);
       this.jobs = res.data?.job;
-      console.log(this.items);
-      console.log(this.jobs);
     });
     axios.get("http://localhost:8080/api/graduations").then((res) => {
       this.graduations = res.data?.graduation;

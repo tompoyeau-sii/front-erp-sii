@@ -117,14 +117,12 @@ export default {
           })
           .then(
             (response) => {
-              console.log(response);
               this.dialog = false;
               this.CreateState = false;
               this.SuccessState = true;
               this.success = "Nouveau client créé";
             },
             (response) => {
-              console.log(response.headers);
               this.CreateState = true;
               this.error = response.headers;
             }

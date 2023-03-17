@@ -147,7 +147,6 @@ export default {
   created() {
     axios.get("http://localhost:8080/api/jobs").then((res) => {
       this.jobs = res.data?.job;
-      console.log(this.jobs);
     });
   },
 };

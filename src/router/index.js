@@ -34,18 +34,17 @@ const routes = [
     name: 'FicheCollabView',
     component: () => import(/* webpackChunkName: "new" */ '../views/FicheCollabView.vue'),
     // Before entering the route, fetch the client data from the API
-    beforeEnter: (to) => {
+    beforeEnter: (to, from, next) => {
       authGuard,
         axios.get(`http://localhost:8080/api/associate/${to.params.id}`)
           .then(response => {
             // Pass the client data as a prop to the component
             to.params.collab = response.data
-            console.log(response);
+            next()
           })
           .catch(error => {
             console.error(error)
             router.push({ path: '/collaborateurs' })
-            // next('/clients')
           })
     }
   },
@@ -66,21 +65,19 @@ const routes = [
     name: 'FicheClientView',
     component: () => import(/* webpackChunkName: "new" */ '../views/FicheClientView.vue'),
     // Before entering the route, fetch the client data from the API
-    beforeEnter: (to) => {
+    beforeEnter: (to, from, next) => {
       authGuard,
         // Assuming you have an axios instance named `axios` for making API requests
         axios.get(`http://localhost:8080/api/customer/${to.params.label}`)
           .then(response => {
             // Pass the client data as a prop to the component
             to.params.client = response.data
-            // $store.getters
-            console.log(response);
-            // next()
+            console.log(response.data);
+            next()
           })
           .catch(error => {
             console.error(error)
             router.push({ path: '/clients' })
-            // next('/clients')
           })
     }
   },
