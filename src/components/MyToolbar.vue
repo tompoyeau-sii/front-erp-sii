@@ -28,7 +28,13 @@
           value="clients"
         ></v-list-item>
       </router-link>
-
+      <router-link to="/pdc">
+        <v-list-item
+          prepend-icon="mdi-calendar-edit"
+          title="Plan de charge"
+          value="pdc"
+        ></v-list-item>
+      </router-link>
       <router-link to="/parametres">
         <v-list-item
           prepend-icon="mdi-cog"
@@ -36,6 +42,7 @@
           value="parametres"
         ></v-list-item>
       </router-link>
+
     </v-list>
     <template v-slot:append>
       <router-link to="/">

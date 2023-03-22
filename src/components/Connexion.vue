@@ -2,7 +2,7 @@
   <div class="container p-5">
     <v-card class="p-4 ma-auto m-5" elevation="0" max-width="800">
       <v-row justify="center">
-        <div class="text-h3 mt-5">SII LE MANS | PIXOU</div>
+        <div class="text-h3 form-title mt-5">SII LE MANS | PICSOU</div>
       </v-row>
       <v-card-text>
         <v-form v-on:submit.prevent="formConnect">

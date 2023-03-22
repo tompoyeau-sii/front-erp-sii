@@ -12,7 +12,7 @@
           <v-form v-on:submit.prevent="formAddCollab">
             <v-card-title>
               <v-row justify="center" class="mt-3">
-                <h1>Ajouter un nouveau collaborateur</h1>
+                <h1 class="form-title">Ajouter un nouveau collaborateur</h1>
               </v-row>
             </v-card-title>
             <v-card-text>
@@ -42,9 +42,9 @@
                   </v-col>
                   <v-col cols="12" sm="6">
                     <v-autocomplete
-                      :value="graduations.id"
-                      :items="graduations.label"
-                      v-model="form.graduation"
+                    v-model="form.graduation"
+                    :items="graduations"
+                      :item-text="label"
                       label="Diplôme"
                       variant="solo"
                     ></v-autocomplete>
@@ -157,6 +157,7 @@
                   alt="John"
                 ></v-img>
               </v-avatar>
+              
               <p
                 class="mt-auto mb-auto ml-2"
                 v-text="associate.first_name + ' ' + associate.name"
@@ -165,30 +166,16 @@
             <td>none</td>
             <td
               class="mt-auto mb-auto"
-              v-text="
-                associate.Missions.map(
-                  (mission) => mission.Project.Associate.name
-                ).join(', ')">
-              </td>
+              v-text="associate.Missions.map((mission) => mission.Project.Associate.first_name + ' ' + mission.Project.Associate.name).join(', ')">
+            </td>
             <!-- Affichage du nom de client -->
-            <td
-              class="mt-auto mb-auto"
-              v-text="
-                associate.Missions.map(
-                  (mission) => mission.Project.Customer.label
-                ).join(', ')"
-                >
+            <td class="mt-auto mb-auto"
+              v-text="associate.Missions.map((mission) => mission.Project.Customer.label).join(', ')">
               </td>
             <!-- Affichage du nom de projet -->
-            <td
-              v-text="
-                associate.Missions.map((project) => project.Project.label).join(', ')
-              "
-            ></td>
+            <td v-text="associate.Missions.map((project) => project.Project.label).join(', ')"></td>
             <td>
-              <router-link
-                :to="{ name: 'FicheCollabView', params: { id: associate.id } }"
-              >
+              <router-link :to="{ name: 'FicheCollabView', params: { id: associate.id } }">
                 <v-icon start icon="mdi-open-in-new"></v-icon>
               </router-link>
             </td>
