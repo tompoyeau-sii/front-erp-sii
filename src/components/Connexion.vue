@@ -1,8 +1,8 @@
 <template>
-  <div class="container p-5">
-    <v-card class="p-4 ma-auto m-5" elevation="0" max-width="800">
-      <v-row justify="center">
-        <div class="text-h3 form-title mt-5">SII LE MANS | PICSOU</div>
+  <div class="fond">
+    <v-card class="p-4" elevation="0" max-width="800">
+      <v-row class="m-2" justify="center">
+        <div class="text-h3 form-title">SII LE MANS | PICSOU</div>
       </v-row>
       <v-card-text>
         <v-form v-on:submit.prevent="formConnect">
@@ -98,12 +98,22 @@ export default {
 /* .v-navigation-drawer {
   display: none;
 } */
-.container {
+.fond {
   background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+    background: linear-gradient(115deg, #e84654 0%, #75519b 100%) !important;
+    margin: 0;
+    padding: 0;
+  
 }
 .v-card {
   background: linear-gradient(2453deg, #e84654 0%, #75519b 100%) !important;
   color: white;
+  margin: auto;
 }
 
 label {
@@ -126,7 +136,9 @@ label {
 
   font-weight: 700;
 }
-
+.v-application {
+  background: linear-gradient(115deg, #e84654 0%, #75519b 100%) !important;
+}
 .v-main {
   background: linear-gradient(115deg, #e84654 0%, #75519b 100%) !important;
 }

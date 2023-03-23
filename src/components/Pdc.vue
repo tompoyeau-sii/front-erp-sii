@@ -50,35 +50,6 @@ export default {
     };
   },
   methods: {
-    isFacture(missionStart, missionEnd, startDate) {
-      missionStart = missionStart.toString();
-      missionEnd = missionEnd.toString();
-      startDate = startDate.toString();
-
-      console.log(missionStart);
-      console.log(missionEnd);
-      console.log(startDate);
-
-      missionStart = parseISO(missionStart);
-      missionEnd = parseISO(missionEnd);
-      startDate = parseISO(startDate);
-
-      /*Permet de dire si la mission est déjà terminé*/
-      const isEnd = isBefore(missionEnd, startDate);
-
-      /*Permet de savoir si la mission à déjà commencé*/
-      const isStarted = isBefore(missionStart, startDate);
-
-      /*Cas ou la mission c'est déjà terminé*/
-      if (isEnd) {
-        return false;
-      }
-
-      /*Cas ou la mission a commencé et n'est pas terminé*/
-      if (isStarted && isEnd == false) {
-        return true;
-      }
-    },
     isFactured(missions, startDate) {
       if (missions.length === 0) {
         console.log("Pas array");

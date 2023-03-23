@@ -42,8 +42,8 @@
                   </v-col>
                   <v-col cols="12" sm="6">
                     <v-autocomplete
-                    v-model="form.graduation"
-                    :items="graduations"
+                      v-model="form.graduation"
+                      :items="graduations"
                       :item-text="label"
                       label="Diplôme"
                       variant="solo"
@@ -157,7 +157,7 @@
                   alt="John"
                 ></v-img>
               </v-avatar>
-              
+
               <p
                 class="mt-auto mb-auto ml-2"
                 v-text="associate.first_name + ' ' + associate.name"
@@ -166,16 +166,36 @@
             <td>none</td>
             <td
               class="mt-auto mb-auto"
-              v-text="associate.Missions.map((mission) => mission.Project.Associate.first_name + ' ' + mission.Project.Associate.name).join(', ')">
-            </td>
+              v-text="
+                associate.Missions.map(
+                  (mission) =>
+                    mission.Project.Associate.first_name +
+                    ' ' +
+                    mission.Project.Associate.name
+                ).join(', ')
+              "
+            ></td>
             <!-- Affichage du nom de client -->
-            <td class="mt-auto mb-auto"
-              v-text="associate.Missions.map((mission) => mission.Project.Customer.label).join(', ')">
-              </td>
+            <td
+              class="mt-auto mb-auto"
+              v-text="
+                associate.Missions.map(
+                  (mission) => mission.Project.Customer.label
+                ).join(', ')
+              "
+            ></td>
             <!-- Affichage du nom de projet -->
-            <td v-text="associate.Missions.map((project) => project.Project.label).join(', ')"></td>
+            <td
+              v-text="
+                associate.Missions.map((project) => project.Project.label).join(
+                  ', '
+                )
+              "
+            ></td>
             <td>
-              <router-link :to="{ name: 'FicheCollabView', params: { id: associate.id } }">
+              <router-link
+                :to="{ name: 'FicheCollabView', params: { id: associate.id } }"
+              >
                 <v-icon start icon="mdi-open-in-new"></v-icon>
               </router-link>
             </td>
@@ -254,7 +274,7 @@ export default {
     });
     axios.get("http://localhost:8080/api/graduations").then((res) => {
       this.graduations = res.data?.graduation;
-      // console.log(this.graduations);
+      console.log(this.graduations);
     });
   },
 };

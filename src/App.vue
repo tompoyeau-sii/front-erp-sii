@@ -3,12 +3,18 @@
     <v-main>
       <router-view />
     </v-main>
+    <!-- <myToolBar /> -->
   </v-app>
 </template>
 
 <script>
+import myToolBar from "@/components/MyToolbar.vue";
 export default {
   name: "app",
+  components: {
+    myToolBar,
+  }
+  
 };
 </script>
 
