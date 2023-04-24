@@ -21,37 +21,37 @@
                 class="title"
                 v-text="associate.first_name + ' ' + associate.name"
               ></h1>
-              <p v-text="'Poste | ' + associate.telephone"></p>
+
+              <p v-text="jobActuel()"></p>
             </div>
           </div>
         </div>
 
-        <div class="row ma-5">
-          <!-- Client part -->
+        <div v-if="this.filteredMissions != false" class="row ma-5">
+          <!--  Si la personne est en mission -->
+          <!--Client part-->
           <div class="col-6">
             <h5 class="pt-3 sub-title">Travail actuellement pour</h5>
             <div class="row">
-                <router-link
-                  class="col-2 client rounded-3 m-2 pt-3 shadow-sm"
-                  v-for="mission in filteredMissions"
-                  :key="mission.id"
-                  :to="{
-                    name: 'FicheClientView',
-                    params: { label: mission.Project.Customer.label },
-                  }"
-                >
-                  <div>
-                    <p
-                      class="text-h5 name"
-                      v-text="mission.Project.Customer.label"
-                    ></p>
-                    <p
-                      v-text="'Depuis le ' + formatDate(mission.start_date)"
-                    ></p>
-                    <p v-text="mission.Project.label"></p>
-                  </div>
-                  <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
-                </router-link>
+              <router-link
+                class="col-2 client rounded-3 m-2 pt-3 shadow-sm"
+                v-for="mission in filteredMissions"
+                :key="mission.id"
+                :to="{
+                  name: 'FicheClientView',
+                  params: { label: mission.Project.Customer.label },
+                }"
+              >
+                <div>
+                  <p
+                    class="text-h5 name"
+                    v-text="mission.Project.Customer.label"
+                  ></p>
+                  <p v-text="'Depuis le ' + formatDate(mission.start_date)"></p>
+                  <p v-text="mission.Project.label"></p>
+                </div>
+                <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
+              </router-link>
             </div>
           </div>
 
@@ -92,36 +92,32 @@
               </router-link>
             </div>
           </div>
+
+          <!--  Si la personne n'est pas en mission -->
+        </div>
+        <div v-else class="row ma-5">
+          <div class="col-6">
+            <h5 class="pt-3 sub-title">
+              Ce collaborateur est en intercontrat.
+            </h5>
+            <AddMissionForm />
+          </div>
         </div>
       </div>
 
       <!-- Layout droit avec les infos récap chiffré du collab -->
       <div class="col-3">
-        <div class="shadow rounded-5 mt-5 p-4" v-if="associate.telephone">
-          <p class="etiquette mb-2">TJM</p>
-          <v-row justify="end">
-            <p class="data m-2" v-text="associate.telephone"></p>
-          </v-row>
-        </div>
-
-        <div class="shadow rounded-5 mt-5 p-4" v-if="associate.telephone">
-          <p class="etiquette mb-2">PRU</p>
-          <v-row justify="end">
-            <p class="data m-2" v-text="associate.telephone"></p>
-          </v-row>
-        </div>
-
-        <div class="shadow rounded-5 mt-5 p-4" v-if="associate.telephone">
+        <div class="shadow rounded-5 mt-5 p-4">
           <p class="etiquette mb-2">IK</p>
           <v-row justify="end">
-            <p class="data m-2" v-text="associate.telephone"></p>
+            <p class="data m-2"> 254251 </p>
           </v-row>
         </div>
 
-        <div class="shadow rounded-5 mt-5 p-4" v-if="associate.telephone">
-          <p class="etiquette mb-2">Coef</p>
+        <div class="shadow rounded-5 mt-5 p-4" v-if="pruActuel()">
+          <p class="etiquette mb-2">PRU</p>
           <v-row justify="end">
-            <p class="data m-2" v-text="associate.telephone"></p>
+            <p class="data m-2" v-text="pruActuel()"></p>
           </v-row>
         </div>
 
@@ -151,6 +147,9 @@
 </template>
 
 <script>
+import axios from "axios";
+
+import AddMissionForm from "@/components/forms/AddMissionForm.vue";
 import {
   format,
   isBefore,
@@ -160,13 +159,73 @@ import {
 } from "date-fns";
 export default {
   name: "FicheCollab",
+  components: {
+    AddMissionForm,
+  },
   data() {
     return {
+      form: {
+        label: "",
+        associate: "",
+        customer: "",
+        project: "",
+        start_date: "",
+        manager: "",
+        tjm: "",
+        imputation: "",
+      },
+      dialog: false,
+      error: "",
+      first_name_and_name: "",
+      projects: [],
+      SuccessState: false,
+      snackbar: false,
       associate: [],
+      associates: [],
+      customers: [],
       todayDate: "",
+      json: [],
+      step:1,
     };
   },
   methods: {
+    formAddMission: function () {
+      if (this.form.label !== "") {
+        axios
+          .post("http://localhost:8080/api/mission", {
+            label: this.form.label,
+          })
+          .then(
+            (response) => {
+              this.dialog = false;
+              this.CreateState = false;
+              this.SuccessState = true;
+              this.success = "Nouvelle mission créée";
+              this.error = "";
+              this.refresh();
+            },
+            (response) => {
+              this.SuccessState = false;
+              console.log(response);
+              this.error = response.data;
+              console.log("erreur : " + this.error);
+            }
+          );
+      } else {
+        this.error = "Veuillez ajouter un libelle.";
+      }
+    },
+
+    nameCollab(associates) {
+      for (let associate of associates) {
+        const name = associate.first_name + " " + associate.name;
+        const id = associate.id;
+        const associateInfo = { id: id, name: name };
+        this.json.push(associateInfo);
+      }
+      return this.json;
+    },
+
     calculateAge(dateOfBirth) {
       const today = new Date();
       return differenceInYears(today, new Date(dateOfBirth));
@@ -174,6 +233,10 @@ export default {
     formatDate(date) {
       return (date = format(new Date(date), "dd/MM/yyyy"));
     },
+    formatDateBDD(date) {
+      return (date = format(new Date(date), "yyyy/MM/dd"));
+    },
+    
     missionEnCours(mission_start, mission_end) {
       const now = new Date();
       const start = parseISO(mission_start);
@@ -189,17 +252,65 @@ export default {
         return false;
       }
     },
+    pruActuel() {
+      let today = new Date();
+      today = this.formatDateBDD(today);
+      for (let pru of this.associate.PRUs) {
+        if (pru.start_date < today && pru.end_date > today) {
+          return pru.value;
+        }
+      }
+    },
+    projectsOfCustomer(customer) {
+      if (!customer) {
+        return "Aucun projet avec ce client";
+      }
+      let today = new Date();
+      today = this.formatDateBDD(today);
+      for (let project of this.projects) {
+        if (
+          project.customer_id == customer &&
+          project.start_date < today &&
+          project.end_date > today
+        ) {
+          return project.label;
+        }
+      }
+    },
+    jobActuel() {
+      let today = new Date();
+      today = this.formatDate(today);
+      for (let job of this.associate.Jobs) {
+        if (
+          job.Associate_Job.start_date < today &&
+          job.Associate_Job.end_date > today
+        ) {
+          return job.label;
+        }
+      }
+    },
+    formatDate(date) {
+      return (date = format(new Date(date), "dd/MM/yyyy"));
+    },
   },
   created() {
+    axios.get("http://localhost:8080/api/associates").then((res) => {
+      this.associates = res.data?.associate;
+    });
+    axios.get("http://localhost:8080/api/projects").then((res) => {
+      this.projects = res.data?.project;
+    });
+
     this.associate = this.$route.params.collab;
-    function formatDate(date) {
-      return (date = format(new Date(date), "dd/MM/yyyy"));
-    }
-    this.todayDate = formatDate(new Date());
-    console.log(this.todayDate);
+    this.todayDate = this.formatDate(new Date());
+    this.projects = this.projectsOfCustomer(this.customer);
+    this.first_name_and_name = this.nameCollab(this.associates);
   },
   computed: {
     filteredMissions() {
+      if (this.associate.Missions == "") {
+        return false;
+      }
       return this.associate.Missions.filter((mission) => {
         return this.missionEnCours(mission.start_date, mission.end_date);
       });

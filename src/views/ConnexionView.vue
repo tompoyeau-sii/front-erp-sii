@@ -16,6 +16,8 @@ export default {
 <style scoped>
 .v-main {
   background: linear-gradient(2453deg, #e84654 0%, #75519b 100%) !important;
+  overflow: hidden;
 }
+
 </style>
   

@@ -1,7 +1,18 @@
 <template>
-  <Parametre />
-  <Diplome />
-  <Jobs />
+  <div class="container">
+
+    <h1 class="title pt-3">Ajouter des attributs</h1>
+    <div class="row">
+      <div class="col-2">
+        
+        <Diplome />
+      </div>
+      <div class="col-2">
+        <Jobs />
+
+      </div>
+    </div>
+  </div>
   <myToolBar />
 </template>
 

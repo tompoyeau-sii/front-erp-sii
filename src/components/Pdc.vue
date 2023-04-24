@@ -7,33 +7,55 @@
 
     <h1 class="title">Plan de charge</h1>
 
-    <v-table>
-      <thead>
-        <tr>
-          <th></th>
-          <th v-for="week in weeks" :key="week.label">{{ week.label }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="associate in associates" :key="associate.id">
-          <th class="" scope="row">{{ associate.first_name + " " + associate.name }}</th>
-          <td id="facture" v-for="week in weeks" :key="week.label">
-            <v-btn
-              color="success"
-              v-if="isFactured(associate.Missions, week.start) == true"
-            >
-            </v-btn>
-            <v-btn color="error" v-else></v-btn>
-          </td>
-        </tr>
-      </tbody>
-    </v-table>
+    <v-progress-circular
+      indeterminate
+      color="purple"
+      v-if="loading"
+    ></v-progress-circular>
 
-    <v-row justify="end" class="mt-3">
-      <v-btn class="mr-2" color="success"> Facturé </v-btn>
-      <v-btn class="mr-2" color="error"> Intercontrat </v-btn>
-      <!-- <v-btn color="warning"> Absent </v-btn> -->
-    </v-row>
+    <div class="display" v-else>
+      <v-row justify="end" class="mb-3">
+        <v-btn class="mr-2" color="deep-purple-darken-3"> Facturé </v-btn>
+        <v-btn class="mr-2" color="deep-purple-lighten-4 "> Intercontrat </v-btn>
+        <!-- <v-btn color="warning"> Absent </v-btn> -->
+      </v-row>
+      <div class="row">
+        <v-table class="col-1">
+          <tbody>
+            <tr>
+              <th></th>
+            </tr>
+            <tr v-for="associate in associates" :key="associate.id">
+              <th scope="row">
+                {{ associate.first_name + " " + associate.name }}
+              </th>
+            </tr>
+          </tbody>
+        </v-table>
+        <v-table class="col-11">
+          <thead>
+            <tr>
+              <th v-for="week in weeks" :key="week.label">{{ week.label }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="associate in associates" :key="associate.id">
+              <td id="facture" v-for="week in weeks" :key="week.label">
+                <div style="display: flex">
+                  <v-btn
+                    color="deep-purple-darken-3"
+                    v-if="isWorking(associate, week)"
+                  ></v-btn>
+                  <v-btn color="deep-purple-lighten-4" v-else></v-btn>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+      </div>
+      
+    </div>
+
   </div>
 </template>
 
@@ -46,67 +68,19 @@ export default {
     return {
       weeks: [],
       associates: "",
-      test: parseISO("9999-12-31"),
+      loading: true,
     };
   },
   methods: {
-    isFactured(missions, startDate) {
-      if (missions.length === 0) {
-        console.log("Pas array");
-        return false;
-      }
-      var missionStart = missions[0].start_date;
-      var missionEnd = missions[0].end_date;
-
-      for (var i = 0; i < missions.length; i++) {
-        console.log("je rentre dans le for");
-        if (missions[i].start_date < missionStart) {
-          console.log("je rentre dans le 1er if");
-          missionStart = missions[i].start_date;
-        }
-        if (missions[i].end_date > missionEnd) {
-          console.log("Changement de la date de fin de mission !");
-          missionEnd = missions[i].end_date;
+    isWorking(associate, week) {
+      for (let mission of associate.Missions) {
+        if (mission.start_date < week.end && mission.end_date > week.start) {
+          return true;
         }
       }
-      startDate = startDate.toString();
-
-      missionStart = parseISO(missionStart);
-      missionEnd = parseISO(missionEnd);
-      startDate = parseISO(startDate);
-      /*Permet de dire si la mission est déjà temriné*/
-      const isEnd = isBefore(missionEnd, startDate);
-
-      /*Permet de savoir si la mission à déjà commencé*/
-      const isStarted = isBefore(missionStart, startDate);
-
-      /*Cas ou la mission c'est déjà terminé*/
-      if (isEnd) {
-        console.log("MissionStart isEnd : " + missionStart);
-        console.log("MissionEnd isEnd : " + missionEnd);
-        console.log("startDate isEnd : " + startDate);
-        console.log(false);
-        return false;
-      }
-
-      /*Cas ou la mission a commencé et n'est pas terminé*/
-      if (isStarted && isEnd == false) {
-        console.log("MissionStart isStarted : " + missionStart);
-        console.log("missionEnd isStarted : " + missionEnd);
-        console.log("startDate isStarted : " + startDate);
-        console.log(true);
-        return true;
-      }
+      return false;
     },
-  },
-  created() {
-    axios.get("http://localhost:8080/api/associates").then((res) => {
-      this.associates = res.data?.associate;
-      console.log(this.associates);
-    });
-    console.log(this.test);
-
-    function getWeeksOfYear(year) {
+    getWeeksOfYear(year) {
       const date = new Date(year, 0, 1); // 1er janvier de l'année
       const dayOfWeek = date.getDay(); // Jour de la semaine (0 = dimanche, 1 = lundi, ..., 6 = samedi)
 
@@ -141,40 +115,16 @@ export default {
         currentDate = new Date(currentDate.getTime() + 7 * 86400000); // Passe à la date du lundi de la semaine suivante
       }
       return weeks;
-    }
-    this.weeks = getWeeksOfYear(2023);
+    },
+  },
+  created() {
+    axios.get("http://localhost:8080/api/associates").then((res) => {
+      this.associates = res.data?.associate;
+      this.loading = false;
+    });
+    console.log(this.test);
 
-    // function state() {
-    //   /* Evaluation de l'état */
-
-    //   axios.get("http://localhost:8080/api/associates").then((res) => {
-    //   const associates = res.data?.associate;
-    //   return associates
-    //   })
-
-    //   const weeks =  getWeeksOfYear(2023);
-    //   weeks.forEach((week) => {
-    //     associates.forEach((asso) => {
-    //       asso.Missions.forEach((mission) => {
-    //         if (
-    //           mission.start_date >= week.start &&
-    //           mission.start_date <= week.end
-    //         ) {
-    //           if (mission.end_date != null) {
-    //             console.log("Pas de end date")
-    //           } else if (
-    //             mission.end_date <= week.start &&
-    //             mission.end_date >= week.end
-    //           ) {
-    //             console.log("facturé")
-    //           }
-    //         }
-    //       });
-    //     });
-    //   });
-    // }
-
-    // this.temp = state();
+    this.weeks = this.getWeeksOfYear(2023);
 
     console.log(this.weeks);
     console.log(this.pdc);
@@ -189,5 +139,20 @@ export default {
   z-index: 1;
   max-width: 100px;
   min-width: 100px;
+}
+.facture {
+  border-radius: 5px;
+  width: 10px;
+  height: 10px;
+  background-color: forestgreen;
+}
+.intercontrat {
+  border-radius: 10px;
+  width: 10px;
+  height: 10px;
+  background-color: darkred;
+}
+.collab {
+  overflow: hidden;
 }
 </style>

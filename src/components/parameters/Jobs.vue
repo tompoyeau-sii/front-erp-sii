@@ -1,5 +1,4 @@
 <template>
-  <div class="container">
     <div class="row">
       <div class="col-4">
         <div class="card p-3">
@@ -28,8 +27,7 @@
           <v-row justify="center">
             <v-dialog v-model="dialog" width="750px">
               <template v-slot:activator="{ props }">
-                <v-btn prepend-icon="mdi-plus" color="success" v-bind="props">
-                </v-btn>
+                <v-btn icon="mdi-plus" color="deep-purple-darken-3" v-bind="props"> </v-btn>
               </template>
 
               <v-card class="gradient">
@@ -97,7 +95,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script>

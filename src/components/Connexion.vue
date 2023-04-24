@@ -1,6 +1,6 @@
 <template>
   <div class="fond">
-    <v-card class="p-4" elevation="0" max-width="800">
+    <v-card class="p-4 rounded-3" max-width="800">
       <v-row class="m-2" justify="center">
         <div class="text-h3 form-title">SII LE MANS | PICSOU</div>
       </v-row>
@@ -57,7 +57,6 @@ export default {
       },
       ErrorState: false,
       error: "",
-      snackbar: false,
     };
   },
   methods: {
@@ -133,9 +132,9 @@ label {
   ) !important;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-
   font-weight: 700;
 }
+
 .v-application {
   background: linear-gradient(115deg, #e84654 0%, #75519b 100%) !important;
 }

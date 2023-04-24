@@ -30,6 +30,12 @@ const routes = [
     component: () => import(/* webpackChunkName: "new" */ '../views/CollabView.vue')
   },
   {
+    path: '/statistiques',
+    name: 'ChartView',
+    beforeEnter: authGuard,
+    component: () => import(/* webpackChunkName: "new" */ '../views/ChartView.vue')
+  },
+  {
     path: '/collaborateurs/:id',
     name: 'FicheCollabView',
     component: () => import(/* webpackChunkName: "new" */ '../views/FicheCollabView.vue'),

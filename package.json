@@ -1,5 +1,5 @@
 {
-  "name": "super-compteur",
+  "name": "picsou",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,11 +11,13 @@
     "axios": "^1.2.0",
     "bootstrap": "^5.2.2",
     "bootstrap-vue": "^2.23.1",
+    "chart.js": "^4.2.1",
     "core-js": "^3.8.3",
     "date-fns": "^2.29.3",
     "roboto-fontface": "*",
     "sequelize": "^6.28.0",
     "vue": "^3.2.41",
+    "vue-chartjs": "^5.2.0",
     "vue-date-fns": "^2.0.2",
     "vue-router": "^4.0.3",
     "vuetify": "^3.0.0-beta.0",

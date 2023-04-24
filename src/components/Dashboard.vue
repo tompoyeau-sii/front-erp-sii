@@ -1,15 +1,24 @@
 <template>
-    <div class="container">
-        <h1 class="pt-3 title">Tableau de bord</h1>
-    </div>
+  
 </template>
 
 <script>
 export default {
-  name: "dashboard",
-};
+  name: 'dashboard',
+    data: () => ({
+      step: 1,
+    }),
+
+    computed: {
+      currentTitle () {
+        switch (this.step) {
+          case 1: return 'Créer une nouvelle mission'
+          case 2: return 'Gestion des imputations'
+        }
+      },
+    },
+  }
 </script>
 
 <style scoped>
-
 </style>
