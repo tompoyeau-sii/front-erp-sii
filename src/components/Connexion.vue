@@ -73,17 +73,6 @@ export default {
           .catch((err) => {
             console.log(err), (this.error = err.response.data.error);
           });
-
-        // axios
-        //   .post("http://localhost:8080/api/login", {
-        //     username: this.login.username,
-        //     password: this.login.password,
-        //   })
-        //   .then((response) => {
-        //     router.push("/dashboard");
-        //     console.log("Connecté");
-        //     //utiliser un interceptor pour le jwt
-        //   });
       } else {
         (this.ErrorState = true),
           (this.error = "Veuillez remplir tous les champs");

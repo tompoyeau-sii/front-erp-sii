@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import Axios from "@/_services/caller.service";
 import AddClientForm from "@/components/forms/AddClientForm.vue";
 import { mapGetters } from "vuex";
 export default {
@@ -41,13 +41,13 @@ export default {
   methods: {
     refresh() {
       this.customers = [];
-      axios.get("http://localhost:8080/api/customers").then((res) => {
+      Axios.get("/customers").then((res) => {
         this.customers = res.data?.customer;
       });
     },
   },
   created() {
-    axios.get("http://localhost:8080/api/customers").then((res) => {
+    Axios.get("/customers").then((res) => {
       this.customers = res.data?.customer;
       console.log(this.customers)
     });

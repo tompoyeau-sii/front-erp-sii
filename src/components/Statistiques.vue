@@ -37,7 +37,7 @@ import {
   CategoryScale,
   LinearScale,
 } from "chart.js";
-import axios from "axios";
+import Axios from "@/_services/caller.service";
 ChartJS.register(
   Title,
   ArcElement,
@@ -73,7 +73,7 @@ export default {
     };
   },
   created() {
-    axios.get("http://localhost:8080/api/associates").then((res) => {
+    Axios.get("/associates").then((res) => {
       this.associates = res.data?.associate;
       console.log(this.associates);
       this.associates.forEach((person) => {

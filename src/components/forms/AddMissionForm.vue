@@ -10,96 +10,97 @@
       </v-btn>
     </template>
     <v-card>
-              <v-form v-on:submit.prevent="formAddMission">
-          <v-card-title>
-            <v-row justify="center" class="mt-3">
-              <h1 class="form-title">Assigner une nouvelle mission</h1>
+      <v-form v-on:submit.prevent="formAddMission">
+        <v-card-title>
+          <v-row justify="center" class="mt-3">
+            <h1 class="form-title">Assigner une nouvelle mission</h1>
+          </v-row>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12" sm="6">
+                <v-autocomplete
+                  v-model="form.associate"
+                  :items="associates"
+                  item-title="name"
+                  item-value="id"
+                  label="Collaborateur"
+                  variant="solo"
+                ></v-autocomplete>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-autocomplete
+                  v-model="form.customer"
+                  :items="customers"
+                  item-title="label"
+                  item-value="id"
+                  label="Client"
+                  variant="solo"
+                  v-on:change="onChange(`${customers.id}`)"
+                ></v-autocomplete>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-autocomplete
+                  v-model="form.project"
+                  :items="projects"
+                  item-title="label"
+                  item-value="id"
+                  label="Projects"
+                  variant="solo"
+                ></v-autocomplete>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  label="Date de naissance*"
+                  variant="solo"
+                  type="date"
+                  v-model="form.birthdate"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  label="TJM*"
+                  variant="solo"
+                  v-model="form.tjm"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  label="Imputation*"
+                  variant="solo"
+                  v-model="form.imputation"
+                  type=""
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-alert
+                  v-if="error != ''"
+                  class="mb-5 vibrate"
+                  icon="mdi-close"
+                  type="error"
+                  border
+                  :text="error"
+                  m-5
+                ></v-alert>
+              </v-col>
             </v-row>
-          </v-card-title>
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <v-col cols="12" sm="6">
-                  <v-autocomplete
-                    v-model="form.associate"
-                    :items="associates"
-                    item-title="name"
-                    item-value="id"
-                    label="Collaborateur"
-                    variant="solo"
-                  ></v-autocomplete>
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <v-autocomplete
-                    v-model="form.customer"
-                    :items="customers"
-                    item-title="label"
-                    item-value="id"
-                    label="Client"
-                    variant="solo"
-                  ></v-autocomplete>
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <v-autocomplete
-                    v-model="form.project"
-                    :items="projects"
-                    item-title="label"
-                    item-value="id"
-                    label="Projects"
-                    variant="solo"
-                  ></v-autocomplete>
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <v-text-field
-                    label="Date de naissance*"
-                    variant="solo"
-                    type="date"
-                    v-model="form.birthdate"
-                    required
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <v-text-field
-                    label="TJM*"
-                    variant="solo"
-                    v-model="form.tjm"
-                    required
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <v-text-field
-                    label="Imputation*"
-                    variant="solo"
-                    v-model="form.imputation"
-                    type=""
-                    required
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-alert
-                    v-if="error != ''"
-                    class="mb-5 vibrate"
-                    icon="mdi-close"
-                    type="error"
-                    border
-                    :text="error"
-                    m-5
-                  ></v-alert>
-                </v-col>
-              </v-row>
-            </v-container>
-            <small>*champs obligatoire</small>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="white" variant="text" @click="dialog = false">
-              Annuler
-            </v-btn>
-            <v-btn color="white" variant="text" type="submit">
-              Bienvenue !
-            </v-btn>
-          </v-card-actions>
-        </v-form>
+          </v-container>
+          <small>*champs obligatoire</small>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="white" variant="text" @click="dialog = false">
+            Annuler
+          </v-btn>
+          <v-btn color="white" variant="text" type="submit">
+            Bienvenue !
+          </v-btn>
+        </v-card-actions>
+      </v-form>
       <!-- <v-window v-model="step">
         <v-window-item :value="1">
           <v-form v-on:submit.prevent="formAddMission">
@@ -236,10 +237,8 @@
 </template>
 
 <script>
-import axios from "axios";
-import {
-  format,
-} from "date-fns";
+import Axios from "@/_services/caller.service";
+import { format } from "date-fns";
 export default {
   name: "AddMissionForm",
   data() {
@@ -273,17 +272,22 @@ export default {
     },
   },
   created() {
-    axios.get("http://localhost:8080/api/associates").then((res) => {
+    Axios.get("/associates").then((res) => {
       this.associates = res.data?.associate;
     });
-    axios.get("http://localhost:8080/api/projects").then((res) => {
-      this.projects = res.data?.project;
-    });
-    axios.get("http://localhost:8080/api/customers").then((res) => {
+    Axios.get("/customers").then((res) => {
       this.customers = res.data?.customer;
     });
   },
   methods: {
+    onChange(el) {
+      console.log('onchange')
+      Axios.get("/projects/${el}").then((res) => {
+      this.projects = res.data;
+    }); 
+
+    },
+
     formAddMission: function () {
       if (
         this.form.associate !== "" &&
@@ -293,8 +297,8 @@ export default {
         this.form.tjm !== "" &&
         this.form.imputation !== ""
       ) {
-        axios
-          .post("http://localhost:8080/api/mission", {
+        Axios
+          .post("/mission", {
             associate: this.form.associate,
             customer: this.form.customer,
             project: this.form.project,
@@ -323,7 +327,7 @@ export default {
       }
     },
     todayDate() {
-      console.log(format(new Date(), "yyyy/MM/dd"))
+      console.log(format(new Date(), "yyyy/MM/dd"));
       return format(new Date(), "yyyy/MM/dd");
     },
   },

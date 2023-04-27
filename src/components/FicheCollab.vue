@@ -147,7 +147,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import Axios from "@/_services/caller.service";
 
 import AddMissionForm from "@/components/forms/AddMissionForm.vue";
 import {
@@ -191,8 +191,8 @@ export default {
   methods: {
     formAddMission: function () {
       if (this.form.label !== "") {
-        axios
-          .post("http://localhost:8080/api/mission", {
+        Axios
+          .post("/mission", {
             label: this.form.label,
           })
           .then(
@@ -294,10 +294,10 @@ export default {
     },
   },
   created() {
-    axios.get("http://localhost:8080/api/associates").then((res) => {
+    Axios.get("/associates").then((res) => {
       this.associates = res.data?.associate;
     });
-    axios.get("http://localhost:8080/api/projects").then((res) => {
+    Axios.get("/projects").then((res) => {
       this.projects = res.data?.project;
     });
 

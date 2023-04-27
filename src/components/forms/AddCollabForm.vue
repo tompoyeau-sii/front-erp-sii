@@ -144,7 +144,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import Axios from "@/_services/caller.service";
 export default {
   name: "AddCollabForm",
   data() {
@@ -182,8 +182,8 @@ export default {
         this.form.start_date != "" &&
         this.form.pru != ""
       ) {
-        axios
-          .post("http://localhost:8080/api/associate", {
+        Axios
+          .post("/associate", {
             name: this.form.name,
             first_name: this.form.first_name,
             gender: this.form.sexe,
@@ -213,10 +213,10 @@ export default {
     },
   },
   created() {
-    axios.get("http://localhost:8080/api/jobs").then((res) => {
+    Axios.get("/jobs").then((res) => {
       this.jobs = res.data?.job;
     });
-    axios.get("http://localhost:8080/api/graduations").then((res) => {
+    Axios.get("/graduations").then((res) => {
       this.graduations = res.data?.graduation;
     });
   },

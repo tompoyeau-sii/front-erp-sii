@@ -98,7 +98,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import Axios from "@/_services/caller.service";
 export default {
   name: "Job",
   data() {
@@ -117,7 +117,7 @@ export default {
   methods: {
     formAddJob: function () {
       if (this.form.label !== "") {
-        axios
+        Axios
           .post("http://localhost:8080/api/job", {
             label: this.form.label,
           })
@@ -142,7 +142,7 @@ export default {
     },
   },
   created() {
-    axios.get("http://localhost:8080/api/jobs").then((res) => {
+    Axios.get("http://localhost:8080/api/jobs").then((res) => {
       this.jobs = res.data?.job;
     });
   },

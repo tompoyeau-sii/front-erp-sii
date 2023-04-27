@@ -1,5 +1,5 @@
 import { authGuard } from '@/_helpers/auth-guard'
-import axios from 'axios'
+import Axios from '@/_services/caller.service'
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 
@@ -42,7 +42,7 @@ const routes = [
     // Before entering the route, fetch the client data from the API
     beforeEnter: (to, from, next) => {
       authGuard,
-        axios.get(`http://localhost:8080/api/associate/${to.params.id}`)
+        Axios.get(`/associate/${to.params.id}`)
           .then(response => {
             // Pass the client data as a prop to the component
             to.params.collab = response.data
@@ -74,7 +74,7 @@ const routes = [
     beforeEnter: (to, from, next) => {
       authGuard,
       // Assuming you have an axios instance named `axios` for making API requests
-      axios.get(`http://localhost:8080/api/customer/${to.params.label}`)
+      Axios.get(`/customer/${to.params.label}`)
       .then(response => {
         // Pass the client data as a prop to the component
         to.params.client = response.data
@@ -96,7 +96,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHistory(),
   routes
 })
 

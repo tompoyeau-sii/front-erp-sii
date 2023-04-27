@@ -66,25 +66,35 @@
     <!-- Affichage du/des manager du client -->
     <div class="row">
       <div v-if="projects.length === 0">Pas de manager</div>
-      <div
-        class="col-2 bg-white shadow m-3 rounded-3 p-3"
+      <router-link
+        class="col-2 manager rounded-3 m-2 pt-3 shadow-sm"
         v-for="project in projects"
         :key="project.id"
+        :to="{
+          name: 'FicheCollabView',
+          params: { id: project.Associate.id },
+        }"
       >
         <div class="row">
-          <div class="col">
+          <div class="col-3">
             <v-avatar>
               <v-img
                 src="https://cdn.vuetifyjs.com/images/john.jpg"
+                style="width: 100%"
                 alt="John"
               ></v-img>
             </v-avatar>
           </div>
-          <p
-            v-text="project.Associate.first_name + ' ' + project.Associate.name"
-          ></p>
+          <div class="col-2">
+            <p
+              class=""
+              v-text="
+                project.Associate.first_name + ' ' + project.Associate.name
+              "
+            ></p>
+          </div>
         </div>
-      </div>
+      </router-link>
     </div>
     <h5 class="pt-3 title" v-if="projects.length !== 0">Projets</h5>
 
@@ -137,15 +147,15 @@
                       variant="solo"
                     ></v-autocomplete>
                   </v-col>
-                    <v-alert
-                      v-if="error != ''"
-                      class="mb-5 vibrate"
-                      icon="mdi-close"
-                      type="error"
-                      border
-                      :text="error"
-                      m-5
-                    ></v-alert>
+                  <v-alert
+                    v-if="error != ''"
+                    class="mb-5 vibrate"
+                    icon="mdi-close"
+                    type="error"
+                    border
+                    :text="error"
+                    m-5
+                  ></v-alert>
                 </v-row>
               </v-container>
               <small>*champs obligatoire</small>
@@ -217,7 +227,7 @@
       </div>
     </div>
   </div>
-  
+
   <AddMissionForm />
   <div class="container" v-if="isEditMode">
     <v-form>
@@ -247,7 +257,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import Axios from "@/_services/caller.service";
 export default {
   name: "FicheClient",
   data() {
@@ -272,11 +282,11 @@ export default {
   created() {
     this.projects = this.$route.params.client.Projects;
 
-    axios.get("http://localhost:8080/api/customers").then((res) => {
+    Axios.get("/customers").then((res) => {
       this.customers = res.data?.customer;
     });
 
-    axios.get("http://localhost:8080/api/associates/managers").then((res) => {
+    Axios.get("/associates/managers").then((res) => {
       this.managers = res.data?.associate;
     });
   },
@@ -287,8 +297,8 @@ export default {
         this.form.customer !== "" &&
         this.form.manager !== ""
       ) {
-        axios
-          .post("http://localhost:8080/api/project", {
+        Axios
+          .post("/project", {
             label: this.form.label,
             customer_id: this.form.customer,
             manager_id: this.form.manager,
@@ -321,5 +331,11 @@ export default {
 .gradient {
   background: linear-gradient(135deg, #75519b 0%, #e84654 100%);
   color: white;
+}
+.manager {
+  background: linear-gradient(135deg, #0ff0b3 0%, #036ed9 100%);
+  color: white;
+  width: 20vh;
+  min-width: 200px;
 }
 </style>

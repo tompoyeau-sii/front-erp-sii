@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import Axios from "@/_services/caller.service";
 import { format, isBefore, parseISO } from "date-fns";
 export default {
   name: "Pdc",
@@ -118,7 +118,7 @@ export default {
     },
   },
   created() {
-    axios.get("http://localhost:8080/api/associates").then((res) => {
+    Axios.get("/associates").then((res) => {
       this.associates = res.data?.associate;
       this.loading = false;
     });

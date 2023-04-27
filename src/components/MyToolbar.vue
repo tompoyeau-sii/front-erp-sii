@@ -2,9 +2,9 @@
   <v-navigation-drawer
     v-if="isLog()"
     class="toolBar"
-    style="background: linear-gradient(180deg,rgba(117, 81, 155, 1) 0%,rgba(232, 70, 84, 1) 100%) !important; text-align: center;">
+    style="background: linear-gradient(180deg,rgba(117, 81, 155, 1) 0%,rgba(232, 70, 84, 1) 100%) !important;">
     <!-- <v-img aspect-ratio class="sii" load src="../assets/SIIlogo.svg"></v-img> -->
-    <v-img aspect-ratio class="sii" load src="../assets/img/picsou.png" v-once></v-img>
+    <v-img style="text-align: center" aspect-ratio class="sii" load src="../assets/img/picsou.png"></v-img>
     <v-list nav>
       <router-link to="/dashboard">
         <v-list-item

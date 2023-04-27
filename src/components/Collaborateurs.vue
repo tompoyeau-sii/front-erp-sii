@@ -77,21 +77,21 @@
         </tbody>
       </table>
     </div>
-          <v-snackbar
-        v-if="SuccessState == true"
-        v-model="snackbar"
-        w-auto
-        color="green"
-        timeout="3000"
-      >
-        <v-icon start icon="mdi-checkbox-marked-circle"></v-icon>
-        {{ success }}
-      </v-snackbar>
+    <v-snackbar
+      v-if="SuccessState == true"
+      v-model="snackbar"
+      w-auto
+      color="green"
+      timeout="3000"
+    >
+      <v-icon start icon="mdi-checkbox-marked-circle"></v-icon>
+      {{ success }}
+    </v-snackbar>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import Axios from "@/_services/caller.service";
 import AddCollabForm from "@/components/forms/AddCollabForm.vue";
 export default {
   name: "Collaborateur",
@@ -107,14 +107,14 @@ export default {
         graduation: "",
         birthdate: "",
         job: "",
-        mail: this.first_name + '.' + this.name + '@sii.fr',
+        mail: this.first_name + "." + this.name + "@sii.fr",
         start_date: "",
         pru: "",
         isManager: null,
         isTutor: null,
       },
       dialog: false,
-      success:'',
+      success: "",
       associates: [],
       jobs: [],
       graduations: [],
@@ -128,10 +128,11 @@ export default {
   methods: {
     refresh() {
       this.associates = [];
-      axios.get("http://localhost:8080/api/associates").then((res) => {
+      Axios.get("/associates").then((res) => {
         this.associates = res.data?.associate;
       });
     },
+    
     formAddCollab: function () {
       if (
         this.form.first_name != "" &&
@@ -144,8 +145,8 @@ export default {
         this.form.start_date != "" &&
         this.form.pru != ""
       ) {
-        axios
-          .post("http://localhost:8080/api/associate", {
+        Axios
+          .post("/associate", {
             name: this.form.name,
             first_name: this.form.first_name,
             gender: this.form.sexe,
@@ -175,17 +176,16 @@ export default {
     },
   },
   created() {
-    axios.get("http://localhost:8080/api/associates").then((res) => {
+    Axios.get("/associates").then((res) => {
       this.associates = res.data?.associate;
     });
-    axios.get("http://localhost:8080/api/jobs").then((res) => {
+    Axios.get("/jobs").then((res) => {
       this.jobs = res.data?.job;
     });
-    axios.get("http://localhost:8080/api/graduations").then((res) => {
+    Axios.get("/graduations").then((res) => {
       this.graduations = res.data?.graduation;
       console.log(this.graduations);
     });
-    
   },
 };
 </script>

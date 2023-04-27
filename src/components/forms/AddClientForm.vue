@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import Axios from "@/_services/caller.service";
 export default {
   name: "AddClientForm",
   data() {
@@ -93,8 +93,8 @@ export default {
   methods: {
     formAddCustomer: function () {
       if (this.form.label !== "") {
-        axios
-          .post("http://localhost:8080/api/customer", {
+        Axios
+          .post("/customer", {
             label: this.form.label,
           })
           .then(
