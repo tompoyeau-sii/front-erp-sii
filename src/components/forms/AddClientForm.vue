@@ -11,7 +11,7 @@
         </v-btn>
       </template>
       <v-card class="gradient">
-        <v-form v-on:submit.prevent="formAddCustomer">
+        <v-form fast-fail @submit.prevent v-on:submit.prevent="formAddCustomer">
           <v-card-title>
             <v-row justify="center" class="mt-3">
               <h1>Ajouter un nouveau client</h1>
@@ -25,6 +25,7 @@
                     label="Libelle d'entreprise*"
                     v-model="form.label"
                     variant="solo"
+                    :rules="labelRules"
                     required
                   ></v-text-field>
                   <v-alert
@@ -84,6 +85,13 @@ export default {
       form: {
         label: "",
       },
+      labelRules: [
+        value => {
+          if (value?.length > 3) return true
+
+          return 'First name must be at least 3 characters.'
+        },
+      ],
       dialog: false,
       error: "",
       SuccessState: false,

@@ -25,7 +25,7 @@
                   :items="associates"
                   item-title="name"
                   item-value="id"
-                  label="Collaborateur"
+                  label="Collaborateur*"
                   variant="solo"
                 ></v-autocomplete>
               </v-col>
@@ -35,9 +35,8 @@
                   :items="customers"
                   item-title="label"
                   item-value="id"
-                  label="Client"
+                  label="Client*"
                   variant="solo"
-                  v-on:change="onChange(`${customers.id}`)"
                 ></v-autocomplete>
               </v-col>
               <v-col cols="12" sm="6">
@@ -46,16 +45,16 @@
                   :items="projects"
                   item-title="label"
                   item-value="id"
-                  label="Projects"
+                  label="Projects*"
                   variant="solo"
                 ></v-autocomplete>
               </v-col>
               <v-col cols="12" sm="6">
                 <v-text-field
-                  label="Date de naissance*"
+                  label="Date de début*"
                   variant="solo"
                   type="date"
-                  v-model="form.birthdate"
+                  v-model="form.start_date"
                   required
                 ></v-text-field>
               </v-col>
@@ -278,15 +277,11 @@ export default {
     Axios.get("/customers").then((res) => {
       this.customers = res.data?.customer;
     });
+    Axios.get("/projects").then((res) => {
+      this.projects = res.data?.project;
+    });
   },
   methods: {
-    onChange(el) {
-      console.log('onchange')
-      Axios.get("/projects/${el}").then((res) => {
-      this.projects = res.data;
-    }); 
-
-    },
 
     formAddMission: function () {
       if (
@@ -300,7 +295,6 @@ export default {
         Axios
           .post("/mission", {
             associate: this.form.associate,
-            customer: this.form.customer,
             project: this.form.project,
             start_date: this.form.start_date,
             tjm: this.form.tjm,
@@ -335,4 +329,8 @@ export default {
 </script>
 
 <style>
+.gradient {
+  background: linear-gradient(135deg, #75519b 0%, #e84654 100%);
+  color: white;
+}
 </style>

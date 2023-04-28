@@ -37,6 +37,7 @@
                 class="col-2 client rounded-3 m-2 pt-3 shadow-sm"
                 v-for="mission in filteredMissions"
                 :key="mission.id"
+                refresh
                 :to="{
                   name: 'FicheClientView',
                   params: { label: mission.Project.Customer.label },
@@ -148,7 +149,6 @@
 
 <script>
 import Axios from "@/_services/caller.service";
-
 import AddMissionForm from "@/components/forms/AddMissionForm.vue";
 import {
   format,
@@ -189,6 +189,7 @@ export default {
     };
   },
   methods: {
+
     formAddMission: function () {
       if (this.form.label !== "") {
         Axios
@@ -335,11 +336,6 @@ export default {
   font-weight: 700;
   font-size: 32px;
   line-height: 130%;
-}
-
-.gradient {
-  background: linear-gradient(135deg, #75519b 0%, #e84654 100%);
-  color: white;
 }
 
 .client {

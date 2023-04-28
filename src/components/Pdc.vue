@@ -53,15 +53,13 @@
           </tbody>
         </v-table>
       </div>
-      
     </div>
-
   </div>
 </template>
 
 <script>
 import Axios from "@/_services/caller.service";
-import { format, isBefore, parseISO } from "date-fns";
+import { format } from "date-fns";
 export default {
   name: "Pdc",
   data() {
