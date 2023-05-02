@@ -88,7 +88,6 @@ export default {
       labelRules: [
         value => {
           if (value?.length > 3) return true
-
           return 'First name must be at least 3 characters.'
         },
       ],
@@ -99,6 +98,13 @@ export default {
     };
   },
   methods: {
+    refresh() {
+      this.customers = [];
+      Axios.get("/customers").then((res) => {
+        this.customers = res.data?.customer;
+      });
+    },
+
     formAddCustomer: function () {
       if (this.form.label !== "") {
         Axios
@@ -111,6 +117,7 @@ export default {
               this.CreateState = false;
               this.SuccessState = true;
               this.success = "Nouveau client créé";
+              this.refresh();
               this.error = "";
             },
             (response) => {

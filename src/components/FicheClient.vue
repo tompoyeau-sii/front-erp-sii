@@ -134,7 +134,7 @@
         </table>
       </div>
       <v-row justify="center">
-        <AddMissionForm />
+        <AddMissionForm v-if="projects.length !== 0"/>
       </v-row>
     </div>
   </div>

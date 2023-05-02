@@ -6,14 +6,13 @@
         color="deep-purple-darken-3"
         v-bind="props"
       >
-        Assigner une nouvelle mission
       </v-btn>
     </template>
-    <v-card>
+    <v-card class="gradient">
       <v-form v-on:submit.prevent="formAddMission">
         <v-card-title>
           <v-row justify="center" class="mt-3">
-            <h1 class="form-title">Assigner une nouvelle mission</h1>
+            <h1 class="form-title"></h1>
           </v-row>
         </v-card-title>
         <v-card-text>
@@ -51,6 +50,14 @@
               </v-col>
               <v-col cols="12" sm="6">
                 <v-text-field
+                  label="TJM*"
+                  variant="solo"
+                  v-model="form.tjm"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
                   label="Date de début*"
                   variant="solo"
                   type="date"
@@ -60,19 +67,18 @@
               </v-col>
               <v-col cols="12" sm="6">
                 <v-text-field
-                  label="TJM*"
+                  label="Date de fin de mission"
                   variant="solo"
-                  v-model="form.tjm"
-                  required
+                  v-model="form.end_date"
+                  type="date"
                 ></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
                 <v-text-field
-                  label="Imputation*"
+                  label="Imputation"
                   variant="solo"
                   v-model="form.imputation"
-                  type=""
-                  required
+                  type="integer"
                 ></v-text-field>
               </v-col>
               <v-col cols="12">
@@ -240,6 +246,7 @@ import Axios from "@/_services/caller.service";
 import { format } from "date-fns";
 export default {
   name: "AddMissionForm",
+  props: ["title"],
   data() {
     return {
       form: {
@@ -249,6 +256,7 @@ export default {
         start_date: "",
         tjm: "",
         imputation: "",
+        end_date: null,
       },
       dialog: false,
       error: "",
@@ -282,7 +290,6 @@ export default {
     });
   },
   methods: {
-
     formAddMission: function () {
       if (
         this.form.associate !== "" &&
@@ -292,30 +299,26 @@ export default {
         this.form.tjm !== "" &&
         this.form.imputation !== ""
       ) {
-        Axios
-          .post("/mission", {
-            associate: this.form.associate,
-            project: this.form.project,
-            start_date: this.form.start_date,
-            tjm: this.form.tjm,
-            imputation: this.form.imputation,
-          })
-          .then(
-            (response) => {
-              this.dialog = false;
-              this.CreateState = false;
-              this.SuccessState = true;
-              this.success = "Nouvelle mission créée";
-              this.error = "";
-              this.refresh();
-            },
-            (response) => {
-              this.SuccessState = false;
-              console.log(response);
-              this.error = response.data.error;
-              console.log("erreur : " + this.error);
-            }
-          );
+        Axios.post("/mission", {
+          associate_id: this.form.associate,
+          project_id: this.form.project,
+          start_date: this.form.start_date,
+          tjm: this.form.tjm,
+          imputation: this.form.imputation,
+          end_date: this.form.end_date,
+        }).then(
+          (response) => {
+            this.dialog = false;
+            this.CreateState = false;
+            this.SuccessState = true;
+            this.success = "Nouvelle mission créée";
+            this.error = "";
+          },
+          (response) => {
+            this.SuccessState = false;
+            console.log(response);
+          }
+        );
       } else {
         this.error = "Veuillez compléter tous les champs.";
       }

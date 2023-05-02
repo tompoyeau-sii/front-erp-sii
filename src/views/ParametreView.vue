@@ -12,6 +12,9 @@
       <v-col cols="12" lg="2" md="6" sm="12">
         <Genres />
       </v-col>
+      <v-col cols="12" lg="2" md="6" sm="12">
+        <Admin />
+      </v-col>
     </div>
   </div>
   <myToolBar />
@@ -24,6 +27,7 @@ import myToolBar from "@/components/MyToolbar.vue";
 import Diplome from "@/components/parameters/Diplome.vue";
 import Jobs from "@/components/parameters/Jobs.vue";
 import Genres from "@/components/parameters/Genre.vue";
+import Admin from "@/components/parameters/Admin.vue";
 export default {
   name: "ParametreView",
 
@@ -32,8 +36,9 @@ export default {
     myToolBar,
     Diplome,
     Jobs,
-    Genres
-  },
+    Genres,
+    Admin
+},
 };
 </script>
 

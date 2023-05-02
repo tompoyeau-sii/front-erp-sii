@@ -75,7 +75,7 @@
                   <v-text-field
                     label="Email*"
                     variant="solo"
-                    v-model="form.mail"
+                    v-model="computedMail"
                     required
                   ></v-text-field>
                 </v-col>
@@ -156,7 +156,6 @@ export default {
         graduation: "",
         birthdate: "",
         job: "",
-        mail: this.first_name + "." + this.name + "@sii.fr",
         start_date: "",
         pru: "",
         isManager: null,
@@ -169,6 +168,13 @@ export default {
       error: "",
     };
   },
+
+  computed: {
+    computedMail() {
+      return this.form.first_name.toLowerCase() + "." + this.form.name.toLowerCase() + "@sii.fr";
+    },
+  },
+
   methods: {
     formAddCollab: function () {
       if (
@@ -182,20 +188,19 @@ export default {
         this.form.start_date != "" &&
         this.form.pru != ""
       ) {
-        Axios
-          .post("/associate", {
-            name: this.form.name,
-            first_name: this.form.first_name,
-            gender: this.form.sexe,
-            graduation_id: this.form.graduation,
-            job_id: this.form.job,
-            birthdate: this.form.birthdate,
-            start_date: this.form.start_date,
-            mail: this.form.mail,
-            pru: this.form.pru,
-            isTutor: this.form.isTutor,
-            isManager: this.form.isManager,
-          })
+        Axios.post("/associate", {
+          name: this.form.name,
+          first_name: this.form.first_name,
+          gender: this.form.sexe,
+          graduation_id: this.form.graduation,
+          job_id: this.form.job,
+          birthdate: this.form.birthdate,
+          start_date: this.form.start_date,
+          mail: this.form.mail,
+          pru: this.form.pru,
+          isTutor: this.form.isTutor,
+          isManager: this.form.isManager,
+        })
           .then((response) => {
             console.log(response);
             this.dialog = false;

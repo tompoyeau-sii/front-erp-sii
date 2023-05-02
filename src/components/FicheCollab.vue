@@ -27,15 +27,15 @@
           </div>
         </div>
 
-        <div v-if="this.filteredMissions != false" class="row ma-5">
-          <!--  Si la personne est en mission -->
+        <!--  Si la personne est en mission -->
+        <div v-if="this.MissionsEnCours" class="row ma-5">
           <!--Client part-->
           <div class="col-6">
             <h5 class="pt-3 sub-title">Travail actuellement pour</h5>
             <div class="row">
               <router-link
                 class="col-2 client rounded-3 m-2 pt-3 shadow-sm"
-                v-for="mission in filteredMissions"
+                v-for="mission in MissionsEnCours"
                 :key="mission.id"
                 refresh
                 :to="{
@@ -50,6 +50,7 @@
                   ></p>
                   <p v-text="'Depuis le ' + formatDate(mission.start_date)"></p>
                   <p v-text="mission.Project.label"></p>
+                  <p v-text="mission.TJMs.map((tjm) => tjm.value)"></p>
                 </div>
                 <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
               </router-link>
@@ -62,7 +63,7 @@
             <div class="row">
               <router-link
                 class="col-2 manager rounded-3 m-2 pt-3 shadow-sm"
-                v-for="mission in filteredMissions"
+                v-for="mission in MissionsEnCours"
                 :key="mission.id"
                 :to="{
                   name: 'FicheCollabView',
@@ -93,9 +94,80 @@
               </router-link>
             </div>
           </div>
+          <AddMissionForm title="Poyeau" />
 
-          <!--  Si la personne n'est pas en mission -->
+          <div class="col-6">
+            <h5 class="pt-3 sub-title">Prochaines missions</h5>
+            <div class="row">
+              <router-link
+                class="col-2 client rounded-3 m-2 pt-3 shadow-sm"
+                v-for="mission in MissionsFutur"
+                :key="mission.id"
+                refresh
+                :to="{
+                  name: 'FicheClientView',
+                  params: { label: mission.Project.Customer.label },
+                }"
+              >
+                <div>
+                  <p
+                    class="text-h5 name"
+                    v-text="mission.Project.Customer.label"
+                  ></p>
+                  <p v-text="'Depuis le ' + formatDate(mission.start_date)"></p>
+                  <p v-text="mission.Project.label"></p>
+                  <p v-text="mission.TJMs.map((tjm) => tjm.value)"></p>
+                </div>
+                <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
+              </router-link>
+            </div>
+          </div>
+
+          <div class="col-6" v-if="missionFini">
+            <h5 class="pt-3 sub-title">Mission terminées</h5>
+            <div class="row">
+              <router-link
+                class="col-2 client rounded-3 m-2 pt-3 shadow-sm"
+                v-for="mission in missionFini"
+                :key="mission.id"
+                refresh
+                :to="{
+                  name: 'FicheClientView',
+                  params: { label: mission.Project.Customer.label },
+                }"
+              >
+                <div>
+                  <p
+                    class="text-h5 name"
+                    v-text="mission.Project.Customer.label"
+                  ></p>
+                  <p v-text="'Depuis le ' + formatDate(mission.start_date)"></p>
+                  <p v-text="mission.Project.label"></p>
+                  <p v-text="mission.TJMs.map((tjm) => tjm.value)"></p>
+                </div>
+                <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
+              </router-link>
+            </div>
+          </div>
+          <v-expansion-panels v-model="panel" :readonly="readonly" multiple>
+            <v-expansion-panel>
+              <v-expansion-panel-title>Panel 1</v-expansion-panel-title>
+              <v-expansion-panel-text> Some content </v-expansion-panel-text>
+            </v-expansion-panel>
+
+            <v-expansion-panel>
+              <v-expansion-panel-title>Panel 2</v-expansion-panel-title>
+              <v-expansion-panel-text> Some content </v-expansion-panel-text>
+            </v-expansion-panel>
+
+            <v-expansion-panel>
+              <v-expansion-panel-title>Panel 3</v-expansion-panel-title>
+              <v-expansion-panel-text> Some content </v-expansion-panel-text>
+            </v-expansion-panel>
+          </v-expansion-panels>
         </div>
+
+        <!--  Si la personne n'est pas en mission -->
         <div v-else class="row ma-5">
           <div class="col-6">
             <h5 class="pt-3 sub-title">
@@ -111,7 +183,7 @@
         <div class="shadow rounded-5 mt-5 p-4">
           <p class="etiquette mb-2">IK</p>
           <v-row justify="end">
-            <p class="data m-2"> 254251 </p>
+            <p class="data m-2">254251</p>
           </v-row>
         </div>
 
@@ -164,16 +236,6 @@ export default {
   },
   data() {
     return {
-      form: {
-        label: "",
-        associate: "",
-        customer: "",
-        project: "",
-        start_date: "",
-        manager: "",
-        tjm: "",
-        imputation: "",
-      },
       dialog: false,
       error: "",
       first_name_and_name: "",
@@ -185,38 +247,10 @@ export default {
       customers: [],
       todayDate: "",
       json: [],
-      step:1,
+      step: 1,
     };
   },
   methods: {
-
-    formAddMission: function () {
-      if (this.form.label !== "") {
-        Axios
-          .post("/mission", {
-            label: this.form.label,
-          })
-          .then(
-            (response) => {
-              this.dialog = false;
-              this.CreateState = false;
-              this.SuccessState = true;
-              this.success = "Nouvelle mission créée";
-              this.error = "";
-              this.refresh();
-            },
-            (response) => {
-              this.SuccessState = false;
-              console.log(response);
-              this.error = response.data;
-              console.log("erreur : " + this.error);
-            }
-          );
-      } else {
-        this.error = "Veuillez ajouter un libelle.";
-      }
-    },
-
     nameCollab(associates) {
       for (let associate of associates) {
         const name = associate.first_name + " " + associate.name;
@@ -237,7 +271,25 @@ export default {
     formatDateBDD(date) {
       return (date = format(new Date(date), "yyyy/MM/dd"));
     },
-    
+
+    missionFini(mission_start, mission_end) {
+      const now = new Date();
+      const start = parseISO(mission_start);
+      const end = mission_end ? parseISO(mission_end) : null;
+
+      if (isBefore(start, now)) {
+        if (end == null || isAfter(end, now)) {
+          // La date de fin n'est pas encore passé donc la mission est en cours
+          return false;
+        } else {
+          // La date de fin est passé, alors la mission est terminé
+          return true;
+        }
+      } else {
+        // La mission n'a pas encore commencé
+        return false;
+      }
+    },
     missionEnCours(mission_start, mission_end) {
       const now = new Date();
       const start = parseISO(mission_start);
@@ -245,12 +297,33 @@ export default {
 
       if (isBefore(start, now)) {
         if (end == null || isAfter(end, now)) {
+          // La date de fin n'est pas encore passé donc la mission est en cours
           return true;
         } else {
+          // La date de fin est passé, alors la mission est terminé
           return false;
         }
       } else {
+        // La mission n'a pas encore commencé
         return false;
+      }
+    },
+    missionFutur(mission_start, mission_end) {
+      const now = new Date();
+      const start = parseISO(mission_start);
+      const end = mission_end ? parseISO(mission_end) : null;
+
+      if (isBefore(start, now)) {
+        if (end == null || isAfter(end, now)) {
+          // La date de fin n'est pas encore passé donc la mission est en cours
+          return false;
+        } else {
+          // La date de fin est passé, alors la mission est terminé
+          return false;
+        }
+      } else {
+        // La mission n'a pas encore commencé
+        return true;
       }
     },
     pruActuel() {
@@ -308,12 +381,28 @@ export default {
     this.first_name_and_name = this.nameCollab(this.associates);
   },
   computed: {
-    filteredMissions() {
+    MissionsFinis() {
+      if (this.associate.Missions == "") {
+        return false;
+      }
+      return this.associate.Missions.filter((mission) => {
+        return this.missionFini(mission.start_date, mission.end_date);
+      });
+    },
+    MissionsEnCours() {
       if (this.associate.Missions == "") {
         return false;
       }
       return this.associate.Missions.filter((mission) => {
         return this.missionEnCours(mission.start_date, mission.end_date);
+      });
+    },
+    MissionsFutur() {
+      if (this.associate.Missions == "") {
+        return false;
+      }
+      return this.associate.Missions.filter((mission) => {
+        return this.missionFutur(mission.start_date, mission.end_date);
       });
     },
   },

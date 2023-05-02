@@ -13,7 +13,7 @@
       <v-form v-on:submit.prevent="formAddProject">
         <v-card-title>
           <v-row justify="center" class="mt-3">
-            <h1>Créer un nouveau projet</h1>
+            <h1  class="form-title">Créer un nouveau projet</h1>
           </v-row>
         </v-card-title>
         <v-card-text>
