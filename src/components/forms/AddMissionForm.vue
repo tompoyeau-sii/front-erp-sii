@@ -6,13 +6,14 @@
         color="deep-purple-darken-3"
         v-bind="props"
       >
+        Création d'une nouvelle mission
       </v-btn>
     </template>
     <v-card class="gradient">
-      <v-form v-on:submit.prevent="formAddMission">
+      <!-- <v-form v-on:submit.prevent="formAddMission">
         <v-card-title>
           <v-row justify="center" class="mt-3">
-            <h1 class="form-title"></h1>
+            <h1 class="form-title">Création d'une nouvelle mission</h1>
           </v-row>
         </v-card-title>
         <v-card-text>
@@ -24,7 +25,7 @@
                   :items="associates"
                   item-title="name"
                   item-value="id"
-                  label="Collaborateur*"
+                  :label="title"
                   variant="solo"
                 ></v-autocomplete>
               </v-col>
@@ -105,8 +106,8 @@
             Bienvenue !
           </v-btn>
         </v-card-actions>
-      </v-form>
-      <!-- <v-window v-model="step">
+      </v-form> -->
+      <v-window v-model="step">
         <v-window-item :value="1">
           <v-form v-on:submit.prevent="formAddMission">
             <v-card-title>
@@ -206,7 +207,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="associate in missions" :key="mission.id">
+                <tr v-for="mission in missions" :key="mission.id">
                   <td v-if="mission.Imputations.map((imputation) => imputation.end_date) >= this.todayDate()">
                     <p v-text="'Ma mission'"></p>
                   </td>
@@ -225,7 +226,7 @@
         <v-btn v-if="step > 1" variant="text" @click="step--"> Retour </v-btn>
         <v-spacer></v-spacer>
         <v-btn v-if="step < 2" color="white" variant="text" @click="step++">
-          Gestion des imputations
+          Suivant
         </v-btn>
         <v-btn
           v-else
@@ -236,7 +237,7 @@
         >
           Enregistrer
         </v-btn>
-      </v-card-actions>-->
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>

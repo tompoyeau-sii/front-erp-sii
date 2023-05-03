@@ -946,6 +946,104 @@
     "@babel/helper-validator-identifier" "^7.19.1"
     "to-fast-properties" "^2.0.0"
 
+"@formkit/addons@^0.16.5":
+  "integrity" "sha512-8vs5YaYno+VEK6gWqyyLB9XICWTaMeLxv+QpWMrAX83PlE9ARX60oWe91b5HO23nB0Yk7IR2eRErZdOmcCB/aQ=="
+  "resolved" "https://registry.npmjs.org/@formkit/addons/-/addons-0.16.5.tgz"
+  "version" "0.16.5"
+  dependencies:
+    "@formkit/auto-animate" "latest"
+    "@formkit/core" "0.16.5"
+    "@formkit/inputs" "0.16.5"
+    "@formkit/utils" "0.16.5"
+
+"@formkit/auto-animate@latest":
+  "integrity" "sha512-PVDhLAlr+B4Xb7e+1wozBUWmXa6BFU8xUPR/W/E+TsQhPS1qkAdAsJ25keEnFrcePSnXHrOsh3tiFbEToOzV9w=="
+  "resolved" "https://registry.npmjs.org/@formkit/auto-animate/-/auto-animate-1.0.0-beta.6.tgz"
+  "version" "1.0.0-beta.6"
+
+"@formkit/core@0.16.5":
+  "integrity" "sha512-cr2HT3JtTaEWnrjiXkxrsbdMjLLJc73sgkX9HhgNsWMBjVdRxFlk1NHJzACsX4F/tMujCMJC6FiayIEfVC93xA=="
+  "resolved" "https://registry.npmjs.org/@formkit/core/-/core-0.16.5.tgz"
+  "version" "0.16.5"
+  dependencies:
+    "@formkit/utils" "0.16.5"
+
+"@formkit/dev@0.16.5":
+  "integrity" "sha512-7Vn688UAGt4BHD8s1o+5OVXNlrRGvGV8KUjgXtskWXkVi8XBon9ZimPOn0dLVD3dJdD9+Td03C+08huue66eTQ=="
+  "resolved" "https://registry.npmjs.org/@formkit/dev/-/dev-0.16.5.tgz"
+  "version" "0.16.5"
+  dependencies:
+    "@formkit/core" "0.16.5"
+    "@formkit/utils" "0.16.5"
+
+"@formkit/i18n@0.16.5":
+  "integrity" "sha512-Ui0pnwH9EitGUWqyW6ZNu+8IRm+WG2kyetTmGuUqtETqK60FYFKB1MII5vGcS6acEgtYWPo6lvgPcunB1WOvdA=="
+  "resolved" "https://registry.npmjs.org/@formkit/i18n/-/i18n-0.16.5.tgz"
+  "version" "0.16.5"
+  dependencies:
+    "@formkit/core" "0.16.5"
+    "@formkit/utils" "0.16.5"
+    "@formkit/validation" "0.16.5"
+
+"@formkit/inputs@0.16.5":
+  "integrity" "sha512-YVye40cunF7jMNwqT5Y0kaZQhIlLHmeFuOD3sUMv7jbgRpLSMiUnur1ry4oc5j2qRSb2Bs+qiBXAAEFQmPoCFQ=="
+  "resolved" "https://registry.npmjs.org/@formkit/inputs/-/inputs-0.16.5.tgz"
+  "version" "0.16.5"
+  dependencies:
+    "@formkit/core" "0.16.5"
+
+"@formkit/observer@0.16.5":
+  "integrity" "sha512-IzyW3YCu7feolTfeIoMmcqV/8CJVX9IORuNzvJQzxjCOG0gZf7EsAMBLGcBC8mb7Mf//Tdzp2jrRB0ciC/JHsw=="
+  "resolved" "https://registry.npmjs.org/@formkit/observer/-/observer-0.16.5.tgz"
+  "version" "0.16.5"
+  dependencies:
+    "@formkit/core" "0.16.5"
+    "@formkit/utils" "0.16.5"
+
+"@formkit/rules@0.16.5":
+  "integrity" "sha512-xQ1eY7QfhoURJYN0k95C1gij11XOvjnH1ikgm/J8VQb8n+PeAit4lUsFqp4JX5ORNvPcNz1SqLK8VboI0Kgruw=="
+  "resolved" "https://registry.npmjs.org/@formkit/rules/-/rules-0.16.5.tgz"
+  "version" "0.16.5"
+  dependencies:
+    "@formkit/core" "0.16.5"
+    "@formkit/utils" "0.16.5"
+    "@formkit/validation" "0.16.5"
+
+"@formkit/themes@^0.16.5", "@formkit/themes@0.16.5":
+  "integrity" "sha512-ZnslUYLKIMthndH4p6L8Le3MCZRvXAvFnkNZwRJvT5MoPWkTmtNe6oBcPnjFhlwEeMQDaIc9gyO3ZJLkv60hug=="
+  "resolved" "https://registry.npmjs.org/@formkit/themes/-/themes-0.16.5.tgz"
+  "version" "0.16.5"
+  dependencies:
+    "@formkit/core" "0.16.5"
+
+"@formkit/utils@0.16.5":
+  "integrity" "sha512-wQ+Nx+kALW6SGc3E5dVgp7gxzN8mGVywOMslBeg7J5D6jx0KOqaS/aIFXK4agbqpkwX4HGIskc8scGsOKD0pVg=="
+  "resolved" "https://registry.npmjs.org/@formkit/utils/-/utils-0.16.5.tgz"
+  "version" "0.16.5"
+
+"@formkit/validation@0.16.5":
+  "integrity" "sha512-xd9UUT7Kydi4WCXk+cR7Z+8vKTwRvDxKoKw6YMRYsuUZL1CUlkqKXUZAy1RTE9hgqXgngbZJZPnaf8EH/lkepg=="
+  "resolved" "https://registry.npmjs.org/@formkit/validation/-/validation-0.16.5.tgz"
+  "version" "0.16.5"
+  dependencies:
+    "@formkit/core" "0.16.5"
+    "@formkit/observer" "0.16.5"
+
+"@formkit/vue@^0.16.5":
+  "integrity" "sha512-zg1BB9niG411yc9dFyT2ovovfPmcbZOx8EtG7MYegIqmxl+iZKwdyCWRFEQGEVfEtFopDfTMJGHyZxcg5BXQKA=="
+  "resolved" "https://registry.npmjs.org/@formkit/vue/-/vue-0.16.5.tgz"
+  "version" "0.16.5"
+  dependencies:
+    "@formkit/core" "0.16.5"
+    "@formkit/dev" "0.16.5"
+    "@formkit/i18n" "0.16.5"
+    "@formkit/inputs" "0.16.5"
+    "@formkit/observer" "0.16.5"
+    "@formkit/rules" "0.16.5"
+    "@formkit/themes" "0.16.5"
+    "@formkit/utils" "0.16.5"
+    "@formkit/validation" "0.16.5"
+
 "@hapi/hoek@^9.0.0":
   "integrity" "sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ=="
   "resolved" "https://registry.npmmirror.com/@hapi/hoek/-/hoek-9.3.0.tgz"
@@ -5683,7 +5781,7 @@
   "resolved" "https://registry.npmmirror.com/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.9.1.tgz"
   "version" "1.9.1"
 
-"vue@*", "vue@^2 || ^3.2.13", "vue@^2.5.18", "vue@^3.0.0", "vue@^3.0.0-0 || ^2.7.0", "vue@^3.0.2", "vue@^3.2.0", "vue@^3.2.41", "vue@3.2.41":
+"vue@*", "vue@^2 || ^3.2.13", "vue@^2.5.18", "vue@^3.0.0", "vue@^3.0.0-0 || ^2.7.0", "vue@^3.0.2", "vue@^3.2.0", "vue@^3.2.1", "vue@^3.2.41", "vue@3.2.41":
   "integrity" "sha512-uuuvnrDXEeZ9VUPljgHkqB5IaVO8SxhPpqF2eWOukVrBnRBx2THPSGQBnVRt0GrIG1gvCmFXMGbd7FqcT1ixNQ=="
   "resolved" "https://registry.npmjs.org/vue/-/vue-3.2.41.tgz"
   "version" "3.2.41"
@@ -5694,10 +5792,10 @@
     "@vue/server-renderer" "3.2.41"
     "@vue/shared" "3.2.41"
 
-"vuetify@^3.0.0-beta.0", "vuetify@^3.0.0-beta.4":
-  "integrity" "sha512-0olLmKWb+oTaebGTM02+1fWaAgnGDuIt86K3jDv2LnALQ2atSzhDS1SSASJsJCZ2PgFBdDAeJVLcNWWavRYAlQ=="
-  "resolved" "https://registry.npmmirror.com/vuetify/-/vuetify-3.0.0.tgz"
-  "version" "3.0.0"
+"vuetify@^3.0.0-beta.4", "vuetify@^3.2.1":
+  "integrity" "sha512-XOGfDuDGG4j/dJSu73JrkfrGB141LoiLyoZecGtUou24xMf17Rnk+pzOH+YYRVgQ7HFc4kG95DzFmAXS5ysEGA=="
+  "resolved" "https://registry.npmjs.org/vuetify/-/vuetify-3.2.1.tgz"
+  "version" "3.2.1"
 
 "vuex@^4.0.2":
   "integrity" "sha512-M6r8uxELjZIK8kTKDGgZTYX/ahzblnzC4isU1tpmEuOIIKmV+TRdc+H4s8ds2NuZ7wpUTdGRzJRtoj+lI+pc0Q=="

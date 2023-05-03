@@ -34,7 +34,7 @@
             <h5 class="pt-3 sub-title">Travail actuellement pour</h5>
             <div class="row">
               <router-link
-                class="col-2 client rounded-3 m-2 pt-3 shadow-sm"
+                class="col-2 client-en-cours rounded-3 m-2 pt-3 shadow-sm"
                 v-for="mission in MissionsEnCours"
                 :key="mission.id"
                 refresh
@@ -100,7 +100,7 @@
             <h5 class="pt-3 sub-title">Prochaines missions</h5>
             <div class="row">
               <router-link
-                class="col-2 client rounded-3 m-2 pt-3 shadow-sm"
+                class="col-2 client-futur rounded-3 m-2 pt-3 shadow-sm"
                 v-for="mission in MissionsFutur"
                 :key="mission.id"
                 refresh
@@ -123,12 +123,12 @@
             </div>
           </div>
 
-          <div class="col-6" v-if="missionFini">
+          <div class="col-6" v-if="MissionsFinis">
             <h5 class="pt-3 sub-title">Mission terminées</h5>
             <div class="row">
               <router-link
-                class="col-2 client rounded-3 m-2 pt-3 shadow-sm"
-                v-for="mission in missionFini"
+                class="col-2 client-fini rounded-3 m-2 pt-3 shadow-sm"
+                v-for="mission in MissionsFinis"
                 :key="mission.id"
                 refresh
                 :to="{
@@ -149,22 +149,6 @@
               </router-link>
             </div>
           </div>
-          <v-expansion-panels v-model="panel" :readonly="readonly" multiple>
-            <v-expansion-panel>
-              <v-expansion-panel-title>Panel 1</v-expansion-panel-title>
-              <v-expansion-panel-text> Some content </v-expansion-panel-text>
-            </v-expansion-panel>
-
-            <v-expansion-panel>
-              <v-expansion-panel-title>Panel 2</v-expansion-panel-title>
-              <v-expansion-panel-text> Some content </v-expansion-panel-text>
-            </v-expansion-panel>
-
-            <v-expansion-panel>
-              <v-expansion-panel-title>Panel 3</v-expansion-panel-title>
-              <v-expansion-panel-text> Some content </v-expansion-panel-text>
-            </v-expansion-panel>
-          </v-expansion-panels>
         </div>
 
         <!--  Si la personne n'est pas en mission -->
@@ -216,6 +200,7 @@
         </div>
       </div>
     </div>
+    
   </div>
 </template>
 
@@ -278,7 +263,7 @@ export default {
       const end = mission_end ? parseISO(mission_end) : null;
 
       if (isBefore(start, now)) {
-        if (end == null || isAfter(end, now)) {
+        if (isAfter(end, now)) {
           // La date de fin n'est pas encore passé donc la mission est en cours
           return false;
         } else {
@@ -427,8 +412,20 @@ export default {
   line-height: 130%;
 }
 
-.client {
+.client-fini {
   background: linear-gradient(135deg, #65799b 0%, #5e2563 100%);
+  color: white;
+  width: 20vh;
+  min-width: 200px;
+}
+.client-en-cours {
+  background: linear-gradient(135deg, #7117EA 0%, #EA6060 100%);
+  color: white;
+  width: 20vh;
+  min-width: 200px;
+}
+.client-futur {
+  background: linear-gradient(135deg, #F2D50F 0%, #DA0641 100%);
   color: white;
   width: 20vh;
   min-width: 200px;

@@ -16,7 +16,9 @@
     <div class="display" v-else>
       <v-row justify="end" class="mb-3">
         <v-btn class="mr-2" color="deep-purple-darken-3"> Facturé </v-btn>
-        <v-btn class="mr-2" color="deep-purple-lighten-4 "> Intercontrat </v-btn>
+        <v-btn class="mr-2" color="deep-purple-lighten-4 ">
+          Intercontrat
+        </v-btn>
         <!-- <v-btn color="warning"> Absent </v-btn> -->
       </v-row>
       <div class="row">
@@ -26,9 +28,11 @@
               <th></th>
             </tr>
             <tr v-for="associate in associates" :key="associate.id">
-              <th scope="row">
-                {{ associate.first_name + " " + associate.name }}
-              </th>
+              <td>
+                <p>
+                  {{ associate.first_name + " " + associate.name }}
+                </p>
+              </td>
             </tr>
           </tbody>
         </v-table>
@@ -138,19 +142,10 @@ export default {
   max-width: 100px;
   min-width: 100px;
 }
-.facture {
-  border-radius: 5px;
-  width: 10px;
-  height: 10px;
-  background-color: forestgreen;
-}
-.intercontrat {
-  border-radius: 10px;
-  width: 10px;
-  height: 10px;
-  background-color: darkred;
-}
-.collab {
-  overflow: hidden;
+
+p {
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 130%;
 }
 </style>

@@ -7,6 +7,9 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@formkit/addons": "^0.16.5",
+    "@formkit/themes": "^0.16.5",
+    "@formkit/vue": "^0.16.5",
     "@mdi/font": "5.9.55",
     "axios": "^1.2.0",
     "bootstrap": "^5.2.2",
@@ -20,7 +23,7 @@
     "vue-chartjs": "^5.2.0",
     "vue-date-fns": "^2.0.2",
     "vue-router": "^4.0.3",
-    "vuetify": "^3.0.0-beta.0",
+    "vuetify": "^3.2.1",
     "vuex": "^4.0.2",
     "webfontloader": "^1.0.0"
   },
