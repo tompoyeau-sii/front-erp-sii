@@ -5,61 +5,10 @@
       Retour
     </router-link>
 
-    <v-row class="mt-2">
       <h5 class="title mt-5">{{ $route.params.client.label }}</h5>
-    </v-row>
-    <v-row justify="end">
-      <v-btn
-        @click.prevent="isEditMode = true"
-        append-icon="mdi-pencil"
-        color="deep-purple-lighten-4"
-        class="m-2"
-      >
-        Modifier
-      </v-btn>
-      <v-dialog v-model="SupprDialog" width="auto">
-        <template v-slot:activator="{ props }">
-          <v-btn
-            append-icon="mdi-delete"
-            v-bind="props"
-            color="deep-purple-darken-3"
-            class="m-2"
-          >
-            Supprimer
-          </v-btn>
-        </template>
-        <v-card>
-          <v-card-title class="text-h5">
-            Suppression de {{ $route.params.client.label }}
-          </v-card-title>
-          <v-card-text>
-            Êtes-vous sûr de vouloir supprimer
-            {{ $route.params.client.label }} ?
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn
-              variant="text"
-              prepend-icon="mdi-close"
-              @click="SupprDialog = false"
-            >
-              Annuler
-            </v-btn>
-            <v-btn
-              color="error"
-              variant="text"
-              prepend-icon="mdi-delete"
-              @click="SupprDialog = false"
-            >
-              Confirmer
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </v-row>
 
     <v-row>
-      <v-col cols="2">
+      <v-col lg="2" md="6" sm="6">
         <h5 class="pt-3 title">Manager</h5>
       </v-col>
     </v-row>
@@ -96,9 +45,16 @@
         </div>
       </router-link>
     </div>
-    <h5 class="pt-3 title" v-if="projects.length !== 0">Projets</h5>
-    <AddProjectForm />
-
+    <v-row class="mt-3">
+      <v-col lg="6">
+        <h5 class="title" v-if="projects.length !== 0">Projets</h5>
+      </v-col>
+      <v-row justify="end">
+        <v-col lg="6">
+          <AddProjectForm />
+        </v-col>
+      </v-row>
+    </v-row>
     <!-- Affichage de la liste de projet avec chaque collab assigné -->
     <div class="row">
       <div

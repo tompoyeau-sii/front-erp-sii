@@ -4,6 +4,9 @@
       <v-btn
         prepend-icon="mdi-plus"
         color="deep-purple-darken-3"
+        variant="outlined"
+        stacked
+        style="height: auto;"
         v-bind="props"
       >
         Création d'une nouvelle mission
@@ -116,79 +119,86 @@
               </v-row>
             </v-card-title>
             <v-card-text>
-              <v-container>
-                <v-row>
-                  <v-col cols="12" sm="6">
-                    <v-autocomplete
-                      v-model="form.collab"
-                      :items="associates"
-                      item-title="name"
-                      item-value="id"
-                      label="Collaborateur"
-                      variant="solo"
-                    >
-                    </v-autocomplete>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-autocomplete
-                      v-model="form.customer"
-                      :items="customers"
-                      item-title="label"
-                      item-value="id"
-                      label="Client"
-                      variant="solo"
-                    ></v-autocomplete>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-autocomplete
-                      v-model="form.project"
-                      :items="projects"
-                      item-title="label"
-                      item-value="id"
-                      label="Projet"
-                      variant="solo"
-                    ></v-autocomplete>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-text-field
-                      label="Date de début de la mission*"
-                      variant="solo"
-                      type="date"
-                      v-model="form.start_date"
-                      required
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-text-field
-                      label="TJM*"
-                      variant="solo"
-                      v-model="form.tjm"
-                      required
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-text-field
-                      label="Imputation*"
-                      variant="solo"
-                      v-model="form.imputation"
-                      required
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-alert
-                      v-if="error != ''"
-                      class="mb-5 vibrate"
-                      icon="mdi-close"
-                      type="error"
-                      border
-                      :text="error"
-                      m-5
-                    ></v-alert>
-                  </v-col>
-                </v-row>
-              </v-container>
-              <small>*champs obligatoire</small>
-            </v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12" sm="6">
+                <v-autocomplete
+                  v-model="form.associate"
+                  :items="associates"
+                  item-title="name"
+                  item-value="id"
+                  label="Collaborateur"
+                  variant="solo"
+                ></v-autocomplete>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-autocomplete
+                  v-model="form.customer"
+                  :items="customers"
+                  item-title="label"
+                  item-value="id"
+                  label="Client*"
+                  variant="solo"
+                ></v-autocomplete>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-autocomplete
+                  v-model="form.project"
+                  :items="projects"
+                  item-title="label"
+                  item-value="id"
+                  label="Projects*"
+                  variant="solo"
+                ></v-autocomplete>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  label="TJM*"
+                  variant="solo"
+                  v-model="form.tjm"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  label="Date de début*"
+                  variant="solo"
+                  type="date"
+                  v-model="form.start_date"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  label="Date de fin de mission"
+                  variant="solo"
+                  v-model="form.end_date"
+                  type="date"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  label="Imputation"
+                  variant="solo"
+                  v-model="form.imputation"
+                  type="integer"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-alert
+                  v-if="error != ''"
+                  class="mb-5 vibrate"
+                  icon="mdi-close"
+                  type="error"
+                  border
+                  :text="error"
+                  m-5
+                ></v-alert>
+              </v-col>
+            </v-row>
+          </v-container>
+          <small>*champs obligatoire</small>
+        </v-card-text>
           </v-form>
         </v-window-item>
 
