@@ -5,7 +5,16 @@
       Retour
     </router-link>
 
-      <h5 class="title mt-5">{{ $route.params.client.label }}</h5>
+    <v-row class="mt-3">
+      <v-col lg="6">
+        <h5 class="title mt-5">{{ $route.params.client.label }}</h5>
+      </v-col>
+      <v-row justify="end">
+        <v-col lg="6">
+          <UpdateClientForm :customer_id="$route.params.client.id" :customer="$route.params.client.label" />
+        </v-col>
+      </v-row>
+    </v-row>
 
     <v-row>
       <v-col lg="2" md="6" sm="6">
@@ -86,51 +95,26 @@
               </td>
             </tr>
           </tbody>
-          
         </table>
       </div>
-      <v-row justify="center">
-        <AddMissionForm v-if="projects.length !== 0"/>
+      <v-row v-if="projects.length !== 0" justify="center">
+        <AddMissionForm :customer_id="$route.params.client.id" />
       </v-row>
     </div>
-  </div>
-
-  <div class="container" v-if="isEditMode">
-    <v-form>
-      <v-text-field
-        v-model="firstName"
-        :rules="rules"
-        label="First name"
-      ></v-text-field>
-    </v-form>
-    <v-btn
-      append-icon="mdi-content-save"
-      @click.prevent="isEditMode = false"
-      color="deep-purple-darken-3"
-      class="m-2"
-    >
-      Enregister
-    </v-btn>
-    <v-btn
-      append-icon="mdi-close"
-      @click.prevent="isEditMode = false"
-      color="deep-purple-darken-3"
-      class="m-2"
-    >
-      Annuler
-    </v-btn>
   </div>
 </template>
 
 <script>
 import AddProjectForm from "@/components/forms/AddProjectForm.vue";
 import AddMissionForm from "@/components/forms/AddMissionForm.vue";
+import UpdateClientForm from "@/components/forms/UpdateClientForm.vue";
 import Axios from "@/_services/caller.service";
 export default {
   name: "FicheClient",
   components: {
     AddMissionForm,
     AddProjectForm,
+    UpdateClientForm,
   },
   data() {
     return {
@@ -142,20 +126,10 @@ export default {
       projects: [],
       SuccessState: false,
       error: "",
-      SuccessState: false,
-      SuccessState: false,
     };
   },
   created() {
     this.projects = this.$route.params.client.Projects;
-
-    Axios.get("/customers").then((res) => {
-      this.customers = res.data?.customer;
-    });
-
-    Axios.get("/associates/managers").then((res) => {
-      this.managers = res.data?.associate;
-    });
   },
   methods: {
     formAddProject: function () {

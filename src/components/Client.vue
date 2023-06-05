@@ -1,13 +1,23 @@
 <template>
   <div class="container">
-    <h1 class="pt-3 pb-3 title">Clients SII Le Mans</h1>
-    <AddClientForm />
+    
+    
+    <v-row class="mt-3">
+      <v-col lg="6">
+        <h1 class="pt-3 pb-3 title">Clients SII Le Mans</h1>
+      </v-col>
+      <v-row justify="end">
+        <v-col lg="6">
+          <AddClientForm />
+        </v-col>
+      </v-row>
+    </v-row>
     <div class="row">
       <router-link
         class="col-2 client rounded-3 m-2 pt-3 shadow-sm"
         v-for="customer in customers"
         :key="customer.id"
-        :to="{ name: 'FicheClientView', params: { label: customer.label } }"
+        :to="{ name: 'FicheClientView', params: { id: customer.id } }"
       >
         <div>
           <p class="text-h5 name" v-text="customer.label"></p>
@@ -49,7 +59,6 @@ export default {
   created() {
     Axios.get("/customers").then((res) => {
       this.customers = res.data?.customer;
-      console.log(this.customers)
     });
   },
   computed: {

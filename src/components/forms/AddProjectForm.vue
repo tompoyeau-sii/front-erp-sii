@@ -101,8 +101,8 @@ export default {
     return {
       form: {
         label: "",
-        customer: "",
-        manager: "",
+        customer: null,
+        manager: null,
       },
       dialog: false,
       error: "",

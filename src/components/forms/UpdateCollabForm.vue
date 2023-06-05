@@ -2,19 +2,14 @@
   <v-row justify="end" class="m-3">
     <v-dialog v-model="dialog" width="750px">
       <template v-slot:activator="{ props }">
-        <v-btn
-          prepend-icon="mdi-plus"
-          color="deep-purple-darken-3"
-          v-bind="props"
-        >
-          Ajouter un collaborateur
+        <v-btn icon="mdi-pencil" color="deep-purple-darken-3" v-bind="props">
         </v-btn>
       </template>
       <v-card>
-        <v-form v-on:submit.prevent="formAddCollab">
+        <v-form v-on:submit.prevent="formUpdateCollab">
           <v-card-title>
             <v-row justify="center" class="mt-3">
-              <h1 class="form-title">Ajouter un nouveau collaborateur</h1>
+              <h1 class="form-title">Modifier un collaborateur</h1>
             </v-row>
           </v-card-title>
           <v-card-text>
@@ -118,7 +113,7 @@
               Annuler
             </v-btn>
             <v-btn color="white" variant="text" type="submit">
-              Bienvenue !
+              Modifier
             </v-btn>
           </v-card-actions>
         </v-form>
@@ -130,35 +125,53 @@
 <script>
 import Axios from "@/_services/caller.service";
 export default {
-  name: "AddCollabForm",
+  name: "UpdateCollabForm",
+  props: [
+    "associate_id",
+    "associate_name",
+    "associate_first_name",
+    "associate_birthdate",
+    "associate_mail",
+    "associate_start_date",
+    "associate_pru",
+    "associate_graduation",
+    "associate_job",
+    "associate_gender",
+  ],
   data() {
     return {
       form: {
-        name: "",
-        first_name: "",
-        sexe: "",
-        graduation: null,
-        birthdate: "",
-        job: null,
-        start_date: "",
-        pru: ""
+        name: this.associate_name,
+        first_name: this.associate_first_name,
+        sexe: this.associate_gender,
+        graduation: this.associate_graduation,
+        birthdate: this.associate_birthdate,
+        job: this.associate_job,
+        start_date: this.associate_start_date,
+        pru: this.associate_pru,
       },
       dialog: false,
       success: "",
       jobs: [],
       graduations: [],
       error: "",
+      associate: [],
     };
   },
 
   computed: {
     computedMail() {
-      return this.form.first_name.toLowerCase() + "." + this.form.name.toLowerCase() + "@sii.fr";
+      return (
+        this.form.first_name.toLowerCase() +
+        "." +
+        this.form.name.toLowerCase() +
+        "@sii.fr"
+      );
     },
   },
 
   methods: {
-    formAddCollab: function () {
+    formUpdateCollab() {
       if (
         this.form.first_name != "" &&
         this.form.name != "" &&
@@ -170,7 +183,7 @@ export default {
         this.form.start_date != "" &&
         this.form.pru != ""
       ) {
-        Axios.post("/associate", {
+        Axios.post("/associate/update/" + this.associate_id, {
           name: this.form.name,
           first_name: this.form.first_name,
           gender: this.form.sexe,
@@ -186,8 +199,7 @@ export default {
             this.dialog = false;
             this.SuccessState = true;
             this.error = "";
-            this.success = "Nouveau collaborateurs ajouté.";
-            this.refresh();
+            this.success = "Collaborateurs modifié.";
           })
           .catch(function (err) {
             console.log(err);

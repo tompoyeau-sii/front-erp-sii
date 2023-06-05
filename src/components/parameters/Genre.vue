@@ -34,7 +34,7 @@
               <v-form v-on:submit.prevent="formAddGenre">
                 <v-card-title>
                   <v-row justify="center" class="mt-3">
-                    <h1>Ajouter un nouveau genre</h1>
+                    <h1 class="form-title">Ajouter un nouveau genre</h1>
                   </v-row>
                 </v-card-title>
                 <v-card-text>

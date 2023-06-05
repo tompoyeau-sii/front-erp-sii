@@ -39,7 +39,9 @@
         <v-table class="col-11">
           <thead>
             <tr>
-              <th v-for="week in weeks" :key="week.label">{{ week.label }}</th>
+              <th v-for="week in weeks" :key="week.label">
+                {{ week.label }}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -74,6 +76,19 @@ export default {
     };
   },
   methods: {
+    formatDate(date) {
+      const year = date.getFullYear().toString();
+      let month = (date.getMonth() + 1).toString();
+      if (month.length < 2) {
+        month = "0" + month;
+      }
+      let day = date.getDate().toString();
+      if (day.length < 2) {
+        day = "0" + day;
+      }
+      return year + "-" + month + "-" + day;
+    },
+
     isWorking(associate, week) {
       for (let mission of associate.Missions) {
         if (mission.start_date < week.end && mission.end_date > week.start) {
@@ -82,6 +97,7 @@ export default {
       }
       return false;
     },
+
     getWeeksOfYear(year) {
       const date = new Date(year, 0, 1); // 1er janvier de l'année
       const dayOfWeek = date.getDay(); // Jour de la semaine (0 = dimanche, 1 = lundi, ..., 6 = samedi)
@@ -124,12 +140,8 @@ export default {
       this.associates = res.data?.associate;
       this.loading = false;
     });
-    console.log(this.test);
 
     this.weeks = this.getWeeksOfYear(2023);
-
-    console.log(this.weeks);
-    console.log(this.pdc);
   },
 };
 </script>

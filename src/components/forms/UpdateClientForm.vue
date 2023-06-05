@@ -3,18 +3,16 @@
     <v-dialog v-model="dialog" width="750px">
       <template v-slot:activator="{ props }">
         <v-btn
-          prepend-icon="mdi-plus"
+          icon="mdi-pencil"
           color="deep-purple-darken-3"
           v-bind="props"
-        >
-          Ajouter un client
-        </v-btn>
+        />
       </template>
       <v-card class="gradient">
-        <v-form fast-fail @submit.prevent v-on:submit.prevent="formAddCustomer">
+        <v-form fast-fail @submit.prevent v-on:submit.prevent="formUpdateCustomer">
           <v-card-title>
             <v-row justify="center" class="mt-3">
-              <h1 class="form-title">Ajouter un nouveau client</h1>
+              <h1 class="form-title">Modifier un client</h1>
             </v-row>
           </v-card-title>
           <v-card-text>
@@ -57,7 +55,7 @@
               type="submit"
               @click="snackbar = true"
             >
-              Créer
+              Modifier
             </v-btn>
           </v-card-actions>
         </v-form>
@@ -79,16 +77,17 @@
 <script>
 import Axios from "@/_services/caller.service";
 export default {
-  name: "AddClientForm",
+  name: "UpdateClientForm",
+  props: ["customer", "customer_id"],
   data() {
     return {
       form: {
-        label: "",
+        label: this.customer,
       },
       labelRules: [
         value => {
-          if (value?.length > 3) return true
-          return 'First name must be at least 3 characters.'
+          if (value?.length > 2) return true
+          return 'Le label doit au moins faire 3 caractères.'
         },
       ],
       dialog: false,
@@ -98,17 +97,10 @@ export default {
     };
   },
   methods: {
-    refresh() {
-      this.customers = [];
-      Axios.get("/customers").then((res) => {
-        this.customers = res.data?.customer;
-      });
-    },
-
-    formAddCustomer: function () {
+    formUpdateCustomer() {
       if (this.form.label !== "") {
         Axios
-          .post("/customer", {
+          .post("/customer/update/" + this.customer_id, {
             label: this.form.label,
           })
           .then(
@@ -116,8 +108,7 @@ export default {
               this.dialog = false;
               this.CreateState = false;
               this.SuccessState = true;
-              this.success = "Nouveau client créé";
-              this.refresh();
+              this.success = "Client modifié";
               this.error = "";
             },
             (response) => {

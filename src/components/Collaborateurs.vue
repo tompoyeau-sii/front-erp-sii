@@ -1,7 +1,15 @@
 <template>
   <div class="container">
-    <h1 class="title pt-3">Collaborateurs SII Le Mans</h1>
-    <AddCollabForm />
+    <v-row class="mt-3">
+      <v-col lg="6">
+        <h1 class="title">Collaborateurs SII Le Mans</h1>
+      </v-col>
+      <v-row justify="end">
+        <v-col lg="6">
+          <AddCollabForm />
+        </v-col>
+      </v-row>
+    </v-row>
     <div class="table-responsive p-3">
       <table class="table rounded-3 shadow bg-white">
         <thead>
@@ -184,7 +192,6 @@ export default {
     });
     Axios.get("/graduations").then((res) => {
       this.graduations = res.data?.graduation;
-      console.log(this.graduations);
     });
   },
 };

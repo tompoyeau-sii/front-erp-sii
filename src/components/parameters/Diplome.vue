@@ -34,7 +34,7 @@
               <v-form v-on:submit.prevent="formAddGraduation">
                 <v-card-title>
                   <v-row justify="center" class="mt-3">
-                    <h1>Créer un nouveau diplôme</h1>
+                    <h1 class="form-title">Créer un nouveau diplôme</h1>
                   </v-row>
                 </v-card-title>
                 <v-card-text>

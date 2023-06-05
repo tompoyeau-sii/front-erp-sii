@@ -2,7 +2,7 @@
     <div class="row">
       <div class="col-4">
         <div class="card p-3">
-          <h5 class="name">Métiers</h5>
+          <h5 class="name">Postes</h5>
           <div class="table-responsive">
             <table class="table rounded-3">
               <thead>
@@ -34,7 +34,7 @@
                 <v-form v-on:submit.prevent="formAddJob">
                   <v-card-title>
                     <v-row justify="center" class="mt-3">
-                      <h1>Créer un nouveau métier</h1>
+                      <h1 class="form-title">Créer un nouveau poste</h1>
                     </v-row>
                   </v-card-title>
                   <v-card-text>
@@ -42,7 +42,7 @@
                       <v-row>
                         <v-col cols="12">
                           <v-text-field
-                            label="Libelle du métier*"
+                            label="Libelle du poste*"
                             v-model="form.label"
                             variant="solo"
                             required

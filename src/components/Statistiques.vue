@@ -75,7 +75,6 @@ export default {
   created() {
     Axios.get("/associates").then((res) => {
       this.associates = res.data?.associate;
-      console.log(this.associates);
       this.associates.forEach((person) => {
         if (person.gender_id == 1) {
           this.nbHommes++;
@@ -83,7 +82,6 @@ export default {
           this.nbFemmes++;
         }
       });
-      console.log(this.nbHommes);
 
       this.chartData.datasets[0].data[0] = this.nbHommes;
       this.chartData.datasets[0].data[1] = this.nbFemmes;

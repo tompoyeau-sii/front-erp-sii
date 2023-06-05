@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <div class="container">
     <v-row>
       <v-col>
         <router-link class="retour" to="/collaborateurs">
@@ -21,8 +21,24 @@
           class="title"
           v-text="associate.first_name + ' ' + associate.name"
         ></h1>
-        <p v-text="jobActuel()"></p>
+        <p v-text="job"></p>
       </v-col>
+      <v-row justify="end">
+        <v-col lg="6">
+          <UpdateCollabForm
+            :associate_id="associate.id"
+            :associate_name="associate.name"
+            :associate_first_name="associate.first_name"
+            :associate_birthdate="associate.birthdate"
+            :associate_mail="associate.mail"
+            :associate_start_date="associate.start_date"
+            :associate_pru="pru"
+            :associate_graduation="associate.Graduation.id"
+            :associate_job="job"
+            :associate_gender="associate.gender_id"
+          />
+        </v-col>
+      </v-row>
     </v-row>
 
     <!--  Si la personne est en mission -->
@@ -42,7 +58,7 @@
                 params: { label: mission.Project.Customer.label },
               }"
             >
-              <p
+              <p  
                 class="text-h5 name"
                 v-text="mission.Project.Customer.label"
               ></p>
@@ -53,7 +69,10 @@
               <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
             </router-link>
             <v-col lg="2" sm="12" class="client-add">
-              <AddMissionForm />
+              <AddMissionForm
+                :associate_id="associate.id"
+                :associate="associate.name"
+              />
             </v-col>
           </v-row>
         </v-col>
@@ -61,9 +80,9 @@
         <!-- Manager part -->
         <v-col cols="12" lg="6" md="6" sm="12">
           <h5 class="pt-3 sub-title">Manager</h5>
-          <div class="row">
+          <v-row>
             <router-link
-              class="col-2 manager rounded-3 m-2 pt-3 shadow-sm"
+              class="col-2 manager rounded-3 m-2 pt-2 shadow-sm"
               v-for="mission in MissionsEnCours"
               :key="mission.id"
               :to="{
@@ -71,8 +90,8 @@
                 params: { id: mission.Project.Associate.id },
               }"
             >
-              <div class="row">
-                <div class="col-3">
+              <v-row>
+                <v-col cols="3" class="mt-1 ml-2">
                   <v-avatar>
                     <v-img
                       src="https://cdn.vuetifyjs.com/images/john.jpg"
@@ -80,8 +99,8 @@
                       alt="John"
                     ></v-img>
                   </v-avatar>
-                </div>
-                <div class="col-2">
+                </v-col>
+                <v-col cols="2">
                   <p
                     class=""
                     v-text="
@@ -90,15 +109,15 @@
                       mission.Project.Associate.name
                     "
                   ></p>
-                </div>
-              </div>
+                </v-col>
+              </v-row>
             </router-link>
-          </div>
+          </v-row>
         </v-col>
       </v-row>
 
       <v-row>
-        <v-col lg="6" v-if="MissionsFutur.lenth > 0">
+        <v-col lg="6" v-if="MissionsFutur.length > 0">
           <h5 class="pt-3 sub-title">Prochaines missions</h5>
           <v-row>
             <router-link
@@ -123,7 +142,7 @@
           </v-row>
         </v-col>
 
-        <v-col lg="6" v-if="MissionsFinis.lenth > 0">
+        <v-col lg="6" v-if="MissionsFinis.length > 0">
           <h5 class="pt-3 sub-title">Mission terminées</h5>
           <v-row>
             <router-link
@@ -154,11 +173,13 @@
     <v-row v-else>
       <v-col cols="6">
         <h5 class="pt-3 sub-title">Ce collaborateur est en intercontrat.</h5>
-        <AddMissionForm />
+        <AddMissionForm
+          :associate_id="associate.id"
+        />
       </v-col>
     </v-row>
 
-    <!-- Layout droit avec les infos récap chiffré du collab -->
+    <!-- Partie basse avec les infos récap chiffré du collab -->
     <v-row>
       <v-col cols="12" lg="3" md="4" sm="6">
         <div class="shadow rounded-5 mt-5 p-4">
@@ -168,11 +189,11 @@
           </v-row>
         </div>
       </v-col>
-      <v-col cols="12" lg="3" md="4" sm="6" v-if="pruActuel()">
-        <div class="shadow rounded-5 mt-5 p-4" >
+      <v-col cols="12" lg="3" md="4" sm="6">
+        <div class="shadow rounded-5 mt-5 p-4">
           <p class="etiquette mb-2">PRU</p>
           <v-row justify="end">
-            <p class="data m-2" v-text="pruActuel()"></p>
+            <p class="data m-2" v-text="pru"></p>
           </v-row>
         </div>
       </v-col>
@@ -201,12 +222,13 @@
         </div>
       </v-col>
     </v-row>
-  </v-container>
+  </div>
 </template>
 
 <script>
 import Axios from "@/_services/caller.service";
 import AddMissionForm from "@/components/forms/AddMissionForm.vue";
+import UpdateCollabForm from "@/components/forms/UpdateCollabForm.vue";
 import {
   format,
   isBefore,
@@ -218,6 +240,7 @@ export default {
   name: "FicheCollab",
   components: {
     AddMissionForm,
+    UpdateCollabForm,
   },
   data() {
     return {
@@ -233,19 +256,12 @@ export default {
       todayDate: "",
       json: [],
       step: 1,
+      pru: null,
+      job: null,
+      job_id: null,
     };
   },
   methods: {
-    nameCollab(associates) {
-      for (let associate of associates) {
-        const name = associate.first_name + " " + associate.name;
-        const id = associate.id;
-        const associateInfo = { id: id, name: name };
-        this.json.push(associateInfo);
-      }
-      return this.json;
-    },
-
     calculateAge(dateOfBirth) {
       const today = new Date();
       return differenceInYears(today, new Date(dateOfBirth));
@@ -256,7 +272,6 @@ export default {
     formatDateBDD(date) {
       return (date = format(new Date(date), "yyyy/MM/dd"));
     },
-
     missionFini(mission_start, mission_end) {
       const now = new Date();
       const start = parseISO(mission_start);
@@ -282,8 +297,8 @@ export default {
 
       if (isBefore(start, now)) {
         if (end == null || isAfter(end, now)) {
-          // La date de fin n'est pas encore passé donc la mission est en cours
           return true;
+          // La date de fin n'est pas encore passé donc la mission est en cours
         } else {
           // La date de fin est passé, alors la mission est terminé
           return false;
@@ -316,32 +331,23 @@ export default {
       today = this.formatDateBDD(today);
       for (let pru of this.associate.PRUs) {
         if (pru.start_date < today && pru.end_date > today) {
-          return pru.value;
-        }
-      }
-    },
-    projectsOfCustomer(customer) {
-      if (!customer) {
-        return "Aucun projet avec ce client";
-      }
-      let today = new Date();
-      today = this.formatDateBDD(today);
-      for (let project of this.projects) {
-        if (
-          project.customer_id == customer &&
-          project.start_date < today &&
-          project.end_date > today
-        ) {
-          return project.label;
+          this.pru = pru.value;
         }
       }
     },
     jobActuel() {
+      let today = new Date();
+      today = this.formatDateBDD(today);
       for (let job of this.associate.Jobs) {
-        console.log("if");
-        if (job.Associate_Job.end_date > this.todayDate) {
-          console.log("return");
-          return job.label;
+        console.log('test')
+        console.log(job)
+        if (
+          job.Associate_Job.end_date > today &&
+          job.Associate_Job.start_date < today
+          ) {
+          console.log('je rentre')
+          this.job_id = job.id;
+          this.job = job.label;
         }
       }
     },
@@ -350,17 +356,14 @@ export default {
     },
   },
   created() {
-    Axios.get("/associates").then((res) => {
-      this.associates = res.data?.associate;
-    });
     Axios.get("/projects").then((res) => {
       this.projects = res.data?.project;
     });
 
     this.associate = this.$route.params.collab;
     this.todayDate = this.formatDate(new Date());
-    this.projects = this.projectsOfCustomer(this.customer);
-    this.first_name_and_name = this.nameCollab(this.associates);
+    this.pruActuel()
+    this.jobActuel()
   },
   computed: {
     MissionsFinis() {

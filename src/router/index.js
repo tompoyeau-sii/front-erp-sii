@@ -67,18 +67,17 @@ const routes = [
     //   component: () => import(/* webpackChunkName: "new" */ '../views/FicheClientView.vue')
     // },
   {
-    path: '/clients/:label',
+    path: '/clients/:id',
     name: 'FicheClientView',
     component: () => import(/* webpackChunkName: "new" */ '../views/FicheClientView.vue'),
     // Before entering the route, fetch the client data from the API
     beforeEnter: (to, from, next) => {
       authGuard,
       // Assuming you have an axios instance named `axios` for making API requests
-      Axios.get(`/customer/${to.params.label}`)
+      Axios.get(`/customer/${to.params.id}`)
       .then(response => {
         // Pass the client data as a prop to the component
         to.params.client = response.data
-        console.log(response.data);
         next()
       })
       .catch(error => {

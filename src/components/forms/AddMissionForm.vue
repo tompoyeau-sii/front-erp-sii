@@ -6,110 +6,13 @@
         color="deep-purple-darken-3"
         variant="outlined"
         stacked
-        style="height: auto;"
+        style="height: auto"
         v-bind="props"
       >
         Création d'une nouvelle mission
       </v-btn>
     </template>
     <v-card class="gradient">
-      <!-- <v-form v-on:submit.prevent="formAddMission">
-        <v-card-title>
-          <v-row justify="center" class="mt-3">
-            <h1 class="form-title">Création d'une nouvelle mission</h1>
-          </v-row>
-        </v-card-title>
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="12" sm="6">
-                <v-autocomplete
-                  v-model="form.associate"
-                  :items="associates"
-                  item-title="name"
-                  item-value="id"
-                  :label="title"
-                  variant="solo"
-                ></v-autocomplete>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-autocomplete
-                  v-model="form.customer"
-                  :items="customers"
-                  item-title="label"
-                  item-value="id"
-                  label="Client*"
-                  variant="solo"
-                ></v-autocomplete>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-autocomplete
-                  v-model="form.project"
-                  :items="projects"
-                  item-title="label"
-                  item-value="id"
-                  label="Projects*"
-                  variant="solo"
-                ></v-autocomplete>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  label="TJM*"
-                  variant="solo"
-                  v-model="form.tjm"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  label="Date de début*"
-                  variant="solo"
-                  type="date"
-                  v-model="form.start_date"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  label="Date de fin de mission"
-                  variant="solo"
-                  v-model="form.end_date"
-                  type="date"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  label="Imputation"
-                  variant="solo"
-                  v-model="form.imputation"
-                  type="integer"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-alert
-                  v-if="error != ''"
-                  class="mb-5 vibrate"
-                  icon="mdi-close"
-                  type="error"
-                  border
-                  :text="error"
-                  m-5
-                ></v-alert>
-              </v-col>
-            </v-row>
-          </v-container>
-          <small>*champs obligatoire</small>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="white" variant="text" @click="dialog = false">
-            Annuler
-          </v-btn>
-          <v-btn color="white" variant="text" type="submit">
-            Bienvenue !
-          </v-btn>
-        </v-card-actions>
-      </v-form> -->
       <v-window v-model="step">
         <v-window-item :value="1">
           <v-form v-on:submit.prevent="formAddMission">
@@ -119,86 +22,105 @@
               </v-row>
             </v-card-title>
             <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="12" sm="6">
-                <v-autocomplete
-                  v-model="form.associate"
-                  :items="associates"
-                  item-title="name"
-                  item-value="id"
-                  label="Collaborateur"
-                  variant="solo"
-                ></v-autocomplete>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-autocomplete
-                  v-model="form.customer"
-                  :items="customers"
-                  item-title="label"
-                  item-value="id"
-                  label="Client*"
-                  variant="solo"
-                ></v-autocomplete>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-autocomplete
-                  v-model="form.project"
-                  :items="projects"
-                  item-title="label"
-                  item-value="id"
-                  label="Projects*"
-                  variant="solo"
-                ></v-autocomplete>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  label="TJM*"
-                  variant="solo"
-                  v-model="form.tjm"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  label="Date de début*"
-                  variant="solo"
-                  type="date"
-                  v-model="form.start_date"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  label="Date de fin de mission"
-                  variant="solo"
-                  v-model="form.end_date"
-                  type="date"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-text-field
-                  label="Imputation"
-                  variant="solo"
-                  v-model="form.imputation"
-                  type="integer"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-alert
-                  v-if="error != ''"
-                  class="mb-5 vibrate"
-                  icon="mdi-close"
-                  type="error"
-                  border
-                  :text="error"
-                  m-5
-                ></v-alert>
-              </v-col>
-            </v-row>
-          </v-container>
-          <small>*champs obligatoire</small>
-        </v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-text-field
+                      label="Libelle"
+                      variant="solo"
+                      v-model="form.label"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="6">
+                    <v-autocomplete
+                      v-if="associate == null"
+                      v-model="form.associate"
+                      :items="associates"
+                      item-title="name"
+                      item-value="id"
+                      label="Collaborateur*"
+                      variant="solo"
+                    ></v-autocomplete>
+                    <v-autocomplete
+                      v-else
+                      v-model="form.associate"
+                      :item-title="associate"
+                      :item-value="associate_name"
+                      disabled
+                      label="Collaborateur*"
+                      variant="solo"
+                    ></v-autocomplete>
+                  </v-col>
+                  <v-col cols="12" sm="6">
+                    <v-autocomplete
+                      v-if="associate == null"
+                      v-model="customer"
+                      :items="customers"
+                      item-title="label"
+                      item-value="id"
+                      label="Client*"
+                      variant="solo"
+                    ></v-autocomplete>
+                    <v-autocomplete
+                      v-else
+                      v-model="customer"
+                      :items="customers"
+                      item-title="label"
+                      item-value="id"
+                      label="Client*"
+                      variant="solo"
+                    ></v-autocomplete>
+                  </v-col>
+                  <v-col cols="12" sm="6">
+                    <v-autocomplete
+                      v-model="form.project"
+                      :items="projectsFiletred"
+                      item-title="label"
+                      item-value="id"
+                      label="Projects*"
+                      variant="solo"
+                    ></v-autocomplete>
+                  </v-col>
+                  <v-col cols="12" sm="6">
+                    <v-text-field
+                      label="TJM*"
+                      variant="solo"
+                      v-model="form.tjm"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="6">
+                    <v-text-field
+                      label="Date de début*"
+                      variant="solo"
+                      type="date"
+                      v-model="form.start_date"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="6">
+                    <v-text-field
+                      label="Date de fin de mission"
+                      variant="solo"
+                      v-model="form.end_date"
+                      type="date"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-alert
+                      v-if="error != ''"
+                      class="mb-5 vibrate"
+                      icon="mdi-close"
+                      type="error"
+                      border
+                      :text="error"
+                      m-5
+                    ></v-alert>
+                  </v-col>
+                </v-row>
+              </v-container>
+              <small>*champs obligatoire</small>
+            </v-card-text>
           </v-form>
         </v-window-item>
 
@@ -217,12 +139,26 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="mission in missions" :key="mission.id">
-                  <td v-if="mission.Imputations.map((imputation) => imputation.end_date) >= this.todayDate()">
-                    <p v-text="'Ma mission'"></p>
+                <tr v-for="mission in MissionsEnCours" :key="mission.id">
+                  <td>
+                    <p v-text="mission.label"></p>
                   </td>
                   <td>
-                    <p v-text="'1'"></p>
+                    <v-text-field
+                      label="Imputation"
+                      hide-details="auto"
+                    ></v-text-field>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <p v-text="form.label"></p>
+                  </td>
+                  <td>
+                    <v-text-field
+                      label="Imputation"
+                      hide-details="auto"
+                    ></v-text-field>
                   </td>
                 </tr>
               </tbody>
@@ -230,12 +166,17 @@
             <small>*champs obligatoire</small>
           </v-card-text>
         </v-window-item>
-      </v-window> 
+      </v-window>
       <v-divider></v-divider>
       <v-card-actions>
         <v-btn v-if="step > 1" variant="text" @click="step--"> Retour </v-btn>
         <v-spacer></v-spacer>
-        <v-btn v-if="step < 2" color="white" variant="text" @click="step++">
+        <v-btn
+          v-if="step < 2"
+          color="white"
+          variant="text"
+          @click="MissionsEnCours()"
+        >
           Suivant
         </v-btn>
         <v-btn
@@ -254,30 +195,46 @@
 
 <script>
 import Axios from "@/_services/caller.service";
-import { format } from "date-fns";
+import { format, parseISO, isBefore, isAfter } from "date-fns";
 export default {
   name: "AddMissionForm",
-  props: ["title"],
+  props: ["associate_id"],
   data() {
     return {
       form: {
-        associate: "",
-        customer: "",
-        project: "",
-        start_date: "",
-        tjm: "",
-        imputation: "",
+        label: null,
+        associate: this.associate_id,
+        project: null,
+        start_date: null,
+        tjm: null,
+        imputation: null,
         end_date: null,
       },
+      associate_name: this.associate,
+      customer: null,
       dialog: false,
       error: "",
-      projects: [],
       SuccessState: false,
       snackbar: false,
       associates: [],
       customers: [],
+      missions: [],
+      projects: [],
+      projectsFiletred: [],
       step: 1,
     };
+  },
+  watch: {
+    customer(n, o) {
+      this.projectsFiletred = [];
+      this.projects.forEach((project) => {
+        // Vérifie si l'ID du projet correspond à l'ID spécifié
+        if (project.customer_id === n) {
+          // Ajoute le projet correspondant à l'ID spécifié au tableau filtré
+          this.projectsFiletred.push(project);
+        }
+      });
+    },
   },
   computed: {
     currentTitle() {
@@ -289,20 +246,10 @@ export default {
       }
     },
   },
-  created() {
-    Axios.get("/associates").then((res) => {
-      this.associates = res.data?.associate;
-    });
-    Axios.get("/customers").then((res) => {
-      this.customers = res.data?.customer;
-    });
-    Axios.get("/projects").then((res) => {
-      this.projects = res.data?.project;
-    });
-  },
   methods: {
-    formAddMission: function () {
+    formAddMission() {
       if (
+        this.form.label !== "" &&
         this.form.associate !== "" &&
         this.form.customer !== "" &&
         this.form.project !== "" &&
@@ -311,6 +258,7 @@ export default {
         this.form.imputation !== ""
       ) {
         Axios.post("/mission", {
+          label: this.form.label,
           associate_id: this.form.associate,
           project_id: this.form.project,
           start_date: this.form.start_date,
@@ -335,9 +283,49 @@ export default {
       }
     },
     todayDate() {
-      console.log(format(new Date(), "yyyy/MM/dd"));
       return format(new Date(), "yyyy/MM/dd");
     },
+
+    missionEnCours(mission_start, mission_end) {
+      const now = new Date();
+      const start = parseISO(mission_start);
+      const end = mission_end ? parseISO(mission_end) : null;
+
+      if (isBefore(start, now)) {
+        if (end == null || isAfter(end, now)) {
+          // La date de fin n'est pas encore passé donc la mission est en cours
+          return true;
+        } else {
+          // La date de fin est passé, alors la mission est terminé
+          return false;
+        }
+      } else {
+        // La mission n'a pas encore commencé
+        return false;
+      }
+    },
+    MissionsEnCours() {
+      this.step++;
+      console.log(this.missions);
+      return this.missions.filter((mission) => {
+        return this.missionEnCours(mission.start_date, mission.end_date);
+      });
+    },
+  },
+  created() {
+    Axios.get("/customers").then((res) => {
+      this.customers = res.data?.customer;
+    });
+    Axios.get("/projects").then((res) => {
+      this.projects = res.data?.project;
+    });
+
+    Axios.get("/associates").then((res) => {
+      this.associates = res.data?.associate;
+    });
+    Axios.get("/associate/" + this.form.associate).then((res) => {
+      this.missions = res.data?.Missions;
+    });
   },
 };
 </script>
