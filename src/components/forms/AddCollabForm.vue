@@ -178,7 +178,7 @@ export default {
           job_id: this.form.job,
           birthdate: this.form.birthdate,
           start_date: this.form.start_date,
-          mail: this.form.mail,
+          mail: this.computedMail,
           pru: this.form.pru,
         })
           .then((response) => {
@@ -187,7 +187,6 @@ export default {
             this.SuccessState = true;
             this.error = "";
             this.success = "Nouveau collaborateurs ajouté.";
-            this.refresh();
           })
           .catch(function (err) {
             console.log(err);

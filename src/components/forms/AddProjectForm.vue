@@ -19,10 +19,18 @@
         <v-card-text>
           <v-container>
             <v-row>
-              <v-col cols="12" sm="6">
+              <v-col cols="12">
                 <v-text-field
                   label="Libelle du projet*"
                   v-model="form.label"
+                  variant="solo"
+                  required
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  label="ADV*"
+                  v-model="form.adv"
                   variant="solo"
                   required
                 ></v-text-field>
@@ -101,6 +109,7 @@ export default {
     return {
       form: {
         label: "",
+        adv: null,
         customer: null,
         manager: null,
       },
@@ -130,11 +139,13 @@ export default {
     formAddProject: function () {
       if (
         this.form.label !== "" &&
+        this.form.adv !== "" &&
         this.form.customer !== "" &&
         this.form.manager !== ""
       ) {
         Axios.post("/project", {
           label: this.form.label,
+          adv: this.form.adv,
           customer_id: this.form.customer,
           manager_id: this.form.manager,
         }).then(

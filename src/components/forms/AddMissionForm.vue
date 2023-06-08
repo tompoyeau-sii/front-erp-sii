@@ -26,7 +26,7 @@
                 <v-row>
                   <v-col cols="12">
                     <v-text-field
-                      label="Libelle"
+                      label="Libelle*"
                       variant="solo"
                       v-model="form.label"
                     ></v-text-field>
@@ -100,7 +100,7 @@
                   </v-col>
                   <v-col cols="12" sm="6">
                     <v-text-field
-                      label="Date de fin de mission"
+                      label="Date de fin de mission*"
                       variant="solo"
                       v-model="form.end_date"
                       type="date"
@@ -135,18 +135,34 @@
               <thead>
                 <tr style="border: white">
                   <th>Mission</th>
-                  <th>Taux d'imputation</th>
+                  <th>Date début de la mission</th>
+                  <th>Date de fin de la mission</th>
+                  <th>Taux d'imputation %</th>
+                  <th class="text-red" v-if="computedImputation != 100">
+                    {{ computedImputation }}
+                  </th>
+                  <th v-else>{{ computedImputation }}</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="mission in MissionsEnCours" :key="mission.id">
+                <tr v-for="mission in missionFiltered" :key="mission.id">
                   <td>
                     <p v-text="mission.label"></p>
                   </td>
                   <td>
+                    <p v-text="formatDate(mission.start_date)"></p>
+                  </td>
+                  <td>
+                    <p v-text="formatDate(mission.end_date)"></p>
+                  </td>
+                  <td>
                     <v-text-field
-                      label="Imputation"
                       hide-details="auto"
+                      variant="outlined"
+                      type="number"
+                      v-model="form.oldMissionImputation"
+                      min="0"
+                      max="100"
                     ></v-text-field>
                   </td>
                 </tr>
@@ -155,15 +171,31 @@
                     <p v-text="form.label"></p>
                   </td>
                   <td>
+                    <p v-text="formatDate(form.start_date)"></p>
+                  </td>
+                  <td>
+                    <p v-text="formatDate(form.end_date)"></p>
+                  </td>
+                  <td>
                     <v-text-field
-                      label="Imputation"
                       hide-details="auto"
+                      variant="outlined"
+                      type="number"
+                      min="0"
+                      max="100"
+                      v-model="form.newMissionImputation"
                     ></v-text-field>
                   </td>
                 </tr>
               </tbody>
             </table>
-            <small>*champs obligatoire</small>
+            <small>
+              Attention le taux d'imputation total des missions doit être égale
+              à 100! Si il y a 2 missions en même temps, vous définissez
+              l'imputation durant les 2 missions. Lorsqu'il restera plus qu'une
+              mission, l'imputation de la mission restante passera à 100
+              automatiquement.
+            </small>
           </v-card-text>
         </v-window-item>
       </v-window>
@@ -171,12 +203,7 @@
       <v-card-actions>
         <v-btn v-if="step > 1" variant="text" @click="step--"> Retour </v-btn>
         <v-spacer></v-spacer>
-        <v-btn
-          v-if="step < 2"
-          color="white"
-          variant="text"
-          @click="MissionsEnCours()"
-        >
+        <v-btn v-if="step < 2" color="white" variant="text" @click="next()">
           Suivant
         </v-btn>
         <v-btn
@@ -195,20 +222,30 @@
 
 <script>
 import Axios from "@/_services/caller.service";
-import { format, parseISO, isBefore, isAfter } from "date-fns";
+import {
+  format,
+  parseISO,
+  isBefore,
+  isAfter,
+  isWithinInterval,
+} from "date-fns";
+import { fr } from "date-fns/locale";
 export default {
   name: "AddMissionForm",
   props: ["associate_id"],
   data() {
     return {
+      associate: "",
       form: {
         label: null,
         associate: this.associate_id,
         project: null,
-        start_date: null,
         tjm: null,
         imputation: null,
+        start_date: null,
         end_date: null,
+        oldMissionImputation: 50,
+        newMissionImputation: 50,
       },
       associate_name: this.associate,
       customer: null,
@@ -219,9 +256,11 @@ export default {
       associates: [],
       customers: [],
       missions: [],
+      missionFiltered: [],
       projects: [],
       projectsFiletred: [],
       step: 1,
+      totalImputation: null,
     };
   },
   watch: {
@@ -245,8 +284,17 @@ export default {
           return "Gestion des imputations";
       }
     },
+    computedImputation() {
+      return (
+        parseInt(this.form.newMissionImputation) +
+        parseInt(this.form.oldMissionImputation)
+      );
+    },
   },
   methods: {
+    formatDate(date) {
+      return (date = format(new Date(date), "PP", { locale: fr }));
+    },
     formAddMission() {
       if (
         this.form.label !== "" &&
@@ -286,30 +334,47 @@ export default {
       return format(new Date(), "yyyy/MM/dd");
     },
 
-    missionEnCours(mission_start, mission_end) {
-      const now = new Date();
-      const start = parseISO(mission_start);
-      const end = mission_end ? parseISO(mission_end) : null;
-
-      if (isBefore(start, now)) {
-        if (end == null || isAfter(end, now)) {
-          // La date de fin n'est pas encore passé donc la mission est en cours
-          return true;
-        } else {
-          // La date de fin est passé, alors la mission est terminé
-          return false;
+    filteredMissions(newMissionStart, newMissionEnd) {
+      const list = [];
+      this.missions.forEach((element) => {
+        if (
+          element.start_date < newMissionStart &&
+          element.end_date > newMissionStart
+        ) {
+          list.push(element);
         }
-      } else {
-        // La mission n'a pas encore commencé
-        return false;
-      }
-    },
-    MissionsEnCours() {
-      this.step++;
-      console.log(this.missions);
-      return this.missions.filter((mission) => {
-        return this.missionEnCours(mission.start_date, mission.end_date);
       });
+      return list;
+    },
+    next() {
+      if (
+        this.form.label != null &&
+        this.form.associate != "" &&
+        this.form.project != null &&
+        this.form.start_date != null &&
+        this.form.end_date != null &&
+        this.form.tjm != null
+      ) {
+
+        this.missionFiltered = this.filteredMissions(
+          this.form.start_date,
+          this.form.end_date
+        );
+        if (this.missionFiltered.length == 0) {
+          this.step++;
+          this.error = "";
+          this.form.oldMissionImputation = 0;
+          this.form.newMissionImputation = 100;
+        } else if (this.missionFiltered.length == 1) {
+          this.step++;
+          this.error = "";
+        } else {
+          this.error = "Plus de 2 missions en même temps";
+        }
+
+      } else {
+        this.error = "Veuillez compléter tous les champs.";
+      }
     },
   },
   created() {

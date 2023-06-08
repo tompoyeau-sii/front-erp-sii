@@ -68,6 +68,26 @@ export default {
       },
       chartOptions: {
         responsive: true,
+        plugins: {
+          legend: {
+            display: true,
+            position: "top",
+            labels: {
+              generateLabels(chart) {
+                const data = chart.data.datasets[0].data;
+                const total = data.reduce((a, b) => a + b, 0);
+
+                return data.map((value, index) => {
+                  const percentage = ((value / total) * 100).toFixed(2);
+                  return {
+                    text: `${chart.data.labels[index]} (${percentage}%)`,
+                    fillStyle: chart.data.datasets[0].backgroundColor[index],
+                  };
+                });
+              },
+            },
+          },
+        },
       },
       dataLoaded: false, // propriété pour savoir si les données sont chargées ou non
     };

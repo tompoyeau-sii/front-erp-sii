@@ -34,6 +34,7 @@
             :associate_start_date="associate.start_date"
             :associate_pru="pru"
             :associate_graduation="associate.Graduation.id"
+            :associate_job_id="job_id"
             :associate_job="job"
             :associate_gender="associate.gender_id"
           />
@@ -339,13 +340,10 @@ export default {
       let today = new Date();
       today = this.formatDateBDD(today);
       for (let job of this.associate.Jobs) {
-        console.log('test')
-        console.log(job)
         if (
           job.Associate_Job.end_date > today &&
           job.Associate_Job.start_date < today
           ) {
-          console.log('je rentre')
           this.job_id = job.id;
           this.job = job.label;
         }

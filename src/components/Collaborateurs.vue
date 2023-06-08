@@ -186,6 +186,7 @@ export default {
   created() {
     Axios.get("/associates").then((res) => {
       this.associates = res.data?.associate;
+      console.log(this.associates)
     });
     Axios.get("/jobs").then((res) => {
       this.jobs = res.data?.job;

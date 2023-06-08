@@ -32,7 +32,7 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-radio-group inline label="Genre" v-model="form.sexe">
+                  <v-radio-group inline label="Genre" v-model="form.gender">
                     <v-radio label="Homme" :value="1"></v-radio>
                     <v-radio label="Femme" :value="2"></v-radio>
                   </v-radio-group>
@@ -136,26 +136,28 @@ export default {
     "associate_pru",
     "associate_graduation",
     "associate_job",
+    "associate_job_id",
     "associate_gender",
   ],
   data() {
     return {
+      associate: [],
       form: {
         name: this.associate_name,
         first_name: this.associate_first_name,
-        sexe: this.associate_gender,
-        graduation: this.associate_graduation,
         birthdate: this.associate_birthdate,
-        job: this.associate_job,
+        gender: this.associate_gender,
+        graduation: this.associate_graduation,
+        job: this.associate_job_id,
         start_date: this.associate_start_date,
         pru: this.associate_pru,
+        mail: this.associate_mail
       },
       dialog: false,
       success: "",
       jobs: [],
       graduations: [],
       error: "",
-      associate: [],
     };
   },
 
