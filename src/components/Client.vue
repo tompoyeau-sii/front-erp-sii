@@ -1,7 +1,5 @@
 <template>
   <div class="container">
-    
-    
     <v-row class="mt-3">
       <v-col lg="6">
         <h1 class="pt-3 pb-3 title">Clients SII Le Mans</h1>
@@ -26,6 +24,17 @@
         </div>
       </router-link>
     </div>
+    <div class="row">
+      <router-link
+        class="col-2 intercontrat rounded-3 m-2 pt-3 shadow-sm"
+        to="/dashboard"
+      >
+        <div>
+          <p class="text-h5 name" v-text="'Intercontrat'"></p>
+          <p v-text="intercontrats.nbCollab + ' collaborateurs'"></p>
+        </div>
+      </router-link>
+    </div>
   </div>
 </template>
 
@@ -33,6 +42,7 @@
 import Axios from "@/_services/caller.service";
 import AddClientForm from "@/components/forms/AddClientForm.vue";
 import { mapGetters } from "vuex";
+import { format } from "date-fns";
 export default {
   name: "Client",
   components: {
@@ -41,6 +51,7 @@ export default {
   data() {
     return {
       customers: [],
+      intercontrats: [],
       error: "",
       SuccessState: false,
       snackbar: false,
@@ -49,6 +60,9 @@ export default {
     };
   },
   methods: {
+    todayDate() {
+      return format(new Date(), "yyyy-MM-dd");
+    },
     refresh() {
       this.customers = [];
       Axios.get("/customers").then((res) => {
@@ -59,6 +73,28 @@ export default {
   created() {
     Axios.get("/customers").then((res) => {
       this.customers = res.data?.customer;
+    });
+    Axios.get("/associates").then((res) => {
+      res.data?.associate.forEach((associate) => {
+        if (associate.Missions.length == 0) {
+          this.intercontrats.push(associate);
+        } else {
+          var enMission = false;
+          associate.Missions.forEach((mission) => {
+            if (
+              mission.start_date < this.todayDate() &&
+              mission.end_date > this.todayDate()
+            ) {
+              enMission = true;
+              return
+            }
+          });
+          if (enMission == false) {
+            this.intercontrats.push(associate);
+          }
+        }
+      });
+      this.intercontrats.nbCollab = this.intercontrats.length;
     });
   },
   computed: {
@@ -87,6 +123,12 @@ td {
   min-width: 200px;
 }
 
+.intercontrat {
+  background: linear-gradient(135deg, #65799b 0%, #5e2563 100%);
+  color: white;
+  width: 20vh;
+  min-width: 200px;
+}
 .name {
   font-weight: 600;
 }

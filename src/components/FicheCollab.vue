@@ -65,8 +65,8 @@
               ></p>
               <p v-text="'Depuis le ' + formatDate(mission.start_date)"></p>
               <p v-text="'Se termine le ' + formatDate(mission.end_date)"></p>
-              <p v-text="mission.Project.label"></p>
-              <p v-text="mission.TJMs.map((tjm) => tjm.value)"></p>
+              <p v-text="mission.Project.label + ' / ' + mission.Project.adv"></p>
+              <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
               <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
             </router-link>
             <v-col lg="2" sm="12" class="client-add">
@@ -136,15 +136,15 @@
                 v-text="mission.Project.Customer.label"
               ></p>
               <p v-text="'Commence le ' + formatDate(mission.start_date)"></p>
-              <p v-text="mission.Project.label"></p>
-              <p v-text="mission.TJMs.map((tjm) => tjm.value)"></p>
+              <p v-text="mission.Project.label + ' / ' + mission.Project.adv"></p>
+              <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
               <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
             </router-link>
           </v-row>
         </v-col>
 
         <v-col lg="6" v-if="MissionsFinis.length > 0">
-          <h5 class="pt-3 sub-title">Mission terminées</h5>
+          <h5 class="pt-3 sub-title">Missions terminées</h5>
           <v-row>
             <router-link
               class="col-2 client-fini rounded-3 m-2 p-2 shadow-sm"
@@ -161,8 +161,8 @@
                 v-text="mission.Project.Customer.label"
               ></p>
               <p v-text="'Terminé le ' + formatDate(mission.end_date)"></p>
-              <p v-text="mission.Project.label"></p>
-              <p v-text="mission.TJMs.map((tjm) => tjm.value)"></p>
+              <p v-text="mission.Project.label + ' / ' + mission.Project.adv"></p>
+              <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
               <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
             </router-link>
           </v-row>
@@ -182,7 +182,7 @@
 
     <!-- Partie basse avec les infos récap chiffré du collab -->
     <v-row>
-      <v-col cols="12" lg="3" md="4" sm="6">
+      <v-col cols="6" lg="3" md="4" sm="6">
         <div class="shadow rounded-5 mt-5 p-4">
           <p class="etiquette mb-2">IK</p>
           <v-row justify="end">
@@ -190,7 +190,7 @@
           </v-row>
         </div>
       </v-col>
-      <v-col cols="12" lg="3" md="4" sm="6">
+      <v-col cols="6" lg="3" md="4" sm="6">
         <div class="shadow rounded-5 mt-5 p-4">
           <p class="etiquette mb-2">PRU</p>
           <v-row justify="end">
@@ -198,7 +198,7 @@
           </v-row>
         </div>
       </v-col>
-      <v-col cols="12" lg="3" md="4" sm="6">
+      <v-col cols="6" lg="3" md="4" sm="6">
         <div class="shadow rounded-5 mt-5 p-4" v-if="associate.start_date">
           <p class="etiquette mb-2">Date d'embauche</p>
           <v-row justify="end">
@@ -206,7 +206,7 @@
           </v-row>
         </div>
       </v-col>
-      <v-col cols="12" lg="3" md="4" sm="6">
+      <v-col cols="6" lg="3" md="4" sm="6">
         <div class="shadow rounded-5 mt-5 p-4" v-if="associate.birthdate">
           <p class="etiquette mb-2">Age</p>
           <v-row justify="end">
@@ -214,7 +214,7 @@
           </v-row>
         </div>
       </v-col>
-      <v-col cols="12" lg="3" md="4" sm="6">
+      <v-col cols="6" lg="3" md="4" sm="6">
         <div class="shadow rounded-5 mt-5 p-4" v-if="associate.Graduation">
           <p class="etiquette mb-2">Diplôme</p>
           <v-row justify="end">
@@ -271,7 +271,7 @@ export default {
       return (date = format(new Date(date), "dd/MM/yyyy"));
     },
     formatDateBDD(date) {
-      return (date = format(new Date(date), "yyyy/MM/dd"));
+      return (date = format(new Date(date), "yyyy-MM-dd"));
     },
     missionFini(mission_start, mission_end) {
       const now = new Date();

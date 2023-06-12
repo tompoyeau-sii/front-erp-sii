@@ -17,13 +17,12 @@
     </v-row>
 
     <v-row>
-      <v-col lg="2" md="6" sm="6">
-        <h5 class="pt-3 title">Manager</h5>
+      <v-col v-if="projects.length != 0" lg="2" md="6" sm="6">
+        <h5  class="pt-3 title">Manager</h5>
       </v-col>
     </v-row>
     <!-- Affichage du/des manager du client -->
     <div class="row">
-      <div v-if="projects.length === 0">Pas de manager</div>
       <router-link
         class="col-2 manager rounded-3 m-2 pt-3 shadow-sm"
         v-for="project in projects"
@@ -108,7 +107,6 @@
 import AddProjectForm from "@/components/forms/AddProjectForm.vue";
 import AddMissionForm from "@/components/forms/AddMissionForm.vue";
 import UpdateClientForm from "@/components/forms/UpdateClientForm.vue";
-import Axios from "@/_services/caller.service";
 export default {
   name: "FicheClient",
   components: {
@@ -130,37 +128,11 @@ export default {
   },
   created() {
     this.projects = this.$route.params.client.Projects;
+    
+
   },
   methods: {
-    formAddProject: function () {
-      if (
-        this.form.label !== "" &&
-        this.form.customer !== "" &&
-        this.form.manager !== ""
-      ) {
-        Axios.post("/project", {
-          label: this.form.label,
-          customer_id: this.form.customer,
-          manager_id: this.form.manager,
-        }).then(
-          (response) => {
-            this.dialog = false;
-            this.CreateState = false;
-            this.SuccessState = true;
-            this.success = "Nouveau projet créé";
-            this.error = "";
-          },
-          (response) => {
-            this.SuccessState = false;
-            console.log(response);
-            this.error = response.data;
-            console.log("erreur : " + this.error);
-          }
-        );
-      } else {
-        this.error = "Veuillez remplir tous les champs.";
-      }
-    },
+
   },
 };
 </script>

@@ -33,10 +33,10 @@
                   </v-col>
                   <v-col cols="12" sm="6">
                     <v-autocomplete
-                      v-if="associate == null"
+                      v-if="associate_id == null"
                       v-model="form.associate"
                       :items="associates"
-                      item-title="name"
+                      item-title="full_name"
                       item-value="id"
                       label="Collaborateur*"
                       variant="solo"
@@ -45,7 +45,6 @@
                       v-else
                       v-model="form.associate"
                       :item-title="associate"
-                      :item-value="associate_name"
                       disabled
                       label="Collaborateur*"
                       variant="solo"
@@ -53,7 +52,7 @@
                   </v-col>
                   <v-col cols="12" sm="6">
                     <v-autocomplete
-                      v-if="associate == null"
+                      v-if="customer_id == null"
                       v-model="customer"
                       :items="customers"
                       item-title="label"
@@ -65,8 +64,7 @@
                       v-else
                       v-model="customer"
                       :items="customers"
-                      item-title="label"
-                      item-value="id"
+                      disabled
                       label="Client*"
                       variant="solo"
                     ></v-autocomplete>
@@ -75,7 +73,7 @@
                     <v-autocomplete
                       v-model="form.project"
                       :items="projectsFiletred"
-                      item-title="label"
+                      item-title="label_adv"
                       item-value="id"
                       label="Projects*"
                       variant="solo"
@@ -138,7 +136,7 @@
                   <th>Date début de la mission</th>
                   <th>Date de fin de la mission</th>
                   <th>Taux d'imputation %</th>
-                  <th class="text-red" v-if="computedImputation != 100">
+                  <th class="text-red" v-if="this.computedImputation != 100">
                     {{ computedImputation }}
                   </th>
                   <th v-else>{{ computedImputation }}</th>
@@ -160,7 +158,7 @@
                       hide-details="auto"
                       variant="outlined"
                       type="number"
-                      v-model="form.oldMissionImputation"
+                      v-model="form.old_mission_imputation"
                       min="0"
                       max="100"
                     ></v-text-field>
@@ -183,15 +181,26 @@
                       type="number"
                       min="0"
                       max="100"
-                      v-model="form.newMissionImputation"
+                      v-model="form.new_mission_imputation"
                     ></v-text-field>
                   </td>
                 </tr>
               </tbody>
             </table>
+            <v-col cols="12">
+              <v-alert
+                v-if="error != ''"
+                class="mb-5 vibrate"
+                icon="mdi-close"
+                type="error"
+                border
+                :text="error"
+                m-5
+              ></v-alert>
+            </v-col>
             <small>
               Attention le taux d'imputation total des missions doit être égale
-              à 100! Si il y a 2 missions en même temps, vous définissez
+              à 100 ! Si il y a 2 missions en même temps, vous définissez
               l'imputation durant les 2 missions. Lorsqu'il restera plus qu'une
               mission, l'imputation de la mission restante passera à 100
               automatiquement.
@@ -211,7 +220,7 @@
           color="white"
           variant="text"
           type="submit"
-          @click="(dialog = false), (step = 0)"
+          @click="formAddMission()"
         >
           Enregistrer
         </v-btn>
@@ -232,7 +241,7 @@ import {
 import { fr } from "date-fns/locale";
 export default {
   name: "AddMissionForm",
-  props: ["associate_id"],
+  props: ["associate_id", "customer_id"],
   data() {
     return {
       associate: "",
@@ -244,11 +253,13 @@ export default {
         imputation: null,
         start_date: null,
         end_date: null,
-        oldMissionImputation: 50,
-        newMissionImputation: 50,
+        old_mission_id: null,
+        old_mission_start: null,
+        old_mission_end: null,
+        old_mission_imputation: 50,
+        new_mission_imputation: 50,
       },
-      associate_name: this.associate,
-      customer: null,
+      customer: this.customer_id,
       dialog: false,
       error: "",
       SuccessState: false,
@@ -260,7 +271,7 @@ export default {
       projects: [],
       projectsFiletred: [],
       step: 1,
-      totalImputation: null,
+      totalImputation: 0,
     };
   },
   watch: {
@@ -270,9 +281,11 @@ export default {
         // Vérifie si l'ID du projet correspond à l'ID spécifié
         if (project.customer_id === n) {
           // Ajoute le projet correspondant à l'ID spécifié au tableau filtré
+          project.label_adv = project.label + " - " + project.adv;
           this.projectsFiletred.push(project);
         }
       });
+      console.log(this.projectsFiletred);
     },
   },
   computed: {
@@ -285,9 +298,12 @@ export default {
       }
     },
     computedImputation() {
+      this.totalImputation =
+        parseInt(this.form.new_mission_imputation) +
+        parseInt(this.form.old_mission_imputation);
       return (
-        parseInt(this.form.newMissionImputation) +
-        parseInt(this.form.oldMissionImputation)
+        parseInt(this.form.new_mission_imputation) +
+        parseInt(this.form.old_mission_imputation)
       );
     },
   },
@@ -299,22 +315,27 @@ export default {
       if (
         this.form.label !== "" &&
         this.form.associate !== "" &&
-        this.form.customer !== "" &&
         this.form.project !== "" &&
         this.form.start_date !== "" &&
+        this.form.end_date !== "" &&
         this.form.tjm !== "" &&
-        this.form.imputation !== ""
+        this.totalImputation == 100
       ) {
         Axios.post("/mission", {
           label: this.form.label,
           associate_id: this.form.associate,
           project_id: this.form.project,
-          start_date: this.form.start_date,
           tjm: this.form.tjm,
-          imputation: this.form.imputation,
+          start_date: this.form.start_date,
           end_date: this.form.end_date,
+          old_mission_id: this.form.old_mission_id,
+          old_mission_start: this.form.old_mission_start,
+          old_mission_end: this.form.old_mission_end,
+          old_mission_imputation: this.form.old_mission_imputation,
+          new_mission_imputation: this.form.new_mission_imputation,
         }).then(
           (response) => {
+            console.log('réussi')
             this.dialog = false;
             this.CreateState = false;
             this.SuccessState = true;
@@ -327,23 +348,51 @@ export default {
           }
         );
       } else {
+        console.log(this.form.label);
+        console.log(this.form.associate);
+        console.log(this.form.project);
+        console.log(this.form.start_date);
+        console.log(this.form.end_date);
+        console.log(this.form.tjm);
+        console.log(this.totalImputation);
         this.error = "Veuillez compléter tous les champs.";
       }
     },
     todayDate() {
       return format(new Date(), "yyyy/MM/dd");
     },
-
     filteredMissions(newMissionStart, newMissionEnd) {
       const list = [];
-      this.missions.forEach((element) => {
+      this.missions.forEach((other) => {
+        console.log('otherStart: ' + other.start_date)
+        console.log('newStart: ' + newMissionStart)
+        console.log('otherEnd: ' + other.end_date)
+        console.log('newEnd: ' + newMissionEnd)
         if (
-          element.start_date < newMissionStart &&
-          element.end_date > newMissionStart
+          other.start_date < newMissionStart &&
+          other.end_date > newMissionStart
         ) {
-          list.push(element);
+          // Si la mission qui va être créer commence pendant une ancienne mission
+          list.push(other);
+          console.log("Si la mission qui va être créer commence pendant une ancienne mission");
+        } else if (
+          other.start_date > newMissionStart &&
+          other.star_date < newMissionEnd &&
+          other.end_date > newMissionEnd
+        ) {
+          //Si la mission qui va être créer commence avant une autre mission et fini pendant celle-ci
+          console.log("Si la mission qui va être créer commence avant une autre mission et fini pendant celle-ci");
+          list.push(other);
+        } else if (
+          other.start_date > newMissionStart &&
+          other.end_date < newMissionEnd
+        ) {
+          //Si la mission qui va être créer commence avant une autre mission et et fini après
+          list.push(other);
+          console.log("Si la mission qui va être créer commence avant une autre mission et et fini après");
         }
       });
+      console.log(list);
       return list;
     },
     next() {
@@ -355,7 +404,6 @@ export default {
         this.form.end_date != null &&
         this.form.tjm != null
       ) {
-
         this.missionFiltered = this.filteredMissions(
           this.form.start_date,
           this.form.end_date
@@ -363,15 +411,24 @@ export default {
         if (this.missionFiltered.length == 0) {
           this.step++;
           this.error = "";
-          this.form.oldMissionImputation = 0;
-          this.form.newMissionImputation = 100;
+          this.form.old_mission_imputation = 0;
+          this.form.new_mission_imputation = 100;
         } else if (this.missionFiltered.length == 1) {
           this.step++;
+          this.form.old_mission_id = this.missionFiltered
+            .map((mission) => mission.id)
+            .toString();
+          this.form.old_mission_start = this.missionFiltered
+            .map((mission) => mission.start_date)
+            .toString();
+          this.form.old_mission_end = this.missionFiltered
+            .map((mission) => mission.end_date)
+            .toString();
           this.error = "";
         } else {
-          this.error = "Plus de 2 missions en même temps";
+          this.error =
+            "Vous ne pouvez pas avoir plus de 2 missions en même temps.";
         }
-
       } else {
         this.error = "Veuillez compléter tous les champs.";
       }
@@ -383,14 +440,27 @@ export default {
     });
     Axios.get("/projects").then((res) => {
       this.projects = res.data?.project;
+      if (this.customer_id) {
+        this.projects.forEach((project) => {
+          if (project.customer_id == this.customer_id) {
+            // Ajoute le projet correspondant à l'ID spécifié au tableau filtré
+            project.label_adv = project.label + " - " + project.adv;
+            this.projectsFiletred.push(project);
+          }
+        });
+      }
     });
-
     Axios.get("/associates").then((res) => {
-      this.associates = res.data?.associate;
+      res.data?.associate.forEach(associate => {
+        associate.full_name = associate.first_name + ' ' + associate.name
+        this.associates.push(associate)
+      });
     });
-    Axios.get("/associate/" + this.form.associate).then((res) => {
-      this.missions = res.data?.Missions;
-    });
+    if(this.associate_id) {
+      Axios.get("/associate/" + this.form.associate).then((res) => {
+        this.missions = res.data?.Missions;
+      });
+    }
   },
 };
 </script>

@@ -49,7 +49,7 @@
                 <v-autocomplete
                   v-model="form.manager"
                   :items="managers"
-                  item-title="name"
+                  item-title="full_name"
                   item-value="id"
                   label="Manager*"
                   variant="solo"
@@ -120,6 +120,7 @@ export default {
       snackbar: false,
       associates: [],
       customers: [],
+      managers: [],
     };
   },
   created() {
@@ -132,7 +133,12 @@ export default {
     });
 
     Axios.get("/associates/managers").then((res) => {
-      this.managers = res.data?.associate;
+      //this.managers = res.data?.associate;
+      console.log(res.data?.associate)
+      res.data?.associate.forEach(manager => {
+        manager.full_name = manager.first_name + ' ' + manager.name
+        this.managers.push(manager)
+      });
     });
   },
   methods: {

@@ -11,7 +11,7 @@
       </v-row>
     </v-row>
     <div class="table-responsive p-3">
-      <table class="table rounded-3 shadow bg-white">
+      <table class="table rounded-3 shadow bg-white table-striped">
         <thead>
           <tr style="border: white">
             <th>Collaborateur</th>
@@ -48,6 +48,11 @@
             ></td>
             <td
               class="mt-auto mb-auto"
+              v-if="
+                associate.Missions.map(
+                  (mission) => mission.Project.Associate.first_name
+                ) != ''
+              "
               v-text="
                 associate.Missions.map(
                   (mission) =>
@@ -57,23 +62,31 @@
                 ).join(', ')
               "
             ></td>
+            <td class="mt-auto mb-auto text-red" v-else v-text="'Intercontrat'"></td>
             <!-- Affichage du nom de client -->
             <td
               class="mt-auto mb-auto"
+              v-if="
+                associate.Missions.map(
+                  (mission) => mission.Project.Customer.label
+                ) != ''"
               v-text="
                 associate.Missions.map(
                   (mission) => mission.Project.Customer.label
                 ).join(', ')
               "
             ></td>
+            <td class="mt-auto mb-auto text-red" v-else v-text="'Intercontrat'"></td>
             <!-- Affichage du nom de projet -->
             <td
+            v-if="associate.Missions.map((project) => project.Project.label) != ''"
               v-text="
                 associate.Missions.map((project) => project.Project.label).join(
                   ', '
                 )
               "
             ></td>
+            <td class="mt-auto mb-auto text-red"  v-else v-text="'Intercontrat'"></td>
             <td>
               <router-link
                 :to="{ name: 'FicheCollabView', params: { id: associate.id } }"
@@ -140,7 +153,7 @@ export default {
         this.associates = res.data?.associate;
       });
     },
-    
+
     formAddCollab: function () {
       if (
         this.form.first_name != "" &&
@@ -153,20 +166,19 @@ export default {
         this.form.start_date != "" &&
         this.form.pru != ""
       ) {
-        Axios
-          .post("/associate", {
-            name: this.form.name,
-            first_name: this.form.first_name,
-            gender: this.form.sexe,
-            graduation_id: this.form.graduation,
-            job_id: this.form.job,
-            birthdate: this.form.birthdate,
-            start_date: this.form.start_date,
-            mail: this.form.mail,
-            pru: this.form.pru,
-            isTutor: this.form.isTutor,
-            isManager: this.form.isManager,
-          })
+        Axios.post("/associate", {
+          name: this.form.name,
+          first_name: this.form.first_name,
+          gender: this.form.sexe,
+          graduation_id: this.form.graduation,
+          job_id: this.form.job,
+          birthdate: this.form.birthdate,
+          start_date: this.form.start_date,
+          mail: this.form.mail,
+          pru: this.form.pru,
+          isTutor: this.form.isTutor,
+          isManager: this.form.isManager,
+        })
           .then((response) => {
             console.log(response);
             this.dialog = false;
@@ -186,7 +198,6 @@ export default {
   created() {
     Axios.get("/associates").then((res) => {
       this.associates = res.data?.associate;
-      console.log(this.associates)
     });
     Axios.get("/jobs").then((res) => {
       this.jobs = res.data?.job;
