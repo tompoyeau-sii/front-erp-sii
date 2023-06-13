@@ -59,7 +59,7 @@
       </v-col>
       <v-row justify="end">
         <v-col lg="6">
-          <AddProjectForm />
+          <AddProjectForm :customer_id="$route.params.client.id"/>
         </v-col>
       </v-row>
     </v-row>

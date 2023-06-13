@@ -37,12 +37,23 @@
               </v-col>
               <v-col cols="12" sm="6">
                 <v-autocomplete
+                v-if="customer_id == null"
                   v-model="form.customer"
                   :items="customers"
                   item-title="label"
                   item-value="id"
                   label="Client*"
                   variant="solo"
+                ></v-autocomplete>
+                <v-autocomplete
+                v-else
+                  v-model="form.customer"
+                  :items="customers"
+                  item-title="label"
+                  item-value="id"
+                  label="Client*"
+                  variant="solo"
+                  disabled
                 ></v-autocomplete>
               </v-col>
               <v-col cols="12">
@@ -103,19 +114,20 @@
 
 <script>
 import Axios from "@/_services/caller.service";
+
 export default {
   name: "AddProjectForm",
+  props: ["customer_id"],
   data() {
     return {
       form: {
         label: "",
         adv: null,
-        customer: null,
+        customer: this.customer_id,
         manager: null,
       },
       dialog: false,
       error: "",
-      projects: [],
       SuccessState: false,
       snackbar: false,
       associates: [],
@@ -124,13 +136,6 @@ export default {
     };
   },
   created() {
-    Axios.get("/projects").then((res) => {
-      this.projects = this.$route.params.Projects;
-    });
-
-    Axios.get("/customers").then((res) => {
-      this.customers = res.data?.customer;
-    });
 
     Axios.get("/associates/managers").then((res) => {
       //this.managers = res.data?.associate;

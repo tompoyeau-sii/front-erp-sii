@@ -38,55 +38,60 @@
             </td>
             <td
               class="mt-auto mb-auto"
-              v-if="associate.Jobs.map((job) => job.label) != ''"
-              v-text="associate.Jobs.map((job) => job.label).join(', ')"
+              v-if="posteEnCours(associate.id).map((job) => job) != ''"
+              v-text="posteEnCours(associate.id).map((job) => job).join(', ')"
             ></td>
             <td
               class="mt-auto mb-auto"
               v-else
               v-text="'Pas encore de poste'"
             ></td>
+            <!-- Affichage du nom prenom du manager -->
             <td
               class="mt-auto mb-auto"
               v-if="
-                associate.Missions.map(
-                  (mission) => mission.Project.Associate.first_name
-                ) != ''
+                managerEnCours(associate.id).map((mission) => mission) != ''
               "
               v-text="
-                associate.Missions.map(
-                  (mission) =>
-                    mission.Project.Associate.first_name +
-                    ' ' +
-                    mission.Project.Associate.name
-                ).join(', ')
+                managerEnCours(associate.id)
+                  .map((mission) => mission)
+                  .join(', ')
               "
             ></td>
-            <td class="mt-auto mb-auto text-red" v-else v-text="'Intercontrat'"></td>
+            <td
+              class="mt-auto mb-auto text-red"
+              v-else
+              v-text="'Intercontrat'"
+            ></td>
             <!-- Affichage du nom de client -->
             <td
               class="mt-auto mb-auto"
-              v-if="
-                associate.Missions.map(
-                  (mission) => mission.Project.Customer.label
-                ) != ''"
+              v-if="clientEnCours(associate.id).map((mission) => mission) != ''"
               v-text="
-                associate.Missions.map(
-                  (mission) => mission.Project.Customer.label
-                ).join(', ')
+                clientEnCours(associate.id)
+                  .map((mission) => mission)
+                  .join(', ')
               "
             ></td>
-            <td class="mt-auto mb-auto text-red" v-else v-text="'Intercontrat'"></td>
+            <td
+              class="mt-auto mb-auto text-red"
+              v-else
+              v-text="'Intercontrat'"
+            ></td>
             <!-- Affichage du nom de projet -->
             <td
-            v-if="associate.Missions.map((project) => project.Project.label) != ''"
+              v-if="projetEnCours(associate.id) != ''"
               v-text="
-                associate.Missions.map((project) => project.Project.label).join(
-                  ', '
-                )
+                projetEnCours(associate.id)
+                  .map((project) => project)
+                  .join(', ')
               "
             ></td>
-            <td class="mt-auto mb-auto text-red"  v-else v-text="'Intercontrat'"></td>
+            <td
+              class="mt-auto mb-auto text-red"
+              v-else
+              v-text="'Intercontrat'"
+            ></td>
             <td>
               <router-link
                 :to="{ name: 'FicheCollabView', params: { id: associate.id } }"
@@ -114,6 +119,7 @@
 <script>
 import Axios from "@/_services/caller.service";
 import AddCollabForm from "@/components/forms/AddCollabForm.vue";
+import { format } from "date-fns";
 export default {
   name: "Collaborateur",
   components: {
@@ -121,89 +127,101 @@ export default {
   },
   data() {
     return {
-      form: {
-        name: "",
-        first_name: "",
-        sexe: "",
-        graduation: "",
-        birthdate: "",
-        job: "",
-        mail: this.first_name + "." + this.name + "@sii.fr",
-        start_date: "",
-        pru: "",
-        isManager: null,
-        isTutor: null,
-      },
-      dialog: false,
-      success: "",
       associates: [],
-      jobs: [],
-      graduations: [],
       error: "",
-      items: [],
-      model: null,
       SuccessState: true,
       snackbar: false,
+      missions: [],
     };
   },
   methods: {
+    todayDate() {
+      return format(new Date(), "yyyy-MM-dd");
+    },
+    projetEnCours(associate_id) {
+      var missionOfCollab = [];
+      this.associates.forEach((associate) => {
+        if (associate.id == associate_id) {
+          associate.Missions.forEach((mission) => {
+            if (
+              mission.start_date < this.todayDate() &&
+              mission.end_date > this.todayDate() &&
+              mission.associate_id == associate_id
+            ) {
+              missionOfCollab.push(mission.Project.label);
+            }
+          });
+        }
+      });
+      return missionOfCollab;
+    },
+    clientEnCours(associate_id) {
+      var missionOfCollab = [];
+      this.associates.forEach((associate) => {
+        if (associate.id == associate_id) {
+          associate.Missions.forEach((mission) => {
+            if (
+              mission.start_date < this.todayDate() &&
+              mission.end_date > this.todayDate() &&
+              mission.associate_id == associate_id
+            ) {
+              missionOfCollab.push(mission.Project.Customer.label);
+            }
+          });
+        }
+      });
+      return missionOfCollab;
+    },
+    managerEnCours(associate_id) {
+      var missionOfCollab = [];
+      this.associates.forEach((associate) => {
+        if (associate.id == associate_id) {
+          associate.Missions.forEach((mission) => {
+            if (
+              mission.start_date < this.todayDate() &&
+              mission.end_date > this.todayDate() &&
+              mission.associate_id == associate_id
+            ) {
+              missionOfCollab.push(
+                mission.Project.Associate.first_name +
+                  " " +
+                  mission.Project.Associate.name
+              );
+            }
+          });
+        }
+      });
+      return missionOfCollab;
+    },
+    posteEnCours(associate_id) {
+      var missionOfCollab = [];
+      this.associates.forEach((associate) => {
+        if (associate.id == associate_id) {
+          associate.Jobs.forEach((job) => {
+            if (
+              job.Associate_Job.start_date <= this.todayDate() &&
+              job.Associate_Job.end_date >= this.todayDate() &&
+              job.Associate_Job.associate_id == associate_id
+            ) {
+              missionOfCollab.push(job.label);
+            }
+          });
+        }
+      });
+      console.log('poste' + missionOfCollab)
+      return missionOfCollab;
+    },
     refresh() {
       this.associates = [];
       Axios.get("/associates").then((res) => {
         this.associates = res.data?.associate;
       });
     },
-
-    formAddCollab: function () {
-      if (
-        this.form.first_name != "" &&
-        this.form.name != "" &&
-        this.form.sexe != "" &&
-        this.form.graduation != "" &&
-        this.form.job != "" &&
-        this.form.birthdate != "" &&
-        this.form.mail != "" &&
-        this.form.start_date != "" &&
-        this.form.pru != ""
-      ) {
-        Axios.post("/associate", {
-          name: this.form.name,
-          first_name: this.form.first_name,
-          gender: this.form.sexe,
-          graduation_id: this.form.graduation,
-          job_id: this.form.job,
-          birthdate: this.form.birthdate,
-          start_date: this.form.start_date,
-          mail: this.form.mail,
-          pru: this.form.pru,
-          isTutor: this.form.isTutor,
-          isManager: this.form.isManager,
-        })
-          .then((response) => {
-            console.log(response);
-            this.dialog = false;
-            this.SuccessState = true;
-            this.error = "";
-            this.success = "Nouveau collaborateurs ajouté.";
-            this.refresh();
-          })
-          .catch(function (err) {
-            console.log(err);
-          });
-      } else {
-        this.error = "Tous les champs sont obligatoires.";
-      }
-    },
   },
   created() {
     Axios.get("/associates").then((res) => {
       this.associates = res.data?.associate;
-    });
-    Axios.get("/jobs").then((res) => {
-      this.jobs = res.data?.job;
-    });
-    Axios.get("/graduations").then((res) => {
-      this.graduations = res.data?.graduation;
+      console.log(this.associates);
     });
   },
 };
