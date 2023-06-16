@@ -208,7 +208,6 @@ export default {
           });
         }
       });
-      console.log('poste' + missionOfCollab)
       return missionOfCollab;
     },
     refresh() {
@@ -221,7 +220,6 @@ export default {
   created() {
     Axios.get("/associates").then((res) => {
       this.associates = res.data?.associate;
-      console.log(this.associates);
     });
   },
 };

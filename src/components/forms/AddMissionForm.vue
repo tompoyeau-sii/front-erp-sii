@@ -227,17 +227,21 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+  <v-snackbar
+    v-if="SuccessState == true"
+    v-model="snackbar"
+    w-auto
+    color="green"
+    timeout="3000"
+  >
+    <v-icon start icon="mdi-checkbox-marked-circle"></v-icon>
+    {{ success }}
+  </v-snackbar>
 </template>
 
 <script>
 import Axios from "@/_services/caller.service";
-import {
-  format,
-  parseISO,
-  isBefore,
-  isAfter,
-  isWithinInterval,
-} from "date-fns";
+import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 export default {
   name: "AddMissionForm",
@@ -262,6 +266,7 @@ export default {
       customer: this.customer_id,
       dialog: false,
       error: "",
+      success: "",
       SuccessState: false,
       snackbar: false,
       associates: [],
@@ -333,28 +338,15 @@ export default {
           old_mission_end: this.form.old_mission_end,
           old_mission_imputation: this.form.old_mission_imputation,
           new_mission_imputation: this.form.new_mission_imputation,
-        }).then(
-          (response) => {
-            console.log('réussi')
-            this.dialog = false;
-            this.CreateState = false;
-            this.SuccessState = true;
-            this.success = "Nouvelle mission créée";
-            this.error = "";
-          },
-          (response) => {
-            this.SuccessState = false;
-            console.log(response);
-          }
-        );
+        }).then((response) => {
+          console.log("réussi");
+          this.dialog = false;
+          this.CreateState = false;
+          this.SuccessState = true;
+          this.success = "Nouvelle mission créée";
+          this.error = "";
+        });
       } else {
-        console.log(this.form.label);
-        console.log(this.form.associate);
-        console.log(this.form.project);
-        console.log(this.form.start_date);
-        console.log(this.form.end_date);
-        console.log(this.form.tjm);
-        console.log(this.totalImputation);
         this.error = "Veuillez compléter tous les champs.";
       }
     },
@@ -364,24 +356,28 @@ export default {
     filteredMissions(newMissionStart, newMissionEnd) {
       const list = [];
       this.missions.forEach((other) => {
-        console.log('otherStart: ' + other.start_date)
-        console.log('newStart: ' + newMissionStart)
-        console.log('otherEnd: ' + other.end_date)
-        console.log('newEnd: ' + newMissionEnd)
+        console.log("otherStart: " + other.start_date);
+        console.log("newStart: " + newMissionStart);
+        console.log("otherEnd: " + other.end_date);
+        console.log("newEnd: " + newMissionEnd);
         if (
           other.start_date < newMissionStart &&
           other.end_date > newMissionStart
         ) {
           // Si la mission qui va être créer commence pendant une ancienne mission
           list.push(other);
-          console.log("Si la mission qui va être créer commence pendant une ancienne mission");
+          console.log(
+            "Si la mission qui va être créer commence pendant une ancienne mission"
+          );
         } else if (
           other.start_date > newMissionStart &&
           other.star_date < newMissionEnd &&
           other.end_date > newMissionEnd
         ) {
           //Si la mission qui va être créer commence avant une autre mission et fini pendant celle-ci
-          console.log("Si la mission qui va être créer commence avant une autre mission et fini pendant celle-ci");
+          console.log(
+            "Si la mission qui va être créer commence avant une autre mission et fini pendant celle-ci"
+          );
           list.push(other);
         } else if (
           other.start_date > newMissionStart &&
@@ -389,7 +385,9 @@ export default {
         ) {
           //Si la mission qui va être créer commence avant une autre mission et et fini après
           list.push(other);
-          console.log("Si la mission qui va être créer commence avant une autre mission et et fini après");
+          console.log(
+            "Si la mission qui va être créer commence avant une autre mission et et fini après"
+          );
         }
       });
       console.log(list);
@@ -451,12 +449,12 @@ export default {
       }
     });
     Axios.get("/associates").then((res) => {
-      res.data?.associate.forEach(associate => {
-        associate.full_name = associate.first_name + ' ' + associate.name
-        this.associates.push(associate)
+      res.data?.associate.forEach((associate) => {
+        associate.full_name = associate.first_name + " " + associate.name;
+        this.associates.push(associate);
       });
     });
-    if(this.associate_id) {
+    if (this.associate_id) {
       Axios.get("/associate/" + this.form.associate).then((res) => {
         this.missions = res.data?.Missions;
       });

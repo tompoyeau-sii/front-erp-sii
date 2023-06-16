@@ -13,7 +13,7 @@
       <v-form v-on:submit.prevent="formAddProject">
         <v-card-title>
           <v-row justify="center" class="mt-3">
-            <h1  class="form-title">Créer un nouveau projet</h1>
+            <h1 class="form-title">Créer un nouveau projet</h1>
           </v-row>
         </v-card-title>
         <v-card-text>
@@ -37,7 +37,7 @@
               </v-col>
               <v-col cols="12" sm="6">
                 <v-autocomplete
-                v-if="customer_id == null"
+                  v-if="customer_id == null"
                   v-model="form.customer"
                   :items="customers"
                   item-title="label"
@@ -46,7 +46,7 @@
                   variant="solo"
                 ></v-autocomplete>
                 <v-autocomplete
-                v-else
+                  v-else
                   v-model="form.customer"
                   :items="customers"
                   item-title="label"
@@ -114,7 +114,7 @@
 
 <script>
 import Axios from "@/_services/caller.service";
-
+import { format } from "date-fns";
 export default {
   name: "AddProjectForm",
   props: ["customer_id"],
@@ -136,18 +136,28 @@ export default {
     };
   },
   created() {
-
     Axios.get("/associates/managers").then((res) => {
       //this.managers = res.data?.associate;
-      console.log(res.data?.associate)
-      res.data?.associate.forEach(manager => {
-        manager.full_name = manager.first_name + ' ' + manager.name
-        this.managers.push(manager)
+      console.log(res.data?.associate);
+      res.data?.associate.forEach((job) => {
+        job.Associates.forEach((manager) => {
+          if (
+            manager.Associate_Job.start_date < this.todayDate() &&
+            manager.Associate_Job.end_date > this.todayDate()
+            ) {
+              manager.full_name = manager.first_name + " " + manager.name;
+              console.log(manager)
+              this.managers.push(manager);
+          }
+        });
       });
     });
   },
   methods: {
-    formAddProject: function () {
+    todayDate() {
+      return format(new Date(), "yyyy/MM/dd");
+    },
+    formAddProject() {
       if (
         this.form.label !== "" &&
         this.form.adv !== "" &&

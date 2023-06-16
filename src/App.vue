@@ -3,7 +3,7 @@
     <v-main>
       <router-view />
     </v-main>
-    <!-- <myToolBar /> -->
+    <myToolBar v-if="showToolbar" />
   </v-app>
 </template>
 
@@ -13,8 +13,13 @@ export default {
   name: "app",
   components: {
     myToolBar,
-  }
-  
+  },
+  computed: {
+    showToolbar() {
+      // Vérifiez si la route actuelle n'est pas la page d'accueil
+      return this.$route.name !== "ConnexionView";
+    },
+  },
 };
 </script>
 
@@ -25,6 +30,6 @@ export default {
 }
 
 router-link {
-  text-decoration: none!important
+  text-decoration: none !important;
 }
 </style>

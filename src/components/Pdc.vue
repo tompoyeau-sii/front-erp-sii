@@ -14,8 +14,15 @@
     ></v-progress-circular>
 
     <div class="display" v-else>
+      <v-select
+        label="Année"
+        :items="years"
+        variant="solo"
+        density="compact"
+        v-model="selectedYear"
+      ></v-select>
       <v-row justify="end" class="mb-3">
-        <v-btn class="mr-2" color="deep-purple-darken-3"> Facturé </v-btn>
+        <v-btn class="mr-2" color="deep-purple-darken-3"> En mission </v-btn>
         <v-btn class="mr-2" color="deep-purple-lighten-4 ">
           Intercontrat
         </v-btn>
@@ -24,6 +31,9 @@
       <div class="row">
         <v-table class="col-1">
           <tbody>
+            <tr>
+              <th></th>
+            </tr>
             <tr>
               <th></th>
             </tr>
@@ -39,18 +49,34 @@
         <v-table class="col-11">
           <thead>
             <tr>
-              <th v-for="week in weeks" :key="week.label">
-                {{ week.label }}
+              <th v-for="year in weeksFiltered" :key="year.weekNumber">
+                {{'S'+ year.weekNumber }}
+              </th>
+            </tr>
+            <tr>
+              <th v-for="year in weeksFiltered" :key="year.weekNumber">
+                <div v-if="nbContract(year)">
+                  <span class="text-deep-purple-darken-3" >
+                    {{ totalTrue }}
+                  </span>
+                  /
+                  <span class="text-deep-purple-lighten-4">{{ totalFalse }}</span>
+
+                </div>
               </th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="associate in associates" :key="associate.id">
-              <td id="facture" v-for="week in weeks" :key="week.label">
+              <td
+                id="facture"
+                v-for="year in weeksFiltered"
+                :key="year.weekNumber"
+              >
                 <div style="display: flex">
                   <v-btn
                     color="deep-purple-darken-3"
-                    v-if="isWorking(associate, week)"
+                    v-if="isWorking(associate, year)"
                   ></v-btn>
                   <v-btn color="deep-purple-lighten-4" v-else></v-btn>
                 </div>
@@ -65,16 +91,36 @@
 
 <script>
 import Axios from "@/_services/caller.service";
-import { format } from "date-fns";
+import {
+  eachWeekOfInterval,
+  getISOWeek,
+  startOfWeek,
+  endOfWeek,
+  format,
+} from "date-fns";
 export default {
   name: "Pdc",
   data() {
     return {
       weeks: [],
+      weeksFiltered: [],
+      totalTrue: 0,
+      totalFalse: 0,
       associates: "",
       loading: true,
+      selectedYear: 2023,
+      years: [2020, 2021, 2022, 2023, 2024, 2025],
     };
   },
+
+  watch: {
+    selectedYear(newYear) {
+      this.totalTrue = 0;
+      this.weeks = this.generateWeekList(newYear);
+      this.weeksFilter();
+    },
+  },
+
   methods: {
     formatDate(date) {
       const year = date.getFullYear().toString();
@@ -89,50 +135,71 @@ export default {
       return year + "-" + month + "-" + day;
     },
 
-    isWorking(associate, week) {
+    nbContract(week) {
+      this.totalTrue = 0;
+      this.totalFalse = 0;
+      this.associates.forEach((associate) => {
+        if (this.isWorking(associate, week)) {
+          this.totalTrue++;
+        } else {
+          this.totalFalse++;
+        }
+      });
+      return true;
+    },
+
+    isWorking(associate, year) {
       for (let mission of associate.Missions) {
-        if (mission.start_date < week.end && mission.end_date > week.start) {
+        if (
+          mission.start_date < year.endDate &&
+          mission.end_date > year.startDate
+        ) {
           return true;
         }
       }
       return false;
     },
 
-    getWeeksOfYear(year) {
-      const date = new Date(year, 0, 1); // 1er janvier de l'année
-      const dayOfWeek = date.getDay(); // Jour de la semaine (0 = dimanche, 1 = lundi, ..., 6 = samedi)
+    generateWeekList(year) {
+      const startDate = new Date(year, 0, 1); // Premier jour de l'année
+      const endDate = new Date(year + 1, 11, 31); // Dernier jour de l'année
 
-      const firstMondayDate = new Date(
-        date.getTime() + ((8 - dayOfWeek) % 7) * 86400000
-      ); // Date du 1er lundi de l'année
-      if (firstMondayDate.getMonth() < 10) {
-        // month = "0"+firstMondayDate.getMonth().toLocaleString()
-      }
-      const weeks = [
-        {
-          label: "S1",
-          start: format(firstMondayDate, "yyyy-MM-dd"),
-          end: format(
-            new Date(firstMondayDate.getTime() + 6 * 86400000),
-            "yyyy-MM-dd"
-          ),
-        },
-      ]; // Tableau des semaines (initialisé avec la première semaine)
-      let currentWeek = 2; // Numéro de la semaine courante (commence à 2 car la première semaine est déjà dans le tableau)
-      let currentDate = new Date(firstMondayDate.getTime() + 7 * 86400000); // Date du lundi de la deuxième semaine
-      while (currentDate.getFullYear() === year) {
-        // Tant que la date courante est dans l'année demandée
-        const startOfWeek = currentDate;
-        const endOfWeek = new Date(startOfWeek.getTime() + 6 * 86400000);
-        weeks.push({
-          label: "S" + currentWeek,
-          start: format(startOfWeek, "yyyy-MM-dd"),
-          end: format(endOfWeek, "yyyy-MM-dd"),
-        }); // Ajoute la semaine courante au tableau
-        currentWeek++; // Passe à la semaine suivante
-        currentDate = new Date(currentDate.getTime() + 7 * 86400000); // Passe à la date du lundi de la semaine suivante
-      }
-      return weeks;
+      const allWeeks = eachWeekOfInterval({
+        start: startDate,
+        end: endDate,
+        weekStartsOn: 1,
+      });
+
+      const weekList = allWeeks.map((date) => {
+        const weekNumber = getISOWeek(date);
+        const startDateOfWeek = startOfWeek(date, { weekStartsOn: 1 });
+        const endDateOfWeek = endOfWeek(date, { weekStartsOn: 1 });
+        return {
+          weekNumber,
+          startDate: format(startDateOfWeek, "yyyy-MM-dd"),
+          endDate: format(endDateOfWeek, "yyyy-MM-dd"),
+        };
+      });
+
+      return weekList;
+    },
+
+    weeksFilter() {
+      this.weeksFiltered = [];
+      let i = 0;
+      let tour = false;
+      this.weeks.forEach((week) => {
+        i++;
+        if (i > 14 && !tour) {
+          this.weeksFiltered.push(week);
+        } else if (i < 14 && tour == true) {
+          this.weeksFiltered.push(week);
+        }
+        if (i == 53) {
+          i = 0;
+          tour = true;
+        }
+      });
     },
   },
   created() {
@@ -141,7 +208,11 @@ export default {
       this.loading = false;
     });
 
-    this.weeks = this.getWeeksOfYear(2023);
+    // this.weeks = this.getWeeksOfYear(2023);
+    this.weeks = this.generateWeekList(this.selectedYear);
+    this.weeksFilter();
+    console.log(this.weeks);
+    console.log(this.weeksFiltered);
   },
 };
 </script>

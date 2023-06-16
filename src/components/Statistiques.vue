@@ -1,98 +1,76 @@
 <template>
   <div class="container">
     <v-tabs v-model="tab" color="deep-purple-darken-3" align-tabs="center">
-      <v-tab :value="1">Statistiques</v-tab>
-      <v-tab :value="2">Business</v-tab>
-      <v-tab :value="3">Abstract</v-tab>
+      <v-tab value="1">Statistiques</v-tab>
+      <v-tab value="2">Business</v-tab>
+      <v-tab value="3">Autres</v-tab>
     </v-tabs>
     <v-window v-model="tab">
-      <v-window-item v-for="n in 3" :key="n" :value="n">
-        <v-container fluid>
+      <v-window-item value="1">
+        <v-container>
           <v-row>
-            <v-col class="border shadow rounded-3 m-5" cols="12" md="3">
-              <h5>Hommes / Femmes</h5>
-              <Pie
-                v-if="dataLoaded"
-                id="my-chart-id"
-                :options="chartOptions"
-                :data="chartData"
-              />
-            </v-col>
+            <v-select
+              v-model="manager"
+              label="Manager"
+              :items="managers"
+              item-title="full_name"
+              item-value="id"
+              variant="solo"
+            ></v-select>
           </v-row>
+          {{ ca }}
         </v-container>
+      </v-window-item>
+      <v-window-item value="2">
+        <v-row>
+          <GChart type="PieChart" :data="chartData" />
+        </v-row>
+      </v-window-item>
+      <v-window-item value="3">
+        <v-row>
+          <GChart type="PieChart" :data="chartData" />
+        </v-row>
       </v-window-item>
     </v-window>
   </div>
 </template>
 
 <script>
-import { Bar, Pie, Doughnut } from "vue-chartjs";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-} from "chart.js";
 import Axios from "@/_services/caller.service";
-ChartJS.register(
-  Title,
-  ArcElement,
-  Tooltip,
-  Legend,
-  BarElement,
-  CategoryScale,
-  LinearScale
-);
-
+import { GChart } from "vue-google-charts";
+import { format } from "date-fns";
 export default {
   name: "Statistiques",
-  components: { Bar, Pie, Doughnut },
+  components: { GChart },
   data() {
     return {
-      tab: null,
-      associates: [],
+      ca: 0,
       nbHommes: 0,
       nbFemmes: 0,
-      chartData: {
-        labels: ["Homme", "Femme"],
-        datasets: [
-          {
-            data: [this.nbHommes, this.nbFemmes],
-            backgroundColor: ["#75519B", "#E84654"],
-          },
-        ],
-      },
-      chartOptions: {
-        responsive: true,
-        plugins: {
-          legend: {
-            display: true,
-            position: "top",
-            labels: {
-              generateLabels(chart) {
-                const data = chart.data.datasets[0].data;
-                const total = data.reduce((a, b) => a + b, 0);
-
-                return data.map((value, index) => {
-                  const percentage = ((value / total) * 100).toFixed(2);
-                  return {
-                    text: `${chart.data.labels[index]} (${percentage}%)`,
-                    fillStyle: chart.data.datasets[0].backgroundColor[index],
-                  };
-                });
-              },
-            },
-          },
-        },
-      },
+      chartData: [],
+      managers: [],
+      manager: null,
+      tab: null,
+      associates: [],
+      projectsOfManager: [],
       dataLoaded: false, // propriété pour savoir si les données sont chargées ou non
     };
   },
   created() {
+    Axios.get("/associates/managers").then((res) => {
+      //this.managers = res.data?.associate;
+      res.data?.associate.forEach((job) => {
+        job.Associates.forEach((manager) => {
+          if (
+            manager.Associate_Job.start_date < this.todayDate() &&
+            manager.Associate_Job.end_date > this.todayDate()
+          ) {
+            manager.full_name = manager.first_name + " " + manager.name;
+            this.managers.push(manager);
+          }
+        });
+      });
+    });
     Axios.get("/associates").then((res) => {
       this.associates = res.data?.associate;
       this.associates.forEach((person) => {
@@ -103,18 +81,47 @@ export default {
         }
       });
 
-      this.chartData.datasets[0].data[0] = this.nbHommes;
-      this.chartData.datasets[0].data[1] = this.nbFemmes;
+      // this.chartData.datasets[0].data[0] = this.nbHommes;
+      // this.chartData.datasets[0].data[1] = this.nbFemmes;
 
-      this.dataLoaded = true; // marquer les données comme chargées
+      (this.chartData = [
+        ["Element", "Quantity"],
+        ["Hommes", this.nbHommes],
+        ["Femmes", this.nbFemmes],
+      ]),
+        (this.dataLoaded = true); // marquer les données comme chargées
     });
   },
+
   watch: {
-    nbHommes: function (newValue, oldValue) {
-      this.chartData.datasets[0].data[0] = newValue;
+    manager(newManager) {
+      this.getCaOfManager();
     },
-    nbFemmes: function (newValue, oldValue) {
-      this.chartData.datasets[0].data[1] = newValue;
+  },
+
+  methods: {
+    todayDate() {
+      return format(new Date(), "yyyy/MM/dd");
+    },
+    getCaOfManager() {
+      let ca = 0;
+      this.managers.forEach((manager) => {
+        if (manager.id == this.manager) {
+          manager.Projects.forEach((project) => {
+            project.Missions.forEach((mission) => {
+              mission.TJMs.forEach((TJM) => {
+                ca += TJM.value;
+              });
+              mission.Associate.PRUs.forEach((PRU) => {
+                if(PRU.start_date < this.todayDate() && PRU.end_date > this.todayDate()) {
+                  ca -= PRU.value;
+                }
+              })
+            });
+          });
+        }
+      });
+      this.ca = ca;
     },
   },
 };

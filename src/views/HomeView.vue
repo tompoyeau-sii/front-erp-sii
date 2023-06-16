@@ -1,19 +1,15 @@
 <template>
   <Dashboard />
-  <myToolBar />
 </template>
 
 <script>
 // Components
 import Dashboard from "@/components/Dashboard";
-
-import myToolBar from "@/components/MyToolbar.vue";
 export default {
   name: "HomeView",
 
   components: {
     Dashboard,
-    myToolBar,
   },
 };
 </script>

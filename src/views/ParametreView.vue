@@ -14,13 +14,11 @@
       </v-col>
     </div>
   </div>
-  <myToolBar />
 </template>
 
 <script>
 // Components
 import Parametre from "@/components/parameters/Parametre.vue";
-import myToolBar from "@/components/MyToolbar.vue";
 import Diplome from "@/components/parameters/Diplome.vue";
 import Jobs from "@/components/parameters/Jobs.vue";
 import Genres from "@/components/parameters/Genre.vue";
@@ -29,7 +27,6 @@ export default {
 
   components: {
     Parametre,
-    myToolBar,
     Diplome,
     Jobs,
     Genres,
