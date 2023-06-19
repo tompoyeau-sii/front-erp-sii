@@ -36,7 +36,7 @@
           value="pdc"
         ></v-list-item>
       </router-link>
-      <router-link to="/Statistiques">
+      <router-link to="/statistiques">
         <v-list-item
           prepend-icon="mdi-chart-areaspline"
           title="Statistiques"

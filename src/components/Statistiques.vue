@@ -18,17 +18,19 @@
               variant="solo"
             ></v-select>
           </v-row>
-          {{ ca }}
+          <v-row>
+            <v-col cols="12" lg="12">
+              <GChart v-if="dataLoaded" type="LineChart" :options="chartOptions" :data="caDataChart" />
+            </v-col>
+          </v-row>
         </v-container>
       </v-window-item>
       <v-window-item value="2">
-        <v-row>
-          <GChart type="PieChart" :data="chartData" />
-        </v-row>
+        <v-container> </v-container>
       </v-window-item>
       <v-window-item value="3">
         <v-row>
-          <GChart type="PieChart" :data="chartData" />
+          <GChart type="LineChart" :data="caDataChart" />
         </v-row>
       </v-window-item>
     </v-window>
@@ -38,16 +40,23 @@
 <script>
 import Axios from "@/_services/caller.service";
 import { GChart } from "vue-google-charts";
-import { format } from "date-fns";
+import {
+  startOfMonth,
+  endOfMonth,
+  eachMonthOfInterval,
+  format,
+} from "date-fns";
+import { fr } from "date-fns/locale";
 export default {
   name: "Statistiques",
   components: { GChart },
   data() {
     return {
-      ca: 0,
+      ca: [],
       nbHommes: 0,
       nbFemmes: 0,
-      chartData: [],
+      caDataChart: [],
+      chartOptions: [],
       managers: [],
       manager: null,
       tab: null,
@@ -84,18 +93,24 @@ export default {
       // this.chartData.datasets[0].data[0] = this.nbHommes;
       // this.chartData.datasets[0].data[1] = this.nbFemmes;
 
-      (this.chartData = [
-        ["Element", "Quantity"],
-        ["Hommes", this.nbHommes],
-        ["Femmes", this.nbFemmes],
-      ]),
-        (this.dataLoaded = true); // marquer les données comme chargées
     });
   },
 
   watch: {
     manager(newManager) {
-      this.getCaOfManager();
+      this.ca = this.getCaOfManager(this.generateMonthList(2023), newManager);
+
+      this.caDataChart = [
+        ["Mois", "CA"],
+        ...this.ca.map(({ month, value}) => [month, value])
+      ],
+
+      this.chartOptions = {
+        chart: {
+          title: "Chiffre d'affaire"
+        }
+      }
+      this.dataLoaded = true
     },
   },
 
@@ -103,25 +118,75 @@ export default {
     todayDate() {
       return format(new Date(), "yyyy/MM/dd");
     },
-    getCaOfManager() {
-      let ca = 0;
+
+    generateMonthList(year) {
+      const list_start = startOfMonth(new Date(year, 3, 1));
+      const list_end = startOfMonth(new Date(year + 1, 2, 1));
+      const monthsList = eachMonthOfInterval({
+        start: list_start,
+        end: list_end,
+        monthStartsOn: 1,
+      });
+
+      const allMonths = monthsList.map((date) => {
+        const month = format(date, "MMMM", { locale: fr });
+        const startDateOfWeek = startOfMonth(date, { weekStartsOn: 1 });
+        const endDateOfWeek = endOfMonth(date, { weekEndsOn: 1 });
+        return {
+          monthNumber: month,
+          start_date: format(startDateOfWeek, "yyyy-MM-dd"),
+          end_date: format(endDateOfWeek, "yyyy-MM-dd"),
+        };
+      });
+      console.log(allMonths);
+      return allMonths;
+    },
+
+    getCaOfManager(months, managerSelected) {
+      this.ca = [];
+      let value = 0;
       this.managers.forEach((manager) => {
-        if (manager.id == this.manager) {
-          manager.Projects.forEach((project) => {
-            project.Missions.forEach((mission) => {
-              mission.TJMs.forEach((TJM) => {
-                ca += TJM.value;
-              });
-              mission.Associate.PRUs.forEach((PRU) => {
-                if(PRU.start_date < this.todayDate() && PRU.end_date > this.todayDate()) {
-                  ca -= PRU.value;
-                }
-              })
+        if (manager.id == managerSelected) {
+          months.forEach((month) => {
+            manager.PRUs.forEach((PRU) => {
+              if (
+                PRU.start_date < month.start_date &&
+                PRU.end_date > month.end_date
+              ) {
+                value -= PRU.value;
+              }
             });
+            manager.Projects.forEach((project) => {
+              project.Missions.forEach((mission) => {
+                if (
+                  mission.start_date < month.start_date &&
+                  mission.end_date > month.end_date
+                ) {
+                  mission.TJMs.forEach((TJM) => {
+                    if (
+                      TJM.start_date < month.start_date &&
+                      TJM.end_date > month.end_date
+                    ) {
+                      value += TJM.value;
+                    }
+                  });
+                  mission.Associate.PRUs.forEach((PRU) => {
+                    if (
+                      PRU.start_date < month.start_date &&
+                      PRU.end_date > month.end_date
+                    ) {
+                      value -= PRU.value;
+                    }
+                  });
+                }
+              });
+            });
+            this.ca.push({ month: month.monthNumber, value: value });
           });
         }
       });
-      this.ca = ca;
+      console.log(this.ca);
+      return this.ca
     },
   },
 };
