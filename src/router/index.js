@@ -92,6 +92,12 @@ const routes = [
     beforeEnter: authGuard,
     component: () => import(/* webpackChunkName: "new" */ '../views/PdcView.vue')
   },
+  {
+    path: '/test',
+    name: 'TestView',
+    beforeEnter: authGuard,
+    component: () => import(/* webpackChunkName: "new" */ '../views/TestView.vue')
+  },
 ]
 
 const router = createRouter({

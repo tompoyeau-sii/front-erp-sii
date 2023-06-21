@@ -14,6 +14,12 @@
     ></v-progress-circular>
 
     <div class="display" v-else>
+      <!-- <v-text-field
+        v-model="search"
+        clearable
+        variant="solo"
+        label="Collaborateur"
+      ></v-text-field> -->
       <v-select
         label="Année"
         :items="years"
@@ -37,7 +43,7 @@
             <tr>
               <th></th>
             </tr>
-            <tr v-for="associate in associates" :key="associate.id">
+            <tr v-for="associate in associatesContrat" :key="associate.id">
               <td>
                 <p>
                   {{ associate.first_name + " " + associate.name }}
@@ -50,24 +56,25 @@
           <thead>
             <tr>
               <th v-for="year in weeksFiltered" :key="year.weekNumber">
-                {{'S'+ year.weekNumber }}
+                {{ "S" + year.weekNumber }}
               </th>
             </tr>
             <tr>
               <th v-for="year in weeksFiltered" :key="year.weekNumber">
                 <div v-if="nbContract(year)">
-                  <span class="text-deep-purple-darken-3" >
+                  <span class="text-deep-purple-darken-3">
                     {{ totalTrue }}
                   </span>
                   /
-                  <span class="text-deep-purple-lighten-4">{{ totalFalse }}</span>
-
+                  <span class="text-deep-purple-lighten-4">{{
+                    totalFalse
+                  }}</span>
                 </div>
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="associate in associates" :key="associate.id">
+            <tr v-for="associate in associatesContrat" :key="associate.id">
               <td
                 id="facture"
                 v-for="year in weeksFiltered"
@@ -84,6 +91,11 @@
             </tr>
           </tbody>
         </v-table>
+        <!-- <v-pagination
+          v-model="currentPage"
+          :length="totalPages"
+          @input="fetchData"
+        ></v-pagination> -->
       </div>
     </div>
   </div>
@@ -102,26 +114,52 @@ export default {
   name: "Pdc",
   data() {
     return {
+      search: null,
       weeks: [],
       weeksFiltered: [],
       totalTrue: 0,
       totalFalse: 0,
       associates: "",
+      associatesContrat: [],
+      filteredAssociates: [],
+      currentPage: 1,
+      totalPages: 0,
       loading: true,
       selectedYear: 2023,
       years: [2020, 2021, 2022, 2023, 2024, 2025],
     };
   },
-
+  mounted() {
+    this.fetchData();
+  },
   watch: {
     selectedYear(newYear) {
       this.totalTrue = 0;
       this.weeks = this.generateWeekList(newYear);
       this.weeksFilter();
     },
+    currentPage(newPage) {
+      this.fetchData(newPage);
+    },
+    search() {
+      this.filterAssociates();
+    },
   },
 
   methods: {
+    async fetchData(page) {
+      this.loading = true;
+      const response = await Axios.get(
+        `/associates?page=${page || this.currentPage}`
+      );
+      console.log(response);
+      this.associates = response.data.associate;
+      this.totalPages = response.data.totalPages;
+      this.loading = false;
+
+      // Mettre à jour filteredAssociates
+      this.filteredAssociates = [...this.associates];
+    },
     formatDate(date) {
       const year = date.getFullYear().toString();
       let month = (date.getMonth() + 1).toString();
@@ -135,10 +173,22 @@ export default {
       return year + "-" + month + "-" + day;
     },
 
+    filterAssociates() {
+      if (!this.search) {
+        this.filteredAssociates = this.associates;
+      } else {
+        const searchTerm = this.search.toLowerCase();
+        this.filteredAssociates = this.associates.filter((associate) => {
+          const fullName = associate.first_name + " " + associate.name;
+          return fullName.toLowerCase().includes(searchTerm);
+        });
+      }
+    },
+
     nbContract(week) {
       this.totalTrue = 0;
       this.totalFalse = 0;
-      this.associates.forEach((associate) => {
+      this.associatesContrat.forEach((associate) => {
         if (this.isWorking(associate, week)) {
           this.totalTrue++;
         } else {
@@ -202,17 +252,17 @@ export default {
       });
     },
   },
+
   created() {
-    Axios.get("/associates").then((res) => {
-      this.associates = res.data?.associate;
-      this.loading = false;
+    Axios.get("/associates/pdc").then((res) => {
+      this.associatesContrat = res.data?.associate;
     });
 
-    // this.weeks = this.getWeeksOfYear(2023);
     this.weeks = this.generateWeekList(this.selectedYear);
     this.weeksFilter();
-    console.log(this.weeks);
-    console.log(this.weeksFiltered);
+
+    // Initialise filteredAssociates avec la même valeur que associates
+    this.filteredAssociates = [...this.associates];
   },
 };
 </script>

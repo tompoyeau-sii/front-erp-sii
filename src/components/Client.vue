@@ -20,7 +20,7 @@
         <div>
           <p class="text-h5 name" v-text="customer.label"></p>
           <p>100 000€</p>
-          <p :v-text="nbCollab"></p>
+          <p :v-text="filterAssociate(customer) + ' collaborateurs'"></p>
         </div>
       </router-link>
     </div>
@@ -56,12 +56,35 @@ export default {
       SuccessState: false,
       snackbar: false,
       test: this.$store.getters.getToken,
-      nbCollab: 0,
+      nbCollab: [],
     };
   },
   methods: {
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
+    },
+    filterAssociate(customer) {
+      var nbCollab = [];
+      customer.Projects.forEach((project) => {
+        project.Missions.forEach((mission) => {
+          if(nbCollab == []) {
+            console.log("null");
+            nbCollab.push(mission)
+          }
+          var exist = false;
+          console.log("null");
+          nbCollab.forEach((el) => {
+            if (el.associate_id == mission.associate_id) {
+              exist = true;
+            } else {
+              console.log("on ajoute un nouveau");
+              this.nbCollab.push(element);
+              exist = false;
+            }
+          });
+        });
+      });
+      return nbCollab.length;
     },
     refresh() {
       this.customers = [];
@@ -73,6 +96,7 @@ export default {
   created() {
     Axios.get("/customers").then((res) => {
       this.customers = res.data?.customer;
+      console.log(this.customers);
     });
     Axios.get("/associates").then((res) => {
       res.data?.associate.forEach((associate) => {
@@ -86,7 +110,7 @@ export default {
               mission.end_date > this.todayDate()
             ) {
               enMission = true;
-              return
+              return;
             }
           });
           if (enMission == false) {

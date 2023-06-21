@@ -9,18 +9,35 @@
       <v-window-item value="1">
         <v-container>
           <v-row>
-            <v-select
-              v-model="manager"
-              label="Manager"
-              :items="managers"
-              item-title="full_name"
-              item-value="id"
-              variant="solo"
-            ></v-select>
+            <v-col cols="12" lg="6">
+              <v-select
+                v-model="manager"
+                label="Manager"
+                :items="managers"
+                item-title="full_name"
+                item-value="id"
+                variant="solo"
+              ></v-select>
+            </v-col>
+            <v-col cols="12" lg="6">
+              <v-select
+                v-model="yearSelected"
+                label="Année"
+                :items="years"
+                item-title="full_name"
+                item-value="id"
+                variant="solo"
+              ></v-select>
+            </v-col>
           </v-row>
           <v-row>
             <v-col cols="12" lg="12">
-              <GChart v-if="dataLoaded" type="LineChart" :options="chartOptions" :data="caDataChart" />
+              <GChart
+                v-if="dataLoaded"
+                type="LineChart"
+                :options="chartOptions"
+                :data="caDataChart"
+              />
             </v-col>
           </v-row>
         </v-container>
@@ -29,9 +46,7 @@
         <v-container> </v-container>
       </v-window-item>
       <v-window-item value="3">
-        <v-row>
-          <GChart type="LineChart" :data="caDataChart" />
-        </v-row>
+        <v-row> </v-row>
       </v-window-item>
     </v-window>
   </div>
@@ -53,6 +68,7 @@ export default {
   data() {
     return {
       ca: [],
+      yearSelected: 2023,
       nbHommes: 0,
       nbFemmes: 0,
       caDataChart: [],
@@ -61,6 +77,7 @@ export default {
       manager: null,
       tab: null,
       associates: [],
+      years: [2020, 2021, 2022, 2023, 2024, 2025],
       projectsOfManager: [],
       dataLoaded: false, // propriété pour savoir si les données sont chargées ou non
     };
@@ -92,25 +109,41 @@ export default {
 
       // this.chartData.datasets[0].data[0] = this.nbHommes;
       // this.chartData.datasets[0].data[1] = this.nbFemmes;
-
     });
   },
 
   watch: {
     manager(newManager) {
-      this.ca = this.getCaOfManager(this.generateMonthList(2023), newManager);
+      this.ca = this.getCaOfManager(
+        this.generateMonthList(this.yearSelected),
+        newManager
+      );
 
-      this.caDataChart = [
+      (this.caDataChart = [
         ["Mois", "CA"],
-        ...this.ca.map(({ month, value}) => [month, value])
-      ],
+        ...this.ca.map(({ month, value }) => [month, value]),
+      ]),
+        (this.chartOptions = {
+          title: "Chiffre d'affaire du manager",
+        });
+      this.dataLoaded = true;
+    },
+    yearSelected(newYear) {
+      if (this.manager) {
+        this.ca = this.getCaOfManager(
+          this.generateMonthList(newYear),
+          this.manager
+        );
 
-      this.chartOptions = {
-        chart: {
-          title: "Chiffre d'affaire"
-        }
+        (this.caDataChart = [
+          ["Mois", "CA"],
+          ...this.ca.map(({ month, value }) => [month, value]),
+        ]),
+          (this.chartOptions = {
+            title: "Chiffre d'affaire du manager",
+          });
+        this.dataLoaded = true;
       }
-      this.dataLoaded = true
     },
   },
 
@@ -149,31 +182,43 @@ export default {
         if (manager.id == managerSelected) {
           months.forEach((month) => {
             manager.PRUs.forEach((PRU) => {
+              console.log(
+                "montstart :" +
+                  month.start_date +
+                  " / PRU.start_date : " +
+                  PRU.start_date
+              );
               if (
-                PRU.start_date < month.start_date &&
-                PRU.end_date > month.end_date
+                PRU.start_date <= month.end_date && // Vérifie si la date de début du PRU est antérieure ou égale à la date de fin du mois
+                PRU.end_date >= month.start_date // Vérifie si la date de fin du PRU est postérieure ou égale à la date de début du mois
               ) {
+                console.log(
+                  "J'enlève le salaire du manager / start_date : " +
+                    month.start_date +
+                    " / end_date : " +
+                    month.end_date
+                );
                 value -= PRU.value;
               }
             });
             manager.Projects.forEach((project) => {
               project.Missions.forEach((mission) => {
                 if (
-                  mission.start_date < month.start_date &&
-                  mission.end_date > month.end_date
+                  mission.start_date <= month.start_date &&
+                  mission.end_date >= month.end_date
                 ) {
                   mission.TJMs.forEach((TJM) => {
                     if (
-                      TJM.start_date < month.start_date &&
-                      TJM.end_date > month.end_date
+                      TJM.start_date <= month.start_date &&
+                      TJM.end_date >= month.end_date
                     ) {
                       value += TJM.value;
                     }
                   });
                   mission.Associate.PRUs.forEach((PRU) => {
                     if (
-                      PRU.start_date < month.start_date &&
-                      PRU.end_date > month.end_date
+                      PRU.start_date <= month.start_date &&
+                      PRU.end_date >= month.end_date
                     ) {
                       value -= PRU.value;
                     }
@@ -186,7 +231,7 @@ export default {
         }
       });
       console.log(this.ca);
-      return this.ca
+      return this.ca;
     },
   },
 };

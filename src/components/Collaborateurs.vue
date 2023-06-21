@@ -39,7 +39,11 @@
             <td
               class="mt-auto mb-auto"
               v-if="posteEnCours(associate.id).map((job) => job) != ''"
-              v-text="posteEnCours(associate.id).map((job) => job).join(', ')"
+              v-text="
+                posteEnCours(associate.id)
+                  .map((job) => job)
+                  .join(', ')
+              "
             ></td>
             <td
               class="mt-auto mb-auto"
@@ -102,6 +106,11 @@
           </tr>
         </tbody>
       </table>
+      <v-pagination
+        v-model="currentPage"
+        :length="totalPages"
+        @input="fetchData"
+      ></v-pagination>
     </div>
     <v-snackbar
       v-if="SuccessState == true"
@@ -132,9 +141,28 @@ export default {
       SuccessState: true,
       snackbar: false,
       missions: [],
+      currentPage: 1,
+      totalPages: 0,
     };
   },
+  mounted() {
+    this.fetchData();
+  },
+  watch: {
+    currentPage(newPage) {
+      this.fetchData(newPage);
+    },
+  },
   methods: {
+    async fetchData(page) {
+      const response = await Axios.get(
+        `/associates?page=${page || this.currentPage}`
+      );
+      console.log(response);
+      this.associates = response.data.associate;
+      this.totalPages = response.data.totalPages;
+    },
+
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
     },
@@ -214,13 +242,9 @@ export default {
       this.associates = [];
       Axios.get("/associates").then((res) => {
         this.associates = res.data?.associate;
+        
       });
     },
-  },
-  created() {
-    Axios.get("/associates").then((res) => {
-      this.associates = res.data?.associate;
-    });
   },
 };
 </script>
