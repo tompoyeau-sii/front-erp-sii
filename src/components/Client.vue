@@ -20,7 +20,7 @@
         <div>
           <p class="text-h5 name" v-text="customer.label"></p>
           <p>100 000€</p>
-          <p :v-text="filterAssociate(customer) + ' collaborateurs'"></p>
+          <p> {{filterAssociate(customer) + ' collaborateurs'}}</p>
         </div>
       </router-link>
     </div>
@@ -64,27 +64,16 @@ export default {
       return format(new Date(), "yyyy-MM-dd");
     },
     filterAssociate(customer) {
-      var nbCollab = [];
+      const associateIds = new Set();
+
       customer.Projects.forEach((project) => {
         project.Missions.forEach((mission) => {
-          if(nbCollab == []) {
-            console.log("null");
-            nbCollab.push(mission)
-          }
-          var exist = false;
-          console.log("null");
-          nbCollab.forEach((el) => {
-            if (el.associate_id == mission.associate_id) {
-              exist = true;
-            } else {
-              console.log("on ajoute un nouveau");
-              this.nbCollab.push(element);
-              exist = false;
-            }
-          });
+          associateIds.add(mission.associate_id);
         });
       });
-      return nbCollab.length;
+
+      const nbCollab = associateIds.size;
+      return nbCollab;
     },
     refresh() {
       this.customers = [];
@@ -96,9 +85,8 @@ export default {
   created() {
     Axios.get("/customers").then((res) => {
       this.customers = res.data?.customer;
-      console.log(this.customers);
     });
-    Axios.get("/associates").then((res) => {
+    Axios.get("/associates/pdc").then((res) => {
       res.data?.associate.forEach((associate) => {
         if (associate.Missions.length == 0) {
           this.intercontrats.push(associate);
@@ -106,8 +94,8 @@ export default {
           var enMission = false;
           associate.Missions.forEach((mission) => {
             if (
-              mission.start_date < this.todayDate() &&
-              mission.end_date > this.todayDate()
+              mission.start_date <= this.todayDate() &&
+              mission.end_date >= this.todayDate()
             ) {
               enMission = true;
               return;

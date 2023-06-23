@@ -1,10 +1,18 @@
 <template>
+  
   <v-navigation-drawer
     v-if="isLog()"
     class="toolBar"
     style="background: linear-gradient(180deg,rgba(117, 81, 155, 1) 0%,rgba(232, 70, 84, 1) 100%) !important;">
     <!-- <v-img aspect-ratio class="sii" load src="../assets/SIIlogo.svg"></v-img> -->
-    <v-img style="text-align: center" aspect-ratio class="sii" load src="../assets/img/picsou.png"></v-img>
+    
+    <v-img
+      style="text-align: center"
+      aspect-ratio
+      class="sii"
+      load
+      src="../assets/img/picsou.png"
+    ></v-img>
     <v-list nav>
       <router-link to="/dashboard">
         <v-list-item
@@ -50,7 +58,6 @@
           value="parametres"
         ></v-list-item>
       </router-link>
-
     </v-list>
     <template v-slot:append>
       <router-link to="/">
@@ -71,10 +78,10 @@ export default {
   name: "myToolbar",
   methods: {
     disconnect: function (event) {
-      accountService.logout()
+      accountService.logout();
     },
     isLog: function () {
-      return accountService.isLogged()
+      return accountService.isLogged();
     },
   },
 };
@@ -100,6 +107,4 @@ a {
   align-self: center;
   margin: auto;
 }
-
-
 </style>

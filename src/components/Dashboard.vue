@@ -50,7 +50,7 @@ export default {
     }
   },
   created() {
-    Axios.get("/associates").then((res) => {
+    Axios.get("/associates/pdc").then((res) => {
       this.associates = res.data?.associate;
     });
   }

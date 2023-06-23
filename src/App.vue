@@ -1,9 +1,9 @@
 <template>
   <v-app>
+    <myToolBar v-if="showToolbar" />
     <v-main>
       <router-view />
     </v-main>
-    <myToolBar v-if="showToolbar" />
   </v-app>
 </template>
 
