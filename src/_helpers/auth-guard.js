@@ -7,7 +7,7 @@ export function authGuard(to) {
     if (token) {
         return true
     }
-    return true
+    // return false
     
-    // router.push('/')
+    router.push('/')
 }   

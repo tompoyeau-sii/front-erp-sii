@@ -2,7 +2,7 @@
   <v-container>
     <h1 class="title mt-3 mb-5">Tableau de bord</h1>
     <v-row>
-      <v-col cols="4">
+      <v-col cols="6" lg="4">
         <div class="shadow rounded-5 p-4">
           <p class="etiquette mb-2">Total de collaborateurs SII Le Mans</p>
           <v-row justify="end">
@@ -15,7 +15,7 @@
           </v-row>
         </div>
       </v-col>
-      <v-col cols="4">
+      <v-col cols="6" lg="4">
         <div class="shadow rounded-5 p-4">
           <p class="etiquette mb-2">Chiffres d'affaires SII Le Mans</p>
           <v-row justify="end">
@@ -25,7 +25,7 @@
           </v-row>
         </div>
       </v-col>
-      <v-col cols="4">
+      <v-col cols="6" lg="4">
         <div class="shadow rounded-5 p-4">
           <p class="etiquette mb-2">Évolution du chiffre d'affaires</p>
           <v-row justify="end">

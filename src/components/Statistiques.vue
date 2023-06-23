@@ -35,6 +35,7 @@
               <GChart
                 v-if="dataLoaded"
                 type="LineChart"
+                class="shadow"
                 :options="chart.managerOptions"
                 :data="chart.managerData"
               />
@@ -58,6 +59,7 @@
             <v-col cols="12">
               <GChart
                 type="LineChart"
+                class="shadow"
                 :options="chart.caOptions"
                 :data="chart.caData"
               />
@@ -68,6 +70,7 @@
       <v-window-item value="3">
         <GChart
           type="ColumnChart"
+          class="shadow"
           :data="chart.customerData"
           :options="chart.customerOptions"
         />

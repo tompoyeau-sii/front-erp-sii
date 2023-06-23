@@ -1,11 +1,13 @@
 <template>
-  
   <v-navigation-drawer
     v-if="isLog()"
+    v-model="drawer"
     class="toolBar"
-    style="background: linear-gradient(180deg,rgba(117, 81, 155, 1) 0%,rgba(232, 70, 84, 1) 100%) !important;">
+    style="background: linear-gradient(180deg,rgba(117, 81, 155, 1) 0%,rgba(232, 70, 84, 1) 100%) !important;"
+    mobile-breakpoint="960"
+  >
     <!-- <v-img aspect-ratio class="sii" load src="../assets/SIIlogo.svg"></v-img> -->
-    
+
     <v-img
       style="text-align: center"
       aspect-ratio
@@ -70,13 +72,35 @@
       </router-link>
     </template>
   </v-navigation-drawer>
+  <v-app-bar v-if="!drawer" color="#f2f2f2" elevation="0" >
+    <v-app-bar-nav-icon color="deep-purple-darken-3" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+  </v-app-bar>
 </template>
 
 <script>
 import { accountService } from "@/_services";
 export default {
   name: "myToolbar",
+  data() {
+    return {
+      drawer: null,
+    };
+  },
   methods: {
+    detectScreenSize() {
+      var screenWidth =
+        window.innerWidth ||
+        document.documentElement.clientWidth ||
+        document.body.clientWidth;
+      // Vérifier si la largeur de l'écran est inférieure à 1280 pixels
+      if (screenWidth < 1280) {
+        // Modifier la variable "drawer" à false
+        this.drawer = false;
+      } else {
+        // Modifier la variable "drawer" à true (ou à la valeur souhaitée)
+        this.drawer = true;
+      }
+    },
     disconnect: function (event) {
       accountService.logout();
     },

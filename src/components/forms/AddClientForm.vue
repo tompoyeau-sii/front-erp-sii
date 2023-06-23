@@ -4,7 +4,7 @@
       <template v-slot:activator="{ props }">
         <v-btn
           prepend-icon="mdi-plus"
-          color="deep-purple-darken-3"
+          color="deep-purple-darken-1"
           v-bind="props"
         >
           Ajouter un client

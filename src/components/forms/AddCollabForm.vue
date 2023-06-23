@@ -4,7 +4,7 @@
       <template v-slot:activator="{ props }">
         <v-btn
           prepend-icon="mdi-plus"
-          color="deep-purple-darken-3"
+          color="deep-purple-darken-1"
           v-bind="props"
         >
           Ajouter un collaborateur
@@ -44,6 +44,7 @@
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-autocomplete
+                    transition="scroll-x-reverse-transition"
                     v-model="form.graduation"
                     :items="graduations"
                     item-title="label"
@@ -141,7 +142,7 @@ export default {
         birthdate: "",
         job: null,
         start_date: "",
-        pru: ""
+        pru: "",
       },
       dialog: false,
       success: "",
@@ -153,7 +154,12 @@ export default {
 
   computed: {
     computedMail() {
-      return this.form.first_name.toLowerCase() + "." + this.form.name.toLowerCase() + "@sii.fr";
+      return (
+        this.form.first_name.toLowerCase() +
+        "." +
+        this.form.name.toLowerCase() +
+        "@sii.fr"
+      );
     },
   },
 
@@ -207,7 +213,7 @@ export default {
 };
 </script>
 
-<style>
+<style typ>
 td {
   margin-top: auto;
   margin-bottom: auto;
@@ -219,4 +225,5 @@ td {
   background: linear-gradient(135deg, #75519b 0%, #e84654 100%);
   color: white;
 }
+
 </style>

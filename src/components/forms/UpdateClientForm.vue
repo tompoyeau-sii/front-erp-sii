@@ -4,7 +4,7 @@
       <template v-slot:activator="{ props }">
         <v-btn
           icon="mdi-pencil"
-          color="deep-purple-darken-3"
+          color="deep-purple-darken-1"
           v-bind="props"
         />
       </template>

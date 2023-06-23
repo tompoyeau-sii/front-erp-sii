@@ -27,7 +27,7 @@
           <v-row justify="center">
             <v-dialog v-model="dialog" width="750px">
               <template v-slot:activator="{ props }">
-                <v-btn icon="mdi-plus" color="deep-purple-darken-3" v-bind="props"> </v-btn>
+                <v-btn icon="mdi-plus" color="deep-purple-darken-1" v-bind="props"> </v-btn>
               </template>
 
               <v-card class="gradient">

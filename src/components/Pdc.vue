@@ -34,7 +34,7 @@
         </v-btn>
         <!-- <v-btn color="warning"> Absent </v-btn> -->
       </v-row>
-      <div class="row">
+      <div class="row rounded shadow mb-5">  
         <v-table class="col-1">
           <tbody>
             <tr>

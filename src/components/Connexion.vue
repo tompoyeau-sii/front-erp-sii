@@ -4,42 +4,44 @@
       <v-row class="m-2" justify="center">
         <div class="text-h3 form-title">SII LE MANS | PICSOU</div>
       </v-row>
-      <v-card-text>
-        <v-form v-on:submit.prevent="formConnect">
-          <v-row>
-            <v-col cols="12">
-              <label class="mb-2">Identifiant</label>
-              <v-text-field
-                variant="solo"
-                v-model="login.username"
-                type="email"
-                required
-              ></v-text-field>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="12">
-              <label class="mb-2">Mot de passe</label>
-              <v-text-field
-                variant="solo"
-                v-model="login.password"
-                type="password"
-              ></v-text-field>
-              <v-alert
-                v-if="error != ''"
-                class="mb-5"
-                icon="mdi-cancel"
-                type="error"
-                :text="error"
-                m-5
-              ></v-alert>
-            </v-col>
-          </v-row>
-          <v-row justify="center">
-            <v-btn rounded="lg" type="submit"> Connexion </v-btn>
-          </v-row>
-        </v-form>
-      </v-card-text>
+      <v-col cols="12">
+        <v-card-text>
+          <v-form v-on:submit.prevent="formConnect">
+            <v-row>
+              <v-col cols="12">
+                <label class="mb-2">Identifiant</label>
+                <v-text-field
+                  variant="solo"
+                  v-model="login.username"
+                  type="email"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12">
+                <label class="mb-2">Mot de passe</label>
+                <v-text-field
+                  variant="solo"
+                  v-model="login.password"
+                  type="password"
+                ></v-text-field>
+                <v-alert
+                  v-if="error != ''"
+                  class="mb-5"
+                  icon="mdi-cancel"
+                  type="error"
+                  :text="error"
+                  m-5
+                ></v-alert>
+              </v-col>
+            </v-row>
+            <v-row justify="center">
+              <v-btn rounded="lg" type="submit">Connexion</v-btn>
+            </v-row>
+          </v-form>
+        </v-card-text>
+      </v-col>
     </v-card>
   </div>
 </template>
@@ -60,7 +62,7 @@ export default {
     };
   },
   methods: {
-    formConnect: function () {
+    formConnect() {
       if (this.login.username !== "" || this.login.password !== "") {
         accountService
           .login(this.login)
@@ -79,7 +81,7 @@ export default {
         console.log(this.error);
       }
     },
-  }
+  },
 };
 </script>
 <style scoped>
@@ -93,15 +95,18 @@ export default {
   justify-content: center;
   width: 100%;
   height: 100%;
-    background: linear-gradient(115deg, #e84654 0%, #75519b 100%) !important;
-    margin: 0;
-    padding: 0;
-  
+  background: linear-gradient(115deg, #e84654 0%, #75519b 100%) !important;
+  margin: 0;
+  padding: 0;
 }
 .v-card {
   background: linear-gradient(2453deg, #e84654 0%, #75519b 100%) !important;
   color: white;
   margin: auto;
+}
+
+.v-btn {
+  color: black !important;
 }
 
 label {
