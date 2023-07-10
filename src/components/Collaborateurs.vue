@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <v-row class="mt-3">
+    <v-row class="p-3">
       <v-col lg="6">
         <h1 class="title">Collaborateurs SII Le Mans</h1>
       </v-col>
@@ -10,108 +10,113 @@
         </v-col>
       </v-row>
     </v-row>
-    <div class="table-responsive p-3">
-      <table class="table rounded-3 shadow bg-white table-striped">
-        <thead>
-          <tr style="border: white">
-            <th>Collaborateur</th>
-            <th>Poste</th>
-            <th>Manager</th>
-            <th>Client</th>
-            <th>Projet</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="associate in associates" :key="associate.id">
-            <td style="display: flex; align-content: center">
-              <v-avatar>
-                <v-img
-                  src="https://cdn.vuetifyjs.com/images/john.jpg"
-                  alt="John"
-                ></v-img>
-              </v-avatar>
+      <div class="table-responsive p-3">
+        <table class="table rounded-3 shadow bg-white table-striped">
+          <thead>
+            <tr style="border: white">
+              <th>Collaborateur</th>
+              <th>Poste</th>
+              <th>Manager</th>
+              <th>Client</th>
+              <th>Projet</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="associate in associates" :key="associate.id">
+              <td style="display: flex; align-content: center">
+                <v-avatar>
+                  <v-img
+                    src="https://source.unsplash.com/random/150x150?person"
+                    alt="John"
+                  ></v-img>
+                </v-avatar>
 
-              <p
-                class="mt-auto mb-auto ml-2"
-                v-text="associate.first_name + ' ' + associate.name"
-              ></p>
-            </td>
-            <td
-              class="mt-auto mb-auto"
-              v-if="posteEnCours(associate.id).map((job) => job) != ''"
-              v-text="
-                posteEnCours(associate.id)
-                  .map((job) => job)
-                  .join(', ')
-              "
-            ></td>
-            <td
-              class="mt-auto mb-auto"
-              v-else
-              v-text="'Pas encore de poste'"
-            ></td>
-            <!-- Affichage du nom prenom du manager -->
-            <td
-              class="mt-auto mb-auto"
-              v-if="
-                managerEnCours(associate.id).map((mission) => mission) != ''
-              "
-              v-text="
-                managerEnCours(associate.id)
-                  .map((mission) => mission)
-                  .join(', ')
-              "
-            ></td>
-            <td
-              class="mt-auto mb-auto text-red"
-              v-else
-              v-text="'Intercontrat'"
-            ></td>
-            <!-- Affichage du nom de client -->
-            <td
-              class="mt-auto mb-auto"
-              v-if="clientEnCours(associate.id).map((mission) => mission) != ''"
-              v-text="
-                clientEnCours(associate.id)
-                  .map((mission) => mission)
-                  .join(', ')
-              "
-            ></td>
-            <td
-              class="mt-auto mb-auto text-red"
-              v-else
-              v-text="'Intercontrat'"
-            ></td>
-            <!-- Affichage du nom de projet -->
-            <td
-              v-if="projetEnCours(associate.id) != ''"
-              v-text="
-                projetEnCours(associate.id)
-                  .map((project) => project)
-                  .join(', ')
-              "
-            ></td>
-            <td
-              class="mt-auto mb-auto text-red"
-              v-else
-              v-text="'Intercontrat'"
-            ></td>
-            <td>
-              <router-link
-                :to="{ name: 'FicheCollabView', params: { id: associate.id } }"
-              >
-                <v-icon start icon="mdi-open-in-new"></v-icon>
-              </router-link>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <v-pagination
-        v-model="currentPage"
-        :length="totalPages"
-        @input="fetchData"
-      ></v-pagination>
-    </div>
+                <p
+                  class="mt-auto mb-auto ml-2"
+                  v-text="associate.first_name + ' ' + associate.name"
+                ></p>
+              </td>
+              <td
+                class="mt-auto mb-auto"
+                v-if="posteEnCours(associate.id).map((job) => job) != ''"
+                v-text="
+                  posteEnCours(associate.id)
+                    .map((job) => job)
+                    .join(', ')
+                "
+              ></td>
+              <td
+                class="mt-auto mb-auto"
+                v-else
+                v-text="'Pas encore de poste'"
+              ></td>
+              <!-- Affichage du nom prenom du manager -->
+              <td
+                class="mt-auto mb-auto"
+                v-if="
+                  managerEnCours(associate.id).map((mission) => mission) != ''
+                "
+                v-text="
+                  managerEnCours(associate.id)
+                    .map((mission) => mission)
+                    .join(', ')
+                "
+              ></td>
+              <td
+                class="mt-auto mb-auto text-red"
+                v-else
+                v-text="'Intercontrat'"
+              ></td>
+              <!-- Affichage du nom de client -->
+              <td
+                class="mt-auto mb-auto"
+                v-if="
+                  clientEnCours(associate.id).map((mission) => mission) != ''
+                "
+                v-text="
+                  clientEnCours(associate.id)
+                    .map((mission) => mission)
+                    .join(', ')
+                "
+              ></td>
+              <td
+                class="mt-auto mb-auto text-red"
+                v-else
+                v-text="'Intercontrat'"
+              ></td>
+              <!-- Affichage du nom de projet -->
+              <td
+                v-if="projetEnCours(associate.id) != ''"
+                v-text="
+                  projetEnCours(associate.id)
+                    .map((project) => project)
+                    .join(', ')
+                "
+              ></td>
+              <td
+                class="mt-auto mb-auto text-red"
+                v-else
+                v-text="'Intercontrat'"
+              ></td>
+              <td>
+                <router-link
+                  :to="{
+                    name: 'FicheCollabView',
+                    params: { id: associate.id },
+                  }"
+                >
+                  <v-icon start icon="mdi-open-in-new"></v-icon>
+                </router-link>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <v-pagination
+          v-model="currentPage"
+          :length="totalPages"
+          @input="fetchData"
+        ></v-pagination>
+      </div>
     <v-snackbar
       v-if="SuccessState == true"
       v-model="snackbar"
@@ -242,7 +247,6 @@ export default {
       this.associates = [];
       Axios.get("/associates").then((res) => {
         this.associates = res.data?.associate;
-        
       });
     },
   },

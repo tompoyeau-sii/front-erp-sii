@@ -60,12 +60,6 @@ const routes = [
     beforeEnter: authGuard,
     component: () => import(/* webpackChunkName: "new" */ '../views/ClientView.vue')
   },
-  // {
-    //   path: '/clients/sncf',
-    //   name: 'FicheClientView',
-    //   beforeEnter: authGuard,
-    //   component: () => import(/* webpackChunkName: "new" */ '../views/FicheClientView.vue')
-    // },
   {
     path: '/clients/:id',
     name: 'FicheClientView',
@@ -93,10 +87,10 @@ const routes = [
     component: () => import(/* webpackChunkName: "new" */ '../views/PdcView.vue')
   },
   {
-    path: '/test',
-    name: 'TestView',
+    path: '/intercontrat',
+    name: 'IntercontratView',
     beforeEnter: authGuard,
-    component: () => import(/* webpackChunkName: "new" */ '../views/TestView.vue')
+    component: () => import(/* webpackChunkName: "new" */ '../views/IntercontratView.vue')
   },
 ]
 

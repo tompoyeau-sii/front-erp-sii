@@ -20,14 +20,14 @@
         <div>
           <p class="text-h5 name" v-text="customer.label"></p>
           <p>100 000€</p>
-          <p> {{filterAssociate(customer) + ' collaborateurs'}}</p>
+          <p>{{ filterAssociate(customer) + " collaborateurs" }}</p>
         </div>
       </router-link>
     </div>
     <div class="row">
       <router-link
         class="col-2 intercontrat rounded-3 m-2 pt-3 shadow-sm"
-        to="/dashboard"
+        to="/intercontrat"
       >
         <div>
           <p class="text-h5 name" v-text="'Intercontrat'"></p>
@@ -87,9 +87,18 @@ export default {
       this.customers = res.data?.customer;
     });
     Axios.get("/associates/pdc").then((res) => {
+      let add = 0;
+      console.log(res.data?.associate);
       res.data?.associate.forEach((associate) => {
         if (associate.Missions.length == 0) {
-          this.intercontrats.push(associate);
+          associate.Jobs.forEach((job) => {
+            if (add == 0) {
+              if (job.label != "Manager") {
+                add = 1;
+                this.intercontrats.push(associate);
+              }
+            }
+          });
         } else {
           var enMission = false;
           associate.Missions.forEach((mission) => {
