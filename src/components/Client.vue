@@ -87,10 +87,10 @@ export default {
       this.customers = res.data?.customer;
     });
     Axios.get("/associates/pdc").then((res) => {
-      let add = 0;
       console.log(res.data?.associate);
       res.data?.associate.forEach((associate) => {
         if (associate.Missions.length == 0) {
+          let add = 0;
           associate.Jobs.forEach((job) => {
             if (add == 0) {
               if (job.label != "Manager") {

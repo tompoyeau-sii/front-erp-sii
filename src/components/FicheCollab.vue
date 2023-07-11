@@ -1,20 +1,14 @@
 <template>
   <div class="container">
     <v-row>
-      <v-col>
-        <router-link class="retour" to="/collaborateurs">
-          <v-icon start icon="mdi-arrow-left"></v-icon>
-          Retour
-        </router-link>
+      <v-col class="mt-2">
+        <v-btn size="small" variant="text" @click="retourPagePrecedente" prepend-icon="mdi-arrow-left">Retour</v-btn>
       </v-col>
     </v-row>
 
     <v-row>
       <v-avatar size="70" class="mt-3">
-        <v-img
-          src="https://cdn.vuetifyjs.com/images/john.jpg"
-          alt="John"
-        ></v-img>
+        <v-img src="../assets/img/collab/generic.png" alt="John"></v-img>
       </v-avatar>
       <v-col>
         <h1
@@ -56,16 +50,18 @@
               refresh
               :to="{
                 name: 'FicheClientView',
-                params: { label: mission.Project.Customer.label },
+                params: { label: mission.Project.Customer.id },
               }"
             >
-              <p  
+              <p
                 class="text-h5 name"
                 v-text="mission.Project.Customer.label"
               ></p>
               <p v-text="'Depuis le ' + formatDate(mission.start_date)"></p>
               <p v-text="'Se termine le ' + formatDate(mission.end_date)"></p>
-              <p v-text="mission.Project.label + ' / ' + mission.Project.adv"></p>
+              <p
+                v-text="mission.Project.label + ' / ' + mission.Project.adv"
+              ></p>
               <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
               <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
             </router-link>
@@ -95,7 +91,7 @@
                 <v-col cols="3" class="mt-1 ml-2">
                   <v-avatar>
                     <v-img
-                      src="https://cdn.vuetifyjs.com/images/john.jpg"
+                      src="../assets/img/collab/generic.png"
                       style="width: 100%"
                       alt="John"
                     ></v-img>
@@ -128,7 +124,7 @@
               refresh
               :to="{
                 name: 'FicheClientView',
-                params: { label: mission.Project.Customer.label },
+                params: { label: mission.Project.Customer.id },
               }"
             >
               <p
@@ -136,7 +132,9 @@
                 v-text="mission.Project.Customer.label"
               ></p>
               <p v-text="'Commence le ' + formatDate(mission.start_date)"></p>
-              <p v-text="mission.Project.label + ' / ' + mission.Project.adv"></p>
+              <p
+                v-text="mission.Project.label + ' / ' + mission.Project.adv"
+              ></p>
               <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
               <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
             </router-link>
@@ -161,7 +159,9 @@
                 v-text="mission.Project.Customer.label"
               ></p>
               <p v-text="'Terminé le ' + formatDate(mission.end_date)"></p>
-              <p v-text="mission.Project.label + ' / ' + mission.Project.adv"></p>
+              <p
+                v-text="mission.Project.label + ' / ' + mission.Project.adv"
+              ></p>
               <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
               <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
             </router-link>
@@ -174,9 +174,7 @@
     <v-row v-else>
       <v-col cols="6">
         <h5 class="pt-3 sub-title">Ce collaborateur est en intercontrat.</h5>
-        <AddMissionForm
-          :associate_id="associate.id"
-        />
+        <AddMissionForm :associate_id="associate.id" />
       </v-col>
     </v-row>
 
@@ -223,6 +221,40 @@
         </div>
       </v-col>
     </v-row>
+
+    <v-row>
+      <v-timeline side="end" align="start" truncate-line="both">
+        <v-timeline-item dot-color="green" size="small">
+          <div class="d-flex">
+            <strong class="me-4">08 juillet 2023</strong>
+            <div>
+              <strong>Mission 2</strong>
+              <div class="text-caption">Début</div>
+            </div>
+          </div>
+        </v-timeline-item>
+
+        <v-timeline-item dot-color="red" size="small">
+          <div class="d-flex">
+            <strong class="me-4">05 juillet 2023</strong>
+            <div>
+              <strong>Mission 1</strong>
+              <div class="text-caption">Fin</div>
+            </div>
+          </div>
+        </v-timeline-item>
+
+        <v-timeline-item dot-color="green" size="small">
+          <div class="d-flex">
+            <strong class="me-4">02 mars 2023</strong>
+            <div>
+              <strong>Mission 1</strong>
+              <div class="text-caption">Début</div>
+            </div>
+          </div>
+        </v-timeline-item>
+      </v-timeline>
+    </v-row>
   </div>
 </template>
 
@@ -263,6 +295,9 @@ export default {
     };
   },
   methods: {
+    retourPagePrecedente() {
+      this.$router.go(-1);
+    },
     calculateAge(dateOfBirth) {
       const today = new Date();
       return differenceInYears(today, new Date(dateOfBirth));
@@ -343,7 +378,7 @@ export default {
         if (
           job.Associate_Job.end_date > today &&
           job.Associate_Job.start_date < today
-          ) {
+        ) {
           this.job_id = job.id;
           this.job = job.label;
         }
@@ -360,8 +395,8 @@ export default {
 
     this.associate = this.$route.params.collab;
     this.todayDate = this.formatDate(new Date());
-    this.pruActuel()
-    this.jobActuel()
+    this.pruActuel();
+    this.jobActuel();
   },
   computed: {
     MissionsFinis() {

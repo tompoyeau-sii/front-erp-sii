@@ -111,6 +111,7 @@ export default {
       manager: null,
       tab: null,
       associates: [],
+      missions: [],
       years: [2020, 2021, 2022, 2023, 2024, 2025],
       projectsOfManager: [],
       dataLoaded: false, // propriété pour savoir si les données sont chargées ou non
@@ -127,6 +128,10 @@ export default {
     };
   },
   created() {
+    Axios.get("/missions").then((res) => {
+      this.missions = res.data?.mission;
+      console.log(this.missions)
+    })
     Axios.get("/customers").then((res) => {
       this.customers = res.data?.customer;
       this.filteredCustomers = this.filterAssociate(this.customers);
@@ -351,6 +356,8 @@ export default {
               managerPRU.end_date > month.end_date
             ) {
               ca -= managerPRU.value;
+              console.log("Mois : "+ month.start_date + " | On enleve le PRU de " + project.Associate.name  + " : " + managerPRU.value)
+              console.log("Mois : "+ month.start_date + " | CA : " + ca)
             }
           });
           project.Missions.forEach((mission) => {
@@ -378,6 +385,24 @@ export default {
           });
         });
         this.caForMonths.push({ month: month.monthNumber, value: ca });
+      });
+    },
+    getCaGlobal(months) {
+      let ca = 0;
+      this.caForMonths = [];
+      months.forEach((month) => {
+        this.missions.forEach((mission) => {
+          mission.TJMs.forEach((tjm) => {
+            if(tjm.start_date <= month.start_date && tjm.end_date >= month.end_date) {
+              ca += tjm.value;
+            }
+          })
+          mission.Associate.PRUs.forEach((pru) => {
+            if(pru.start_date <= month.start_date && pru.end_date >= month.end_date) {
+              ca -= pru.value;
+            }
+          })
+        })
       });
     },
   },

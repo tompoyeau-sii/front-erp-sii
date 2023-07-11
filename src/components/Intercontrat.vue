@@ -1,5 +1,16 @@
 <template>
   <div class="container">
+    <v-row>
+      <v-col class="mt-2">
+        <v-btn
+          size="small"
+          variant="text"
+          @click="retourPagePrecedente"
+          prepend-icon="mdi-arrow-left"
+          >Retour</v-btn
+        >
+      </v-col>
+    </v-row>
     <v-row class="mt-3">
       <v-col lg="6">
         <h1 class="pt-3 pb-3 title">Intercontrat</h1>
@@ -54,12 +65,15 @@ export default {
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
     },
+    retourPagePrecedente() {
+      this.$router.go(-1);
+    },
   },
   created() {
     Axios.get("/associates/pdc").then((res) => {
-      let add = 0;
       res.data?.associate.forEach((associate) => {
         if (associate.Missions.length == 0) {
+          let add = 0;
           associate.Jobs.forEach((job) => {
             if (add == 0) {
               if (job.label != "Manager") {

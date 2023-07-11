@@ -1,9 +1,16 @@
 <template>
   <div class="container" v-if="!isEditMode">
-    <router-link class="retour mt-5" to="/clients">
-      <v-icon start icon="mdi-arrow-left"></v-icon>
-      Retour
-    </router-link>
+    <v-row>
+      <v-col class="mt-2">
+        <v-btn
+          size="small"
+          variant="text"
+          @click="retourPagePrecedente"
+          prepend-icon="mdi-arrow-left"
+          >Retour</v-btn
+        >
+      </v-col>
+    </v-row>
 
     <v-row class="mt-3">
       <v-col lg="6">
@@ -11,14 +18,17 @@
       </v-col>
       <v-row justify="end">
         <v-col lg="6">
-          <UpdateClientForm :customer_id="$route.params.client.id" :customer="$route.params.client.label" />
+          <UpdateClientForm
+            :customer_id="$route.params.client.id"
+            :customer="$route.params.client.label"
+          />
         </v-col>
       </v-row>
     </v-row>
 
     <v-row>
       <v-col v-if="projects.length != 0" lg="2" md="6" sm="6">
-        <h5  class="pt-3 title">Manager</h5>
+        <h5 class="pt-3 title">Manager</h5>
       </v-col>
     </v-row>
     <!-- Affichage du/des manager du client -->
@@ -36,7 +46,7 @@
           <div class="col-3">
             <v-avatar>
               <v-img
-                src="https://cdn.vuetifyjs.com/images/john.jpg"
+                src="../assets/img/collab/generic.png"
                 style="width: 100%"
                 alt="John"
               ></v-img>
@@ -59,7 +69,7 @@
       </v-col>
       <v-row justify="end">
         <v-col lg="6">
-          <AddProjectForm :customer_id="$route.params.client.id"/>
+          <AddProjectForm :customer_id="$route.params.client.id" />
         </v-col>
       </v-row>
     </v-row>
@@ -71,7 +81,7 @@
         :key="project.id"
       >
         <table class="table rounded-3 shadow bg-white">
-          <v-row justify="center" class="mt-3">
+          <v-row justify="center" class="m-2">
             <h5 class="title" v-text="project.label"></h5>
           </v-row>
           <tbody>
@@ -79,7 +89,7 @@
               <td style="display: flex; align-content: center">
                 <v-avatar>
                   <v-img
-                    src="https://cdn.vuetifyjs.com/images/john.jpg"
+                    src="../assets/img/collab/generic.png"
                     alt="John"
                   ></v-img>
                 </v-avatar>
@@ -128,11 +138,11 @@ export default {
   },
   created() {
     this.projects = this.$route.params.client.Projects;
-    
-
   },
   methods: {
-
+    retourPagePrecedente() {
+      this.$router.go(-1);
+    },
   },
 };
 </script>

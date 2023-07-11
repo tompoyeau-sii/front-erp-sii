@@ -228,15 +228,15 @@
     </v-card>
   </v-dialog>
   <v-snackbar
-    v-if="SuccessState == true"
-    v-model="snackbar"
-    w-auto
-    color="green"
-    timeout="3000"
-  >
-    <v-icon start icon="mdi-checkbox-marked-circle"></v-icon>
-    {{ success }}
-  </v-snackbar>
+      v-if="SuccessState == true"
+      v-model="snackbar"
+      w-auto
+      color="green"
+      timeout="3000"
+    >
+      <v-icon start icon="mdi-checkbox-marked-circle"></v-icon>
+      {{ success }}
+    </v-snackbar>
 </template>
 
 <script>

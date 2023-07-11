@@ -118,13 +118,28 @@
             <v-btn color="white" variant="text" @click="dialog = false">
               Annuler
             </v-btn>
-            <v-btn color="white" variant="text" type="submit">
+            <v-btn
+              color="white"
+              variant="text"
+              type="submit"
+              @click="snackbar = true"
+            >
               Bienvenue !
             </v-btn>
           </v-card-actions>
         </v-form>
       </v-card>
     </v-dialog>
+    <v-snackbar
+      v-if="SuccessState == true"
+      v-model="snackbar"
+      w-auto
+      color="green"
+      timeout="3000"
+    >
+      <v-icon start icon="mdi-checkbox-marked-circle"></v-icon>
+      {{ success }}
+    </v-snackbar>
   </v-row>
 </template>
 
@@ -190,11 +205,13 @@ export default {
           .then((response) => {
             console.log(response);
             this.dialog = false;
+            this.CreateState = false;
             this.SuccessState = true;
-            this.error = "";
             this.success = "Nouveau collaborateurs ajouté.";
+            this.error = "";
           })
           .catch(function (err) {
+             this.SuccessState = false;
             console.log(err);
           });
       } else {
@@ -225,5 +242,4 @@ td {
   background: linear-gradient(135deg, #75519b 0%, #e84654 100%);
   color: white;
 }
-
 </style>
