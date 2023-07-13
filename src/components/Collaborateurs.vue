@@ -46,6 +46,11 @@
               "
             ></td>
             <td
+              class="mt-auto mb-auto text-grey"
+              v-else-if="associate.start_date >= todayDate()"
+              v-text="'Pas encore embauché'"
+            ></td>
+            <td
               class="mt-auto mb-auto"
               v-else
               v-text="'Pas encore de poste'"
@@ -63,6 +68,11 @@
                 posteEnCours(associate.id).map((job) => job) == 'Manager'
               "
               v-text="'Manager'"
+            ></td>
+            <td
+              class="mt-auto mb-auto text-grey"
+              v-else-if="associate.start_date >= todayDate()"
+              v-text="'Pas encore embauché'"
             ></td>
             <td
               class="mt-auto mb-auto text-red"
@@ -87,6 +97,11 @@
               v-text="'Manager'"
             ></td>
             <td
+              class="mt-auto mb-auto text-grey"
+              v-else-if="associate.start_date >= todayDate()"
+              v-text="'Pas encore embauché'"
+            ></td>
+            <td
               class="mt-auto mb-auto text-red"
               v-else
               v-text="'Intercontrat'"
@@ -106,6 +121,11 @@
                 posteEnCours(associate.id).map((job) => job) == 'Manager'
               "
               v-text="'Manager'"
+            ></td>
+            <td
+              class="mt-auto mb-auto text-grey"
+              v-else-if="associate.start_date >= todayDate()"
+              v-text="'Pas encore embauché'"
             ></td>
             <td
               class="mt-auto mb-auto text-red"
@@ -178,6 +198,7 @@ export default {
         `/associates?page=${page || this.currentPage}`
       );
       this.associates = response.data.associate;
+      console.log(this.associates)
       this.totalPages = response.data.totalPages;
     },
 

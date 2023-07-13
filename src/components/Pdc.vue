@@ -32,9 +32,10 @@
         <v-btn class="mr-2" color="deep-purple-lighten-4 ">
           Intercontrat
         </v-btn>
+        <v-btn class="mr-2" color="grey-lighten-1 "> Hors entreprise </v-btn>
         <!-- <v-btn color="warning"> Absent </v-btn> -->
       </v-row>
-      <div class="row rounded shadow mb-5">  
+      <div class="row rounded shadow mb-5">
         <v-table class="col-1">
           <tbody>
             <tr>
@@ -56,7 +57,12 @@
           <thead>
             <tr>
               <th v-for="year in weeksFiltered" :key="year.weekNumber">
-                <span class="text-purple" v-if="year.startDate <= todayDate() && year.endDate >= todayDate()">
+                <span
+                  class="text-purple"
+                  v-if="
+                    year.startDate <= todayDate() && year.endDate >= todayDate()
+                  "
+                >
                   {{ "S" + year.weekNumber }}
                 </span>
                 <span v-else>
@@ -88,9 +94,16 @@
                 <div style="display: flex">
                   <v-btn
                     color="deep-purple-darken-3"
-                    v-if="isWorking(associate, year)"
+                    v-if="isWorking(associate, year) == 1"
                   ></v-btn>
-                  <v-btn color="deep-purple-lighten-4" v-else></v-btn>
+                  <v-btn
+                    color="deep-purple-lighten-4"
+                    v-else-if="isWorking(associate, year) == 2"
+                  ></v-btn>
+                  <v-btn
+                    color="grey-lighten-1"
+                    v-else-if="isWorking(associate, year) == 3"
+                  ></v-btn>
                 </div>
               </td>
             </tr>
@@ -196,9 +209,9 @@ export default {
       this.totalTrue = 0;
       this.totalFalse = 0;
       this.associatesContrat.forEach((associate) => {
-        if (this.isWorking(associate, week)) {
+        if (this.isWorking(associate, week) == 1) {
           this.totalTrue++;
-        } else {
+        } else if (this.isWorking(associate, week) == 2) {
           this.totalFalse++;
         }
       });
@@ -206,15 +219,21 @@ export default {
     },
 
     isWorking(associate, year) {
+      if (
+        associate.start_date >= year.endDate ||
+        associate.end_date < year.startDate
+      ) {
+        return 3;
+      }
       for (let mission of associate.Missions) {
         if (
           mission.start_date < year.endDate &&
           mission.end_date > year.startDate
         ) {
-          return true;
+          return 1;
         }
       }
-      return false;
+      return 2;
     },
 
     generateWeekList(year) {

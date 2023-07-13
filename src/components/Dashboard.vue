@@ -3,35 +3,37 @@
     <h1 class="title mt-3 mb-5">Tableau de bord</h1>
     <v-row>
       <v-col cols="12" lg="4">
-        <div class="shadow rounded-5 p-4">
+        <div class="bg-white shadow rounded-5 p-4">
           <p class="etiquette mb-2">Total de collaborateurs SII Le Mans</p>
           <v-row justify="end">
-              <v-icon
-                class="title"
-                icon="mdi-account-group"
-                size="x-large"
-              ></v-icon>
-              <p class="data m-2" v-text="associates.length"></p>
+            <v-icon
+              class="title"
+              icon="mdi-account-group"
+              size="x-large"
+            ></v-icon>
+            <p class="data m-2" v-text="associates.length"></p>
           </v-row>
         </div>
       </v-col>
 
       <v-col cols="12" lg="4">
-        <div class="shadow rounded-5 p-4">
-          <p class="etiquette mb-2">Chiffres d'affaires SII Le Mans</p>
+        <div class="bg-white shadow rounded-5 p-4">
+          <p class="etiquette mb-2">
+            Chiffres d'affaires SII Le Mans depuis le début de l'exercice
+          </p>
           <v-row justify="end">
             <v-icon
               class="title"
               icon="mdi-currency-eur"
               size="x-large"
             ></v-icon>
-            <p class="data m-2">104</p>
+            <p class="data m-2">{{ getCaGlobal(generateMonthList(2023)) }}</p>
           </v-row>
         </div>
       </v-col>
 
       <v-col cols="12" lg="4">
-        <div class="shadow rounded-5 p-4">
+        <div class="bg-white shadow rounded-5 p-4">
           <p class="etiquette mb-2">Évolution du chiffre d'affaires</p>
           <v-row justify="end">
             <v-icon class="title" icon="mdi-finance" size="x-large"></v-icon>
@@ -41,11 +43,23 @@
       </v-col>
     </v-row>
 
-    <v-col cols="12" lg="8" offset-lg="4" class="shadow rounded-5 p-5 mt-5 gradient">
+    <v-col
+      cols="12"
+      lg="8"
+      offset-lg="4"
+      class="shadow rounded-5 p-5 mt-5 gradient"
+    >
       <p class="pb-5">CA par client depuis le début de l'exercice</p>
       <v-row>
-        <v-col cols="12" lg="3" v-for="customer in customers" :key="customer.id">
-          <p style="font-weight: bold; font-size: 4vh;">{{ getCaOfCustomer(customer.id) }}€</p>
+        <v-col
+          cols="12"
+          lg="3"
+          v-for="customer in customers"
+          :key="customer.id"
+        >
+          <p style="font-weight: bold; font-size: 4vh">
+            {{ getCaOfCustomer(customer.id) }}€
+          </p>
           <span>{{ customer.label }}</span>
         </v-col>
       </v-row>
@@ -68,6 +82,7 @@ export default {
     return {
       associates: [],
       customers: [],
+      missions: [],
     };
   },
   created() {
@@ -76,6 +91,9 @@ export default {
     });
     Axios.get("/customers").then((res) => {
       this.customers = res.data?.customer;
+    });
+    Axios.get("/missions").then((res) => {
+      this.missions = res.data?.mission;
     });
   },
 
@@ -199,6 +217,55 @@ export default {
                 });
               });
             }
+          });
+        }
+      });
+      return ca;
+    },
+    getCaGlobal(months) {
+      let ca = 0;
+      this.caForMonths = [];
+      months.forEach((month) => {
+        if (month.start_date <= this.todayDate()) {
+          this.associates.forEach((associate) => {
+            associate.PRUs.forEach((PRU) => {
+              if (
+                PRU.start_date <= month.start_date &&
+                PRU.end_date >= month.end_date
+              ) {
+                ca -= PRU.value;
+              } else if (
+                PRU.start_date >= month.start_date &&
+                PRU.start_date <= month.end_date
+              ) {
+                ca -= PRU.value;
+              } else if (
+                PRU.end_date >= month.start_date &&
+                PRU.end_date <= month.end_date
+              ) {
+                ca -= PRU.value;
+              }
+            });
+          });
+          this.missions.forEach((mission) => {
+            mission.TJMs.forEach((tjm) => {
+              if (
+                tjm.start_date <= month.start_date &&
+                tjm.end_date >= month.end_date
+              ) {
+                ca += tjm.value;
+              } else if (
+                tjm.start_date >= month.start_date &&
+                tjm.start_date <= month.end_date
+              ) {
+                ca += tjm.value;
+              } else if (
+                tjm.end_date >= month.start_date &&
+                tjm.end_date <= month.end_date
+              ) {
+                ca += tjm.value;
+              }
+            });
           });
         }
       });

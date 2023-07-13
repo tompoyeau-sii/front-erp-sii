@@ -68,12 +68,19 @@
         </v-container>
       </v-window-item>
       <v-window-item value="3">
-        <GChart
-          type="ColumnChart"
-          class="shadow"
-          :data="chart.customerData"
-          :options="chart.customerOptions"
-        />
+        <v-col cols="12">
+          <GChart
+            type="ColumnChart"
+            class="shadow"
+            :data="chart.customerData"
+            :options="chart.customerOptions"
+          />
+        </v-col>
+        <!-- <GChart
+          type="PieChart"
+          :options="chart.pariteOptions"
+          :data="chart.pariteData"
+        /> -->
         <v-col cols="12">
           <v-select
             v-model="customerSelected"
@@ -83,19 +90,16 @@
             item-value="id"
             variant="solo"
           ></v-select>
+
+          <GChart
+            v-if="dataLoadedCustomer"
+            type="LineChart"
+            class="shadow"
+            :data="chart.customerCaData"
+            :options="chart.customerCaOptions"
+          />
         </v-col>
-        <GChart
-          v-if="dataLoadedCustomer"
-          type="LineChart"
-          class="shadow"
-          :data="chart.customerCaData"
-          :options="chart.customerCaOptions"
-        />
-        <!-- <GChart
-          type="PieChart"
-          :options="chart.pariteOptions"
-          :data="chart.pariteData"
-        /> -->
+        
       </v-window-item>
     </v-window>
   </div>
@@ -123,13 +127,9 @@ export default {
       managers: [],
       projects: [],
       customers: [],
-
       caForMonths: [],
-      
       caOfCustomer: [],
-
       filteredCustomers: [],
-      
       nbHommes: 0,
       nbFemmes: 0,
       intercontrats: [],

@@ -221,6 +221,7 @@ export default {
     });
     Axios.get("/associates/pdc").then((res) => {
       res.data?.associate.forEach((associate) => {
+        if (associate.start_date < this.todayDate()) {
         if (associate.Missions.length == 0) {
           let add = 0;
           associate.Jobs.forEach((job) => {
@@ -246,6 +247,7 @@ export default {
             this.intercontrats.push(associate);
           }
         }
+      }
       });
       this.intercontrats.nbCollab = this.intercontrats.length;
     });
