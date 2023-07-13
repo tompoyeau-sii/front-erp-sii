@@ -19,7 +19,7 @@
       >
         <div>
           <p class="text-h5 name" v-text="customer.label"></p>
-          <p>100 000€</p>
+          <p>{{ getCaOfCustomer(customer.id) }}€</p>
           <p>{{ filterAssociate(customer) + " collaborateurs" }}</p>
         </div>
       </router-link>
@@ -42,7 +42,13 @@
 import Axios from "@/_services/caller.service";
 import AddClientForm from "@/components/forms/AddClientForm.vue";
 import { mapGetters } from "vuex";
-import { format } from "date-fns";
+import {
+  startOfMonth,
+  endOfMonth,
+  eachMonthOfInterval,
+  format,
+} from "date-fns";
+import { fr } from "date-fns/locale";
 export default {
   name: "Client",
   components: {
@@ -63,6 +69,133 @@ export default {
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
     },
+    generateMonthList(year) {
+      const list_start = startOfMonth(new Date(year, 3, 1));
+      const list_end = startOfMonth(new Date(year + 1, 2, 1));
+      const monthsList = eachMonthOfInterval({
+        start: list_start,
+        end: list_end,
+        monthStartsOn: 1,
+      });
+
+      const allMonths = monthsList.map((date) => {
+        const month = format(date, "MMMM", { locale: fr });
+        const startDateOfMonth = startOfMonth(date, { weekStartsOn: 1 });
+        const endDateOfMonth = endOfMonth(date, { weekEndsOn: 1 });
+        return {
+          monthNumber: month,
+          start_date: format(startDateOfMonth, "yyyy-MM-dd"),
+          end_date: format(endDateOfMonth, "yyyy-MM-dd"),
+        };
+      });
+      return allMonths;
+    },
+    getCaOfCustomer(customerSelected) {
+      let ca = 0;
+      let months = this.generateMonthList(2023);
+      this.customers.forEach((customer) => {
+        if (customer.id == customerSelected) {
+          months.forEach((month) => {
+            if (
+              month.start_date <= this.todayDate()
+              ) {
+              customer.Projects.forEach((project) => {
+                project.Missions.forEach((mission) => {
+                  if (
+                    mission.start_date <= month.start_date &&
+                    mission.end_date >= month.end_date
+                  ) {
+                    mission.TJMs.forEach((tjm) => {
+                      if (
+                        tjm.start_date <= month.start_date &&
+                        tjm.end_date >= month.end_date
+                      ) {
+                        ca += tjm.value;
+                        
+                      }
+                    });
+                    mission.Associate.PRUs.forEach((pru) => {
+                      if (
+                        pru.start_date <= month.start_date &&
+                        pru.end_date >= month.end_date
+                      ) {
+                        ca -= pru.value;
+                      }
+                    });
+                  } else if (
+                    mission.start_date >= month.start_date &&
+                    mission.start_date < month.end_date
+                  ) {
+                    mission.TJMs.forEach((TJM) => {
+                      if (
+                        TJM.start_date <= month.start_date &&
+                        TJM.end_date >= month.end_date
+                      ) {
+                        ca += TJM.value;
+                        console.log(customer.label + ' : '+ ca)
+                        
+                      } else if (
+                        TJM.start_date >= month.start_date &&
+                        TJM.start_date < month.end_date
+                      ) {
+                        ca += TJM.value;
+                      }
+                    });
+                    mission.Associate.PRUs.forEach((PRU) => {
+                      if (
+                        PRU.start_date <= month.start_date &&
+                        PRU.end_date >= month.end_date
+                        ) {
+                          ca -= PRU.value;
+                        } else if (
+                          PRU.start_date >= month.start_date &&
+                          PRU.start_date < month.end_date
+                          ) {
+                            ca -= PRU.value;
+                      }
+                    });
+                    //Si la mission termine pendant le mois en cours
+                  } else if (
+                    mission.end_date >= month.start_date &&
+                    mission.end_date <= month.end_date
+                  ) {
+                    mission.TJMs.forEach((TJM) => {
+                      if (
+                        TJM.start_date <= month.start_date &&
+                        TJM.end_date >= month.end_date
+                      ) {
+                        ca += TJM.value;
+                      } else if (
+                        TJM.end_date >= month.start_date &&
+                        TJM.end_date < month.end_date
+                      ) {
+                        ca += TJM.value;
+                      }
+                    });
+                    mission.Associate.PRUs.forEach((PRU) => {
+                      if (
+                        PRU.start_date <= month.start_date &&
+                        PRU.end_date >= month.end_date
+                      ) {
+                        ca -= PRU.value;
+                      } else if (
+                        PRU.end_date >= month.start_date &&
+                        PRU.end_date < month.end_date
+                      ) {
+                        ca -= PRU.value;
+                      }
+                      
+                    });
+                  }
+                });
+              });
+            }
+          });
+        }
+      });
+      return ca;
+    },
+
     filterAssociate(customer) {
       const associateIds = new Set();
 
@@ -87,7 +220,6 @@ export default {
       this.customers = res.data?.customer;
     });
     Axios.get("/associates/pdc").then((res) => {
-      console.log(res.data?.associate);
       res.data?.associate.forEach((associate) => {
         if (associate.Missions.length == 0) {
           let add = 0;

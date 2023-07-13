@@ -56,7 +56,12 @@
           <thead>
             <tr>
               <th v-for="year in weeksFiltered" :key="year.weekNumber">
-                {{ "S" + year.weekNumber }}
+                <span class="text-purple" v-if="year.startDate <= todayDate() && year.endDate >= todayDate()">
+                  {{ "S" + year.weekNumber }}
+                </span>
+                <span v-else>
+                  {{ "S" + year.weekNumber }}
+                </span>
               </th>
             </tr>
             <tr>
@@ -152,13 +157,15 @@ export default {
       const response = await Axios.get(
         `/associates?page=${page || this.currentPage}`
       );
-      console.log(response);
       this.associates = response.data.associate;
       this.totalPages = response.data.totalPages;
       this.loading = false;
 
       // Mettre à jour filteredAssociates
       this.filteredAssociates = [...this.associates];
+    },
+    todayDate() {
+      return format(new Date(), "yyyy-MM-dd");
     },
     formatDate(date) {
       const year = date.getFullYear().toString();

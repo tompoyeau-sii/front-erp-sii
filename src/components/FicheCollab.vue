@@ -2,7 +2,13 @@
   <div class="container">
     <v-row>
       <v-col class="mt-2">
-        <v-btn size="small" variant="text" @click="retourPagePrecedente" prepend-icon="mdi-arrow-left">Retour</v-btn>
+        <v-btn
+          size="small"
+          variant="text"
+          @click="retourPagePrecedente"
+          prepend-icon="mdi-arrow-left"
+          >Retour</v-btn
+        >
       </v-col>
     </v-row>
 
@@ -43,28 +49,37 @@
         <v-col cols="12" lg="6" md="6 " sm="12">
           <h5 class="pt-3 sub-title">Travail actuellement pour</h5>
           <v-row>
-            <router-link
+            <div
               class="col-2 client-en-cours rounded-3 m-2 p-2 shadow-sm"
               v-for="mission in MissionsEnCours"
               :key="mission.id"
-              refresh
-              :to="{
-                name: 'FicheClientView',
-                params: { label: mission.Project.Customer.id },
-              }"
             >
-              <p
-                class="text-h5 name"
-                v-text="mission.Project.Customer.label"
-              ></p>
-              <p v-text="'Depuis le ' + formatDate(mission.start_date)"></p>
-              <p v-text="'Se termine le ' + formatDate(mission.end_date)"></p>
-              <p
-                v-text="mission.Project.label + ' / ' + mission.Project.adv"
-              ></p>
-              <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
-              <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
-            </router-link>
+              <v-row>
+                <v-col>
+                  <p
+                    class="text-h5 name"
+                    v-text="mission.Project.Customer.label"
+                  ></p>
+                </v-col>
+                <UpdateMissionForm />
+              </v-row>
+              <router-link
+                class="client-en-cours"
+                refresh
+                :to="{
+                  name: 'FicheClientView',
+                  params: { id: mission.Project.Customer.id },
+                }"
+              >
+                <p v-text="'Depuis le ' + formatDate(mission.start_date)"></p>
+                <p v-text="'Se termine le ' + formatDate(mission.end_date)"></p>
+                <p
+                  v-text="mission.Project.label + ' / ' + mission.Project.adv"
+                ></p>
+                <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
+                <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
+              </router-link>
+            </div>
             <v-col lg="2" sm="12" class="client-add">
               <AddMissionForm
                 :associate_id="associate.id"
@@ -223,25 +238,21 @@
     </v-row>
 
     <v-row>
-      <v-timeline side="end" align="start" truncate-line="both">
+      <v-timeline direction="horizontal" side="end" align="start">
         <v-timeline-item dot-color="green" size="small">
-          <div class="d-flex">
-            <strong class="me-4">08 juillet 2023</strong>
-            <div>
-              <strong>Mission 2</strong>
-              <div class="text-caption">Début</div>
-            </div>
-          </div>
+          <v-card class="elevation-2">
+            <v-card-title class="text-h5"> Lorem ipsum </v-card-title>
+            <v-card-text> Début </v-card-text>
+          </v-card>
         </v-timeline-item>
 
         <v-timeline-item dot-color="red" size="small">
-          <div class="d-flex">
-            <strong class="me-4">05 juillet 2023</strong>
-            <div>
-              <strong>Mission 1</strong>
-              <div class="text-caption">Fin</div>
-            </div>
-          </div>
+          <v-card>
+            <v-card-title class="text-h6"> Lorem Ipsum Dolor </v-card-title>
+            <v-card-text class="bg-white text-primary">
+              <p>Début</p>
+            </v-card-text>
+          </v-card>
         </v-timeline-item>
 
         <v-timeline-item dot-color="green" size="small">
@@ -262,6 +273,7 @@
 import Axios from "@/_services/caller.service";
 import AddMissionForm from "@/components/forms/AddMissionForm.vue";
 import UpdateCollabForm from "@/components/forms/UpdateCollabForm.vue";
+import UpdateMissionForm from "@/components/forms/UpdateMissionForm.vue";
 import {
   format,
   isBefore,
@@ -274,6 +286,7 @@ export default {
   components: {
     AddMissionForm,
     UpdateCollabForm,
+    UpdateMissionForm,
   },
   data() {
     return {
@@ -461,6 +474,10 @@ export default {
   width: 20vh;
   min-width: 200px;
 }
+.client-en-cours :hover {
+  color: #cecec2;
+}
+
 .client-futur {
   background: linear-gradient(135deg, #f2d50f 0%, #da0641 100%);
   color: white;

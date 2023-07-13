@@ -157,7 +157,7 @@ export default {
     return {
       associates: [],
       error: "",
-      SuccessState: true,
+      SuccessState: false,
       snackbar: false,
       missions: [],
       currentPage: 1,
@@ -177,7 +177,6 @@ export default {
       const response = await Axios.get(
         `/associates?page=${page || this.currentPage}`
       );
-      console.log(response);
       this.associates = response.data.associate;
       this.totalPages = response.data.totalPages;
     },
@@ -191,8 +190,8 @@ export default {
         if (associate.id == associate_id) {
           associate.Missions.forEach((mission) => {
             if (
-              mission.start_date < this.todayDate() &&
-              mission.end_date > this.todayDate() &&
+              mission.start_date <= this.todayDate() &&
+              mission.end_date >= this.todayDate() &&
               mission.associate_id == associate_id
             ) {
               missionOfCollab.push(mission.Project.label);
@@ -208,8 +207,8 @@ export default {
         if (associate.id == associate_id) {
           associate.Missions.forEach((mission) => {
             if (
-              mission.start_date < this.todayDate() &&
-              mission.end_date > this.todayDate() &&
+              mission.start_date <= this.todayDate() &&
+              mission.end_date >= this.todayDate() &&
               mission.associate_id == associate_id
             ) {
               missionOfCollab.push(mission.Project.Customer.label);
@@ -225,8 +224,8 @@ export default {
         if (associate.id == associate_id) {
           associate.Missions.forEach((mission) => {
             if (
-              mission.start_date < this.todayDate() &&
-              mission.end_date > this.todayDate() &&
+              mission.start_date <= this.todayDate() &&
+              mission.end_date >= this.todayDate() &&
               mission.associate_id == associate_id
             ) {
               missionOfCollab.push(

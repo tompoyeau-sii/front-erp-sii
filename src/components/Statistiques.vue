@@ -33,7 +33,7 @@
           <v-row>
             <v-col cols="12" lg="12">
               <GChart
-                v-if="dataLoaded"
+                v-if="dataLoadedManager"
                 type="LineChart"
                 class="shadow"
                 :options="chart.managerOptions"
@@ -74,6 +74,23 @@
           :data="chart.customerData"
           :options="chart.customerOptions"
         />
+        <v-col cols="12">
+          <v-select
+            v-model="customerSelected"
+            label="Client"
+            :items="customers"
+            item-title="label"
+            item-value="id"
+            variant="solo"
+          ></v-select>
+        </v-col>
+        <GChart
+          v-if="dataLoadedCustomer"
+          type="LineChart"
+          class="shadow"
+          :data="chart.customerCaData"
+          :options="chart.customerCaOptions"
+        />
         <!-- <GChart
           type="PieChart"
           :options="chart.pariteOptions"
@@ -99,14 +116,22 @@ export default {
   components: { GChart },
   data() {
     return {
+      // Select
       yearSelected: 2023,
-      nbHommes: 0,
-      nbFemmes: 0,
+      customerSelected: null,
+      //Liste initialisé par les listes de données reçu par l'API
       managers: [],
       projects: [],
-      caForMonths: [],
       customers: [],
+
+      caForMonths: [],
+      
+      caOfCustomer: [],
+
       filteredCustomers: [],
+      
+      nbHommes: 0,
+      nbFemmes: 0,
       intercontrats: [],
       manager: null,
       tab: null,
@@ -114,14 +139,25 @@ export default {
       missions: [],
       years: [2020, 2021, 2022, 2023, 2024, 2025],
       projectsOfManager: [],
-      dataLoaded: false, // propriété pour savoir si les données sont chargées ou non
+
+      //Data loarder
+      dataLoadedManager: false, // propriété pour savoir si les données sont chargées ou non
+      dataLoadedCustomer: false,
+      
       chart: {
+        //Parité homme /femme
         pariteData: [],
         pariteOptions: [],
+        //graphique ca des managers
         managerData: [],
         managerOptions: [],
+        //graphique nb collab chez les clients
         customerData: [],
         customerOptions: [],
+        //graphique ca par client
+        customerCaData: [],
+        customerCaOptions: [],
+        //ca global de l'agence
         caData: [],
         caOptions: [],
       },
@@ -130,8 +166,7 @@ export default {
   created() {
     Axios.get("/missions").then((res) => {
       this.missions = res.data?.mission;
-      console.log(this.missions)
-    })
+    });
     Axios.get("/customers").then((res) => {
       this.customers = res.data?.customer;
       this.filteredCustomers = this.filterAssociate(this.customers);
@@ -197,7 +232,6 @@ export default {
     });
     Axios.get("/projects").then((res) => {
       this.projects = res.data?.project;
-      console.log(this.projects);
       this.getCaGlobal(this.generateMonthList(2023));
       (this.chart.caData = [
         ["Mois", "CA"],
@@ -223,7 +257,7 @@ export default {
         (this.chart.managerOptions = {
           title: "Chiffre d'affaire du manager",
         });
-      this.dataLoaded = true;
+      this.dataLoadedManager = true;
     },
     yearSelected(newYear) {
       if (this.manager) {
@@ -247,13 +281,29 @@ export default {
         ...this.caForMonths.map(({ month, value }) => [month, value]),
       ];
     },
+    customerSelected(newCustomer) {
+      this.caOfCustomer = this.getCaOfCustomer(
+        this.generateMonthList(this.yearSelected),
+        newCustomer
+      );
+      (this.chart.customerCaData = [
+        ["Mois", "CA"],
+        ...this.caOfCustomer.map(({ month, value }) => [month, value]),
+      ]),
+        (this.chart.customerCaOptions = {
+          title: "Chiffre d'affaire du client",
+        });
+      this.dataLoadedCustomer = true;
+    },
   },
 
   methods: {
+    //Méthode afin de récupérer la date du jour
     todayDate() {
       return format(new Date(), "yyyy/MM/dd");
     },
 
+    //Permet de retourner le nombre de nb collaborateurs que possède un client sans doublon
     filterAssociate(customers) {
       const result = [];
 
@@ -278,6 +328,7 @@ export default {
       return result;
     },
 
+    //Génére la liste des mois de l'année passée en paramètre allant de S14 à S13
     generateMonthList(year) {
       const list_start = startOfMonth(new Date(year, 3, 1));
       const list_end = startOfMonth(new Date(year + 1, 2, 1));
@@ -300,6 +351,107 @@ export default {
       return allMonths;
     },
 
+    //Retourne pour chaque mois, le chiffre d'affaire d'un client passé en paramètre
+    getCaOfCustomer(months, customerSelected) {
+      let ca = 0;
+      this.caOfCustomer = [];
+      this.customers.forEach((customer) => {
+        if (customer.id == customerSelected) {
+          months.forEach((month) => {
+            customer.Projects.forEach((project) => {
+              project.Missions.forEach((mission) => {
+                if (
+                  mission.start_date <= month.start_date &&
+                  mission.end_date >= month.end_date
+                ) {
+                  mission.TJMs.forEach((tjm) => {
+                    if (
+                      tjm.start_date <= month.start_date &&
+                      tjm.end_date >= month.end_date
+                    ) {
+                      ca += tjm.value;
+                    }
+                  });
+                  mission.Associate.PRUs.forEach((pru) => {
+                    if (
+                      pru.start_date <= month.start_date &&
+                      pru.end_date >= month.end_date
+                    ) {
+                      ca -= pru.value;
+                    }
+                  });
+                } else if (
+                  mission.start_date >= month.start_date &&
+                  mission.start_date < month.end_date
+                ) {
+                  mission.TJMs.forEach((TJM) => {
+                    if (
+                      TJM.start_date <= month.start_date &&
+                      TJM.end_date >= month.end_date
+                    ) {
+                      ca += TJM.value;
+                    } else if (
+                      TJM.start_date >= month.start_date &&
+                      TJM.start_date < month.end_date
+                    ) {
+                      ca += TJM.value;
+                    }
+                  });
+                  mission.Associate.PRUs.forEach((PRU) => {
+                    if (
+                      PRU.start_date <= month.start_date &&
+                      PRU.end_date >= month.end_date
+                    ) {
+                      ca -= PRU.value;
+                    } else if (
+                      PRU.start_date >= month.start_date &&
+                      PRU.start_date < month.end_date
+                    ) {
+                      ca -= PRU.value;
+                    }
+                  });
+                  //Si la mission termine pendant le mois en cours
+                } else if (
+                  mission.end_date >= month.start_date &&
+                  mission.end_date <= month.end_date
+                ) {
+                  mission.TJMs.forEach((TJM) => {
+                    if (
+                      TJM.start_date <= month.start_date &&
+                      TJM.end_date >= month.end_date
+                    ) {
+                      ca += TJM.value;
+                    } else if (
+                      TJM.end_date >= month.start_date &&
+                      TJM.end_date < month.end_date
+                    ) {
+                      ca += TJM.value;
+                    }
+                  });
+                  mission.Associate.PRUs.forEach((PRU) => {
+                    if (
+                      PRU.start_date <= month.start_date &&
+                      PRU.end_date >= month.end_date
+                    ) {
+                      ca -= PRU.value;
+                    } else if (
+                      PRU.end_date >= month.start_date &&
+                      PRU.end_date < month.end_date
+                    ) {
+                      ca -= PRU.value;
+                    }
+                  });
+                }
+              });
+            });
+            this.caOfCustomer.push({ month: month.monthNumber, value: ca });
+          });
+        }
+      });
+      return this.caOfCustomer;
+    },
+
+    //Retourne pour chaque mois, le chiffre d'affaire d'un manager passé en paramètre
     getCaOfManager(months, managerSelected) {
       this.ca = [];
       let value = 0;
@@ -316,6 +468,7 @@ export default {
             });
             manager.Projects.forEach((project) => {
               project.Missions.forEach((mission) => {
+                // Si la mission commence avant et fini après le mois en cours
                 if (
                   mission.start_date <= month.start_date &&
                   mission.end_date >= month.end_date
@@ -336,6 +489,68 @@ export default {
                       value -= PRU.value;
                     }
                   });
+                  //Si la mission commence pendant le mois en cours
+                } else if (
+                  mission.start_date >= month.start_date &&
+                  mission.start_date < month.end_date
+                ) {
+                  mission.TJMs.forEach((TJM) => {
+                    if (
+                      TJM.start_date <= month.start_date &&
+                      TJM.end_date >= month.end_date
+                    ) {
+                      value += TJM.value;
+                    } else if (
+                      TJM.start_date >= month.start_date &&
+                      TJM.start_date < month.end_date
+                    ) {
+                      value += TJM.value;
+                    }
+                  });
+                  mission.Associate.PRUs.forEach((PRU) => {
+                    if (
+                      PRU.start_date <= month.start_date &&
+                      PRU.end_date >= month.end_date
+                    ) {
+                      value -= PRU.value;
+                    } else if (
+                      PRU.start_date >= month.start_date &&
+                      PRU.start_date < month.end_date
+                    ) {
+                      value -= PRU.value;
+                    }
+                  });
+                  //Si la mission termine pendant le mois en cours
+                } else if (
+                  mission.end_date >= month.start_date &&
+                  mission.end_date <= month.end_date
+                ) {
+                  mission.TJMs.forEach((TJM) => {
+                    if (
+                      TJM.start_date <= month.start_date &&
+                      TJM.end_date >= month.end_date
+                    ) {
+                      value += TJM.value;
+                    } else if (
+                      TJM.end_date >= month.start_date &&
+                      TJM.end_date < month.end_date
+                    ) {
+                      value += TJM.value;
+                    }
+                  });
+                  mission.Associate.PRUs.forEach((PRU) => {
+                    if (
+                      PRU.start_date <= month.start_date &&
+                      PRU.end_date >= month.end_date
+                    ) {
+                      value -= PRU.value;
+                    } else if (
+                      PRU.end_date >= month.start_date &&
+                      PRU.end_date < month.end_date
+                    ) {
+                      value -= PRU.value;
+                    }
+                  });
                 }
               });
             });
@@ -345,64 +560,53 @@ export default {
       });
       return this.ca;
     },
+
+    //Retourne pour chaque mois, le chiffre d'affaire de l'agence
     getCaGlobal(months) {
       let ca = 0;
       this.caForMonths = [];
       months.forEach((month) => {
-        this.projects.forEach((project) => {
-          project.Associate.PRUs.forEach((managerPRU) => {
+        this.associates.forEach((associate) => {
+          associate.PRUs.forEach((PRU) => {
             if (
-              managerPRU.start_date < month.start_date &&
-              managerPRU.end_date > month.end_date
+              PRU.start_date <= month.start_date &&
+              PRU.end_date >= month.end_date
             ) {
-              ca -= managerPRU.value;
-              console.log("Mois : "+ month.start_date + " | On enleve le PRU de " + project.Associate.name  + " : " + managerPRU.value)
-              console.log("Mois : "+ month.start_date + " | CA : " + ca)
+              ca -= PRU.value;
+            } else if (
+              PRU.start_date >= month.start_date &&
+              PRU.start_date <= month.end_date
+            ) {
+              ca -= PRU.value;
+            } else if (
+              PRU.end_date >= month.start_date &&
+              PRU.end_date <= month.end_date
+            ) {
+              ca -= PRU.value;
             }
           });
-          project.Missions.forEach((mission) => {
+        });
+        this.missions.forEach((mission) => {
+          mission.TJMs.forEach((tjm) => {
             if (
-              mission.start_date < month.start_date &&
-              mission.end_date > month.end_date
+              tjm.start_date <= month.start_date &&
+              tjm.end_date >= month.end_date
             ) {
-              mission.TJMs.forEach((TJM) => {
-                if (
-                  TJM.start_date < month.start_date &&
-                  TJM.end_date > month.end_date
-                ) {
-                  ca += TJM.value;
-                }
-              });
-              mission.Associate.PRUs.forEach((PRU) => {
-                if (
-                  PRU.start_date < month.start_date &&
-                  PRU.end_date > month.end_date
-                ) {
-                  ca -= PRU.value;
-                }
-              });
+              ca += tjm.value;
+            } else if (
+              tjm.start_date >= month.start_date &&
+              tjm.start_date <= month.end_date
+            ) {
+              ca += tjm.value;
+            } else if (
+              tjm.end_date >= month.start_date &&
+              tjm.end_date <= month.end_date
+            ) {
+              ca += tjm.value;
             }
           });
         });
         this.caForMonths.push({ month: month.monthNumber, value: ca });
-      });
-    },
-    getCaGlobal(months) {
-      let ca = 0;
-      this.caForMonths = [];
-      months.forEach((month) => {
-        this.missions.forEach((mission) => {
-          mission.TJMs.forEach((tjm) => {
-            if(tjm.start_date <= month.start_date && tjm.end_date >= month.end_date) {
-              ca += tjm.value;
-            }
-          })
-          mission.Associate.PRUs.forEach((pru) => {
-            if(pru.start_date <= month.start_date && pru.end_date >= month.end_date) {
-              ca -= pru.value;
-            }
-          })
-        })
       });
     },
   },
