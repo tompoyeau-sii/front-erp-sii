@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <v-container>
     <v-row>
       <v-col class="mt-2">
         <v-btn
@@ -43,43 +43,33 @@
     </v-row>
 
     <!--  Si la personne est en mission -->
-    <div v-if="this.MissionsEnCours">
+    <div>
       <!--Client part-->
-      <v-row>
+      <v-row v-if="this.MissionsEnCours">
         <v-col cols="12" lg="6" md="6 " sm="12">
           <h5 class="pt-3 sub-title">Travail actuellement pour</h5>
           <v-row>
-            <div
-              class="col-2 client-en-cours rounded-3 m-2 p-2 shadow-sm"
+            <router-link
+              class="col-2 client-en-cours rounded-3 m-2 p-2"
               v-for="mission in MissionsEnCours"
               :key="mission.id"
+              :to="{
+                name: 'FicheClientView',
+                params: { id: mission.Project.Customer.id },
+              }"
             >
-              <v-row>
-                <v-col>
-                  <p
-                    class="text-h5 name"
-                    v-text="mission.Project.Customer.label"
-                  ></p>
-                </v-col>
-                <UpdateMissionForm />
-              </v-row>
-              <router-link
-                class="client-en-cours"
-                refresh
-                :to="{
-                  name: 'FicheClientView',
-                  params: { id: mission.Project.Customer.id },
-                }"
-              >
-                <p v-text="'Depuis le ' + formatDate(mission.start_date)"></p>
-                <p v-text="'Se termine le ' + formatDate(mission.end_date)"></p>
-                <p
-                  v-text="mission.Project.label + ' / ' + mission.Project.adv"
-                ></p>
-                <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
-                <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
-              </router-link>
-            </div>
+              <p
+                class="text-h5 name"
+                v-text="mission.Project.Customer.label"
+              ></p>
+              <p v-text="'Depuis le ' + formatDate(mission.start_date)"></p>
+              <p v-text="'Se termine le ' + formatDate(mission.end_date)"></p>
+              <p
+                v-text="mission.Project.label + ' / ' + mission.Project.adv"
+              ></p>
+              <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
+              <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
+            </router-link>
             <v-col lg="2" sm="12" class="client-add">
               <AddMissionForm
                 :associate_id="associate.id"
@@ -127,6 +117,15 @@
           </v-row>
         </v-col>
       </v-row>
+
+      <!-- Si en intercontrat -->
+      <v-row v-else>
+        <v-col cols="6">
+          <h5 class="pt-3 sub-title">Ce collaborateur est en intercontrat.</h5>
+          <AddMissionForm :associate_id="associate.id" />
+        </v-col>
+      </v-row>
+
 
       <v-row>
         <v-col lg="6" v-if="MissionsFutur.length > 0">
@@ -185,14 +184,6 @@
       </v-row>
     </div>
 
-    <!--  Si la personne n'est pas en mission -->
-    <v-row v-else>
-      <v-col cols="6">
-        <h5 class="pt-3 sub-title">Ce collaborateur est en intercontrat.</h5>
-        <AddMissionForm :associate_id="associate.id" />
-      </v-col>
-    </v-row>
-
     <!-- Partie basse avec les infos récap chiffré du collab -->
     <v-row>
       <v-col cols="6" lg="3" md="4" sm="6">
@@ -237,36 +228,44 @@
       </v-col>
     </v-row>
 
-    <v-row>
-      <v-timeline direction="horizontal" side="end" align="start">
-        <v-timeline-item dot-color="green" size="small">
-          <v-card class="elevation-2">
-            <v-card-title class="text-h5"> Lorem ipsum </v-card-title>
-            <v-card-text> Début </v-card-text>
-          </v-card>
-        </v-timeline-item>
+    <div v-if="associate.Missions.length != 0">
+      <v-row>
+        <h5 class="pt-3 sub-title">Suivi des missions</h5>
+      </v-row>
 
-        <v-timeline-item dot-color="red" size="small">
-          <v-card>
-            <v-card-title class="text-h6"> Lorem Ipsum Dolor </v-card-title>
-            <v-card-text class="bg-white text-primary">
-              <p>Début</p>
-            </v-card-text>
-          </v-card>
-        </v-timeline-item>
-
-        <v-timeline-item dot-color="green" size="small">
-          <div class="d-flex">
-            <strong class="me-4">02 mars 2023</strong>
+      <v-row>
+        <v-timeline
+          side="end"
+          align="start"
+          v-for="mission in associate.Missions"
+          :key="mission.id"
+        >
+          <v-timeline-item dot-color="deep-purple-lighten-3" size="small">
+            <template v-slot:opposite>
+              {{ formatDate(mission.end_date) }}
+            </template>
             <div>
-              <strong>Mission 1</strong>
-              <div class="text-caption">Début</div>
+              <strong>{{
+                mission.Project.label + " | " + mission.Project.adv
+              }}</strong>
+              <div class="text-caption">Fin de la mission</div>
             </div>
-          </div>
-        </v-timeline-item>
-      </v-timeline>
-    </v-row>
-  </div>
+          </v-timeline-item>
+          <v-timeline-item dot-color="deep-purple-darken-4" size="small">
+            <template v-slot:opposite>
+              {{ formatDate(mission.start_date) }}
+            </template>
+            <div>
+              <strong>{{
+                mission.Project.label + " | " + mission.Project.adv
+              }}</strong>
+              <div class="text-caption">Début de la mission</div>
+            </div>
+          </v-timeline-item>
+        </v-timeline>
+      </v-row>
+    </div>
+  </v-container>
 </template>
 
 <script>
@@ -281,6 +280,7 @@ import {
   isAfter,
   differenceInYears,
 } from "date-fns";
+import { fr } from "date-fns/locale";
 export default {
   name: "FicheCollab",
   components: {
@@ -314,9 +314,6 @@ export default {
     calculateAge(dateOfBirth) {
       const today = new Date();
       return differenceInYears(today, new Date(dateOfBirth));
-    },
-    formatDate(date) {
-      return (date = format(new Date(date), "dd/MM/yyyy"));
     },
     formatDateBDD(date) {
       return (date = format(new Date(date), "yyyy-MM-dd"));
@@ -378,19 +375,18 @@ export default {
     pruActuel() {
       let today = new Date();
       today = this.formatDateBDD(today);
-      for (let pru of this.associate.PRUs) {
-        if (pru.start_date < today && pru.end_date > today) {
+      this.associate.PRUs.forEach((pru) => {
+        if (pru.end_date > today) {
           this.pru = pru.value;
         }
-      }
+      })
     },
     jobActuel() {
       let today = new Date();
       today = this.formatDateBDD(today);
       for (let job of this.associate.Jobs) {
         if (
-          job.Associate_Job.end_date > today &&
-          job.Associate_Job.start_date < today
+          job.Associate_Job.end_date > today
         ) {
           this.job_id = job.id;
           this.job = job.label;
@@ -398,7 +394,7 @@ export default {
       }
     },
     formatDate(date) {
-      return (date = format(new Date(date), "dd/MM/yyyy"));
+      return (date = format(new Date(date), "PP", { locale: fr }));
     },
   },
   created() {
@@ -473,9 +469,6 @@ export default {
   color: white;
   width: 20vh;
   min-width: 200px;
-}
-.client-en-cours :hover {
-  color: #cecec2;
 }
 
 .client-futur {

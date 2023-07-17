@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <v-container>
     <v-row class="mt-3">
       <v-col lg="6">
         <h1 class="pt-3 pb-3 title">Clients SII Le Mans</h1>
@@ -35,7 +35,7 @@
         </div>
       </router-link>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script>

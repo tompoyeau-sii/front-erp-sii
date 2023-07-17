@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <v-container>
     <v-row class="p-3">
       <v-col lg="6">
         <h1 class="title">Collaborateurs SII Le Mans</h1>
@@ -56,11 +56,17 @@
               v-text="'Pas encore de poste'"
             ></td>
             <!-- Affichage du nom prenom du manager -->
-            <td 
-            class="mt-auto mb-auto" 
-            v-if="managerEnCours(associate.id).map((mission) => mission) != ''"
-            v-text="managerEnCours(associate.id).map((mission) => mission).join(', ')">
-          </td>
+            <td
+              class="mt-auto mb-auto"
+              v-if="
+                managerEnCours(associate.id).map((mission) => mission) != ''
+              "
+              v-text="
+                managerEnCours(associate.id)
+                  .map((mission) => mission)
+                  .join(', ')
+              "
+            ></td>
 
             <td
               class="mt-auto mb-auto text-blue"
@@ -89,7 +95,7 @@
                   .join(', ')
               "
             ></td>
-             <td
+            <td
               class="mt-auto mb-auto text-blue"
               v-else-if="
                 posteEnCours(associate.id).map((job) => job) == 'Manager'
@@ -115,7 +121,7 @@
                   .join(', ')
               "
             ></td>
-             <td
+            <td
               class="mt-auto mb-auto text-blue"
               v-else-if="
                 posteEnCours(associate.id).map((job) => job) == 'Manager'
@@ -161,13 +167,14 @@
       <v-icon start icon="mdi-checkbox-marked-circle"></v-icon>
       {{ success }}
     </v-snackbar>
-  </div>
+  </v-container>
 </template>
 
 <script>
 import Axios from "@/_services/caller.service";
 import AddCollabForm from "@/components/forms/AddCollabForm.vue";
 import { format } from "date-fns";
+
 export default {
   name: "Collaborateur",
   components: {
@@ -198,7 +205,7 @@ export default {
         `/associates?page=${page || this.currentPage}`
       );
       this.associates = response.data.associate;
-      console.log(this.associates)
+      console.log(this.associates);
       this.totalPages = response.data.totalPages;
     },
 

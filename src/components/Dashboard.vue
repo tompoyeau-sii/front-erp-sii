@@ -1,8 +1,13 @@
 <template>
   <v-container>
-    <h1 class="title mt-3 mb-5">Tableau de bord</h1>
+    <v-row class="p-3">
+      <v-col lg="6">
+        <h1 class="title mt-3 mb-5">Tableau de bord</h1>
+      </v-col>
+    </v-row>
+
     <v-row>
-      <v-col cols="12" lg="4">
+      <v-col cols="12" lg="4" md="6" sm="6">
         <div class="bg-white shadow rounded-5 p-4">
           <p class="etiquette mb-2">Total de collaborateurs SII Le Mans</p>
           <v-row justify="end">
@@ -16,10 +21,10 @@
         </div>
       </v-col>
 
-      <v-col cols="12" lg="4">
+      <v-col cols="12" lg="4" md="6" sm="6">
         <div class="bg-white shadow rounded-5 p-4">
           <p class="etiquette mb-2">
-            Chiffres d'affaires SII Le Mans depuis le début de l'exercice
+            Chiffre d'affaires depuis le début de l'exercice
           </p>
           <v-row justify="end">
             <v-icon
@@ -37,33 +42,69 @@
           <p class="etiquette mb-2">Évolution du chiffre d'affaires</p>
           <v-row justify="end">
             <v-icon class="title" icon="mdi-finance" size="x-large"></v-icon>
-            <p class="data m-2">104</p>
+            <p
+              v-if="
+                getEvolutionCA(
+                  getCaGlobal(generateMonthList(2023)),
+                  getCaGlobalLastYear(generateMonthList(2022))
+                ) >
+                0 + '%'
+              "
+              class="data text-green m-2"
+            >
+              {{
+                getEvolutionCA(
+                  getCaGlobal(generateMonthList(2023)),
+                  getCaGlobalLastYear(generateMonthList(2022))
+                )
+              }}
+            </p>
+            <p v-else class="data m-2 text-red">
+              {{
+                getEvolutionCA(
+                  getCaGlobal(generateMonthList(2023)),
+                  getCaGlobalLastYear(generateMonthList(2022))
+                )
+              }}
+            </p>
           </v-row>
         </div>
       </v-col>
     </v-row>
+    <v-row>
+      <v-col cols="12" lg="4" md="6" sm="6">
+        <div class="bg-white shadow rounded-5 p-4">
+          <p class="etiquette mb-2">Moyenne d'age</p>
+          <v-row justify="end">
+            <v-icon
+              class="title"
+              icon="mdi-account-group"
+              size="x-large"
+            ></v-icon>
+            <p class="data m-2">{{ ageMoy + ' ans'}}</p>
+          </v-row>
+        </div>
+      </v-col>
 
-    <v-col
-      cols="12"
-      lg="8"
-      offset-lg="4"
-      class="shadow rounded-5 p-5 mt-5 gradient"
-    >
-      <p class="pb-5">CA par client depuis le début de l'exercice</p>
-      <v-row>
-        <v-col
-          cols="12"
-          lg="3"
-          v-for="customer in customers"
-          :key="customer.id"
-        >
-          <p style="font-weight: bold; font-size: 4vh">
-            {{ getCaOfCustomer(customer.id) }}€
-          </p>
-          <span>{{ customer.label }}</span>
-        </v-col>
-      </v-row>
-    </v-col>
+      <v-col cols="12" lg="8" class="shadow rounded-5 p-5 mt-5 gradient">
+        <p class="pb-5">CA par client depuis le début de l'exercice</p>
+        <v-row>
+          <v-col
+            cols="12"
+            lg="3"
+            md="6"
+            sm="6"
+            v-for="customer in customers"
+            :key="customer.id"
+          >
+            <p style="font-weight: bold; font-size: 4vh">
+              {{ getCaOfCustomer(customer.id) }}€
+            </p>
+            <span>{{ customer.label }}</span>
+          </v-col>
+        </v-row>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -74,8 +115,11 @@ import {
   endOfMonth,
   eachMonthOfInterval,
   format,
+  subYears,
+  parse,
+  differenceInYears,
 } from "date-fns";
-import { fr } from "date-fns/locale";
+import { ca, fr } from "date-fns/locale";
 export default {
   name: "dashboard",
   data() {
@@ -83,11 +127,17 @@ export default {
       associates: [],
       customers: [],
       missions: [],
+      ageMoy: null,
     };
   },
   created() {
     Axios.get("/associates/pdc").then((res) => {
       this.associates = res.data?.associate;
+      let moy = 0;
+      this.associates.forEach((associate) => {
+        moy += this.calculateAge(associate.birthdate);
+      });
+      this.ageMoy = moy / this.associates.length;
     });
     Axios.get("/customers").then((res) => {
       this.customers = res.data?.customer;
@@ -161,7 +211,6 @@ export default {
                         TJM.end_date >= month.end_date
                       ) {
                         ca += TJM.value;
-                        console.log(customer.label + " : " + ca);
                       } else if (
                         TJM.start_date >= month.start_date &&
                         TJM.start_date < month.end_date
@@ -270,6 +319,69 @@ export default {
         }
       });
       return ca;
+    },
+    getCaGlobalLastYear(months) {
+      let ca = 0;
+      this.caForMonths = [];
+      months.forEach((month) => {
+        const todayString = this.todayDate(); // Appelez votre méthode qui retourne la date du jour sous forme de chaîne
+        const today = parse(todayString, "yyyy-MM-dd", new Date());
+        var previousYear = subYears(today, 1);
+        previousYear = format(previousYear, "yyyy-MM-dd");
+        if (month.start_date <= previousYear) {
+          this.associates.forEach((associate) => {
+            associate.PRUs.forEach((PRU) => {
+              if (
+                PRU.start_date <= month.start_date &&
+                PRU.end_date >= month.end_date
+              ) {
+                ca -= PRU.value;
+              } else if (
+                PRU.start_date >= month.start_date &&
+                PRU.start_date <= month.end_date
+              ) {
+                ca -= PRU.value;
+              } else if (
+                PRU.end_date >= month.start_date &&
+                PRU.end_date <= month.end_date
+              ) {
+                ca -= PRU.value;
+              }
+            });
+          });
+          this.missions.forEach((mission) => {
+            mission.TJMs.forEach((tjm) => {
+              if (
+                tjm.start_date <= month.start_date &&
+                tjm.end_date >= month.end_date
+              ) {
+                ca += tjm.value;
+              } else if (
+                tjm.start_date >= month.start_date &&
+                tjm.start_date <= month.end_date
+              ) {
+                ca += tjm.value;
+              } else if (
+                tjm.end_date >= month.start_date &&
+                tjm.end_date <= month.end_date
+              ) {
+                ca += tjm.value;
+              }
+            });
+          });
+        }
+      });
+      return ca;
+    },
+    getEvolutionCA(todayCA, lastYearCA) {
+      ca = todayCA - lastYearCA;
+      ca = ca / Math.abs(lastYearCA);
+      ca = ca * 100;
+      return ca.toFixed(0) + "%";
+    },
+    calculateAge(dateOfBirth) {
+      const today = new Date();
+      return differenceInYears(today, new Date(dateOfBirth));
     },
   },
 };

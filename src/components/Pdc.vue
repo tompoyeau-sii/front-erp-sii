@@ -1,10 +1,5 @@
 <template>
-  <div class="container">
-    <router-link class="retour" to="/dashboard">
-      <v-icon start icon="mdi-arrow-left"></v-icon>
-      Retour
-    </router-link>
-
+  <v-container>
     <h1 class="title">Plan de charge</h1>
 
     <v-progress-circular
@@ -13,29 +8,33 @@
       v-if="loading"
     ></v-progress-circular>
 
-    <div class="display" v-else>
+    <div v-else>
       <!-- <v-text-field
         v-model="search"
         clearable
         variant="solo"
         label="Collaborateur"
       ></v-text-field> -->
-      <v-select
-        label="Année"
-        :items="years"
-        variant="solo"
-        density="compact"
-        v-model="selectedYear"
-      ></v-select>
-      <v-row justify="end" class="mb-3">
-        <v-btn class="mr-2" color="deep-purple-darken-3"> En mission </v-btn>
-        <v-btn class="mr-2" color="deep-purple-lighten-4 ">
-          Intercontrat
-        </v-btn>
-        <v-btn class="mr-2" color="grey-lighten-1 "> Hors entreprise </v-btn>
+      <v-row>
+        <v-col cols="8">
+          <v-select
+            label="Année"
+            :items="years"
+            variant="solo"
+            density="compact"
+            v-model="selectedYear"
+          ></v-select>
+        </v-col>
+        <v-col>
+          <v-btn class="mr-2" color="deep-purple-darken-3"> En mission </v-btn>
+          <v-btn class="mr-2" color="deep-purple-lighten-4 ">
+            Intercontrat
+          </v-btn>
+          <v-btn class="mr-2" color="grey-lighten-1 "> Hors entreprise </v-btn>
+        </v-col>
         <!-- <v-btn color="warning"> Absent </v-btn> -->
       </v-row>
-      <div class="row rounded shadow mb-5">
+      <v-row class="rounded shadow m-2">
         <v-table class="col-1">
           <tbody>
             <tr>
@@ -58,7 +57,7 @@
             <tr>
               <th v-for="year in weeksFiltered" :key="year.weekNumber">
                 <span
-                  class="text-purple"
+                  class="bg-purple"
                   v-if="
                     year.startDate <= todayDate() && year.endDate >= todayDate()
                   "
@@ -77,9 +76,9 @@
                     {{ totalTrue }}
                   </span>
                   /
-                  <span class="text-deep-purple-lighten-4">{{
-                    totalFalse
-                  }}</span>
+                  <span class="text-deep-purple-lighten-4">
+                    {{ totalFalse }}
+                  </span>
                 </div>
               </th>
             </tr>
@@ -114,9 +113,9 @@
           :length="totalPages"
           @input="fetchData"
         ></v-pagination> -->
-      </div>
+        </v-row>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script>
@@ -294,13 +293,6 @@ export default {
 </script>
 
 <style scoped>
-.associate {
-  position: fixed;
-  background-color: white;
-  z-index: 1;
-  max-width: 100px;
-  min-width: 100px;
-}
 
 p {
   font-weight: 600;

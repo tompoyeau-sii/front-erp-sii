@@ -1,9 +1,9 @@
 <template>
-  <div class="container">
+  <v-container>
     <v-tabs v-model="tab" color="deep-purple-darken-3" align-tabs="center">
-      <v-tab value="1">Statistiques</v-tab>
+      <v-tab value="1">Managers</v-tab>
       <v-tab value="2">Business</v-tab>
-      <v-tab value="3">Autres</v-tab>
+      <v-tab value="3">Clients</v-tab>
     </v-tabs>
     <v-window v-model="tab">
       <v-window-item value="1">
@@ -102,7 +102,7 @@
         
       </v-window-item>
     </v-window>
-  </div>
+  </v-container>
 </template>
 
 <script>
@@ -178,7 +178,7 @@ export default {
         ]),
       ];
       this.chart.customerOptions = {
-        title: "Nombre de collaborateurs chez les clients",
+        title: "Nombre de collaborateurs par clients",
       };
     });
     Axios.get("/associates/managers").then((res) => {
