@@ -9,12 +9,12 @@
     ></v-progress-circular>
 
     <div v-else>
-      <!-- <v-text-field
+      <v-text-field
         v-model="search"
         clearable
         variant="solo"
         label="Collaborateur"
-      ></v-text-field> -->
+      ></v-text-field>
       <v-row>
         <v-col cols="8">
           <v-select

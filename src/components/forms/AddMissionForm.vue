@@ -31,7 +31,7 @@
                       v-model="form.label"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12" sm="6">
+                  <v-col cols="12" >
                     <v-autocomplete
                       v-if="associate_id == null"
                       v-model="form.associate"
@@ -41,16 +41,16 @@
                       label="Collaborateur*"
                       variant="solo"
                     ></v-autocomplete>
-                    <v-autocomplete
+                    <!-- <v-autocomplete
                       v-else
                       v-model="form.associate"
                       :item-title="associate"
                       disabled
                       label="Collaborateur*"
                       variant="solo"
-                    ></v-autocomplete>
+                    ></v-autocomplete> -->
                   </v-col>
-                  <v-col cols="12" sm="6">
+                  <v-col cols="12">
                     <v-autocomplete
                       v-if="customer_id == null"
                       v-model="customer"
@@ -60,14 +60,14 @@
                       label="Client*"
                       variant="solo"
                     ></v-autocomplete>
-                    <v-autocomplete
+                    <!-- <v-autocomplete
                       v-else
                       v-model="customer"
                       :items="customers"
                       disabled
                       label="Client*"
                       variant="solo"
-                    ></v-autocomplete>
+                    ></v-autocomplete> -->
                   </v-col>
                   <v-col cols="12" sm="6">
                     <v-autocomplete
@@ -228,15 +228,15 @@
     </v-card>
   </v-dialog>
   <v-snackbar
-      v-if="SuccessState == true"
-      v-model="snackbar"
-      w-auto
-      color="green"
-      timeout="3000"
-    >
-      <v-icon start icon="mdi-checkbox-marked-circle"></v-icon>
-      {{ success }}
-    </v-snackbar>
+    v-if="SuccessState == true"
+    v-model="snackbar"
+    w-auto
+    color="green"
+    timeout="3000"
+  >
+    <v-icon start icon="mdi-checkbox-marked-circle"></v-icon>
+    {{ success }}
+  </v-snackbar>
 </template>
 
 <script>
@@ -318,34 +318,38 @@ export default {
     },
     formAddMission() {
       if (
-        this.form.label !== "" &&
-        this.form.associate !== "" &&
-        this.form.project !== "" &&
-        this.form.start_date !== "" &&
-        this.form.end_date !== "" &&
-        this.form.tjm !== "" &&
+        this.form.label !== null &&
+        this.form.associate !== null &&
+        this.form.project !== null &&
+        this.form.start_date !== null &&
+        this.form.end_date !== null &&
+        this.form.tjm !== null &&
         this.totalImputation == 100
       ) {
-        Axios.post("/mission", {
-          label: this.form.label,
-          associate_id: this.form.associate,
-          project_id: this.form.project,
-          tjm: this.form.tjm,
-          start_date: this.form.start_date,
-          end_date: this.form.end_date,
-          old_mission_id: this.form.old_mission_id,
-          old_mission_start: this.form.old_mission_start,
-          old_mission_end: this.form.old_mission_end,
-          old_mission_imputation: this.form.old_mission_imputation,
-          new_mission_imputation: this.form.new_mission_imputation,
-        }).then((response) => {
-          console.log("réussi");
-          this.dialog = false;
-          this.CreateState = false;
-          this.SuccessState = true;
-          this.success = "Nouvelle mission créée";
-          this.error = "";
-        });
+        if (this.form.start_date < this.form.end_date) {
+          Axios.post("/mission", {
+            label: this.form.label,
+            associate_id: this.form.associate,
+            project_id: this.form.project,
+            tjm: this.form.tjm,
+            start_date: this.form.start_date,
+            end_date: this.form.end_date,
+            old_mission_id: this.form.old_mission_id,
+            old_mission_start: this.form.old_mission_start,
+            old_mission_end: this.form.old_mission_end,
+            old_mission_imputation: this.form.old_mission_imputation,
+            new_mission_imputation: this.form.new_mission_imputation,
+          }).then((response) => {
+            console.log("réussi");
+            this.dialog = false;
+            this.CreateState = false;
+            this.SuccessState = true;
+            this.success = "Nouvelle mission créée";
+            this.error = "";
+          });
+        } else {
+          this.error = "La date début doit être inférieur à la date de fin !";
+        }
       } else {
         this.error = "Veuillez compléter tous les champs.";
       }
@@ -396,37 +400,47 @@ export default {
     next() {
       if (
         this.form.label != null &&
-        this.form.associate != "" &&
+        this.form.associate != null &&
         this.form.project != null &&
         this.form.start_date != null &&
         this.form.end_date != null &&
-        this.form.tjm != null
+        this.form.tjm != null &&
+        this.form.label != "" &&
+        this.form.associate != "" &&
+        this.form.project != "" &&
+        this.form.start_date != "" &&
+        this.form.end_date != "" &&
+        this.form.tjm != ""
       ) {
-        this.missionFiltered = this.filteredMissions(
-          this.form.start_date,
-          this.form.end_date
-        );
-        if (this.missionFiltered.length == 0) {
-          this.step++;
-          this.error = "";
-          this.form.old_mission_imputation = 0;
-          this.form.new_mission_imputation = 100;
-        } else if (this.missionFiltered.length == 1) {
-          this.step++;
-          this.form.old_mission_id = this.missionFiltered
-            .map((mission) => mission.id)
-            .toString();
-          this.form.old_mission_start = this.missionFiltered
-            .map((mission) => mission.start_date)
-            .toString();
-          this.form.old_mission_end = this.missionFiltered
-            .map((mission) => mission.end_date)
-            .toString();
-          this.error = "";
+        if (this.form.start_date < this.form.end_date) {
+          this.missionFiltered = this.filteredMissions(
+            this.form.start_date,
+            this.form.end_date
+          );
+          if (this.missionFiltered.length == 0) {
+            this.step++;
+            this.error = "";
+            this.form.old_mission_imputation = 0;
+            this.form.new_mission_imputation = 100;
+          } else if (this.missionFiltered.length == 1) {
+            this.step++;
+            this.form.old_mission_id = this.missionFiltered
+              .map((mission) => mission.id)
+              .toString();
+            this.form.old_mission_start = this.missionFiltered
+              .map((mission) => mission.start_date)
+              .toString();
+            this.form.old_mission_end = this.missionFiltered
+              .map((mission) => mission.end_date)
+              .toString();
+            this.error = "";
+          } else {
+            this.error =
+              "Vous ne pouvez pas avoir plus de 2 missions en même temps.";
+          }
         } else {
-          this.error =
-            "Vous ne pouvez pas avoir plus de 2 missions en même temps.";
-        }
+        this.error = "La date début doit être inférieur à la date de fin !";
+      }
       } else {
         this.error = "Veuillez compléter tous les champs.";
       }

@@ -10,6 +10,12 @@
         </v-col>
       </v-row>
     </v-row>
+    <v-row>
+      <v-col> 
+        <v-text-field label="Rechecher..." v-model="search" variant="solo" >
+        </v-text-field>
+      </v-col>
+    </v-row>
     <div class="table-responsive p-3">
       <table class="table rounded-3 shadow bg-white table-striped">
         <thead>
@@ -22,7 +28,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="associate in associates" :key="associate.id">
+          <tr v-for="associate in filteredAssociates" :key="associate.id">
             <td style="display: flex; align-content: center">
               <v-avatar>
                 <v-img
@@ -183,38 +189,51 @@ export default {
   data() {
     return {
       associates: [],
+      filteredAssociates: [],
+      allAssociates: [],
       error: "",
       SuccessState: false,
       snackbar: false,
       missions: [],
       currentPage: 1,
+      globalPages: 0,
       totalPages: 0,
+      search: null,
     };
   },
   mounted() {
-    this.fetchData();
+    this.fetchData()
+  },
+  created() {
+    Axios.get("/associates/pdc").then((res) => {
+      this.allAssociates = res.data?.associate;
+    });
   },
   watch: {
     currentPage(newPage) {
       this.fetchData(newPage);
     },
+    search() {
+      this.filterAssociates();
+    },
   },
+
   methods: {
     async fetchData(page) {
       const response = await Axios.get(
         `/associates?page=${page || this.currentPage}`
       );
       this.associates = response.data.associate;
-      console.log(this.associates);
       this.totalPages = response.data.totalPages;
+      this.globalPages = response.data.totalPages;
+      this.filterAssociates()
     },
-
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
     },
     projetEnCours(associate_id) {
       var missionOfCollab = [];
-      this.associates.forEach((associate) => {
+      this.allAssociates.forEach((associate) => {
         if (associate.id == associate_id) {
           associate.Missions.forEach((mission) => {
             if (
@@ -231,7 +250,7 @@ export default {
     },
     clientEnCours(associate_id) {
       var missionOfCollab = [];
-      this.associates.forEach((associate) => {
+      this.allAssociates.forEach((associate) => {
         if (associate.id == associate_id) {
           associate.Missions.forEach((mission) => {
             if (
@@ -248,7 +267,7 @@ export default {
     },
     managerEnCours(associate_id) {
       var missionOfCollab = [];
-      this.associates.forEach((associate) => {
+      this.allAssociates.forEach((associate) => {
         if (associate.id == associate_id) {
           associate.Missions.forEach((mission) => {
             if (
@@ -269,7 +288,7 @@ export default {
     },
     posteEnCours(associate_id) {
       var missionOfCollab = [];
-      this.associates.forEach((associate) => {
+      this.allAssociates.forEach((associate) => {
         if (associate.id == associate_id) {
           associate.Jobs.forEach((job) => {
             if (
@@ -289,6 +308,20 @@ export default {
       Axios.get("/associates").then((res) => {
         this.associates = res.data?.associate;
       });
+    },
+    filterAssociates() {
+      if (!this.search) {
+        this.filteredAssociates = this.associates;
+        this.totalPages = this.globalPages;
+      } else {
+        const searchTerm = this.search.toLowerCase();
+        this.totalPages = 1;
+        this.filteredAssociates = this.allAssociates.filter((associate) => {
+          const fullName = associate.first_name + " " + associate.name;
+          return fullName.toLowerCase().includes(searchTerm);
+        });
+        this.totalPages = Math.ceil(this.filteredAssociates.length / 10);
+      }
     },
   },
 };

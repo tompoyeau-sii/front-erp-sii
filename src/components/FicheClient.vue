@@ -1,5 +1,5 @@
 <template>
-  <div class="container" v-if="!isEditMode">
+  <v-container>
     <v-row>
       <v-col class="mt-2">
         <v-btn
@@ -48,13 +48,11 @@
               <v-img
                 src="../assets/img/collab/generic.png"
                 style="width: 100%"
-                alt="John"
               ></v-img>
             </v-avatar>
           </div>
           <div class="col-2">
             <p
-              class=""
               v-text="
                 project.Associate.first_name + ' ' + project.Associate.name
               "
@@ -86,7 +84,7 @@
           </v-row>
           <tbody>
             <tr v-for="associate in project.Missions" :key="associate.id">
-              <td style="display: flex; align-content: center">
+              <td v-if="associate.start_date < todayDate() && associate.end_date > todayDate()" style="display: flex; align-content: center">
                 <v-avatar>
                   <v-img
                     src="../assets/img/collab/generic.png"
@@ -110,13 +108,14 @@
         <AddMissionForm :customer_id="$route.params.client.id" />
       </v-row>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script>
 import AddProjectForm from "@/components/forms/AddProjectForm.vue";
 import AddMissionForm from "@/components/forms/AddMissionForm.vue";
 import UpdateClientForm from "@/components/forms/UpdateClientForm.vue";
+import { format } from "date-fns";
 export default {
   name: "FicheClient",
   components: {
@@ -142,6 +141,9 @@ export default {
   methods: {
     retourPagePrecedente() {
       this.$router.go(-1);
+    },
+    todayDate() {
+      return format(new Date(), "yyyy-MM-dd");
     },
   },
 };

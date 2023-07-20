@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <v-container>
 
     <h1 class="title pt-3">Ajouter des attributs</h1>
     <div class="row">
@@ -13,7 +13,7 @@
         <Genres />
       </v-col>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script>

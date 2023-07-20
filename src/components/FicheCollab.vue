@@ -188,14 +188,6 @@
     <v-row>
       <v-col cols="6" lg="3" md="4" sm="6">
         <div class="shadow rounded-5 mt-5 p-4">
-          <p class="etiquette mb-2">IK</p>
-          <v-row justify="end">
-            <p class="data m-2">254251</p>
-          </v-row>
-        </div>
-      </v-col>
-      <v-col cols="6" lg="3" md="4" sm="6">
-        <div class="shadow rounded-5 mt-5 p-4">
           <p class="etiquette mb-2">PRU</p>
           <v-row justify="end">
             <p class="data m-2" v-text="pru"></p>

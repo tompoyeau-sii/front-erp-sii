@@ -6,6 +6,10 @@
       </v-col>
     </v-row>
 
+    <p v-for="offDay in offDaysPastYear" :key="offDay">
+      {{ offDay }}
+    </p>
+
     <v-row>
       <v-col cols="12" lg="4" md="6" sm="6">
         <div class="bg-white shadow rounded-5 p-4">
@@ -32,7 +36,9 @@
               icon="mdi-currency-eur"
               size="x-large"
             ></v-icon>
-            <p class="data m-2">{{ getCaGlobal(generateMonthList(2023)) }}</p>
+            <p class="data m-2">
+              {{ formatK(getCaGlobal(generateMonthList(2023))) }}
+            </p>
           </v-row>
         </div>
       </v-col>
@@ -81,7 +87,7 @@
               icon="mdi-account-group"
               size="x-large"
             ></v-icon>
-            <p class="data m-2">{{ ageMoy + ' ans'}}</p>
+            <p class="data m-2">{{ ageMoy + " ans" }}</p>
           </v-row>
         </div>
       </v-col>
@@ -110,6 +116,7 @@
 
 <script>
 import Axios from "@/_services/caller.service";
+import axios from "axios";
 import {
   startOfMonth,
   endOfMonth,
@@ -118,6 +125,12 @@ import {
   subYears,
   parse,
   differenceInYears,
+  getDaysInMonth,
+  getYear,
+  getMonth,
+  eachWeekendOfMonth,
+  eachDayOfInterval,
+  isWeekend,
 } from "date-fns";
 import { ca, fr } from "date-fns/locale";
 export default {
@@ -128,6 +141,10 @@ export default {
       customers: [],
       missions: [],
       ageMoy: null,
+      offDays: [],
+      offDaysPastYear: [],
+      offDaysActualYear: [],
+      offDaysNextYear: [],
     };
   },
   created() {
@@ -145,6 +162,24 @@ export default {
     Axios.get("/missions").then((res) => {
       this.missions = res.data?.mission;
     });
+    axios.get("https://calendrier.api.gouv.fr/jours-feries/metropole/2022.json").then((res) => {
+      this.offDaysPastYear = res.data;
+      console.log(this.offDaysPastYear)
+    })
+    axios.get("https://calendrier.api.gouv.fr/jours-feries/metropole/2023.json").then((res) => {
+      this.offDaysActualYear = res.data;
+      this.offDaysActualYear.forEach((day) => {
+        this.offDays.push(day)
+      })
+      console.log(this.offDaysActualYear)
+    })
+    axios.get("https://calendrier.api.gouv.fr/jours-feries/metropole/2024.json").then((res) => {
+      this.offDaysNextYear = res.data;
+      this.offDaysNextYear.forEach((day) => {
+        this.offDays.push(day)
+      })
+      console.log(this.offDaysNextYear)
+    })
   },
 
   methods: {
@@ -271,10 +306,21 @@ export default {
       });
       return ca;
     },
-    getCaGlobal(months) {
+    getCaGlobal(year) {
       let ca = 0;
       this.caForMonths = [];
-      months.forEach((month) => {
+      year.forEach((month) => {
+        let monthISO = parse(month.start_date, "yyyy-MM-dd", new Date());
+        // let nbJours = getDaysInMonth(getYear(monthISO), getMonth(monthISO));
+        // let nbWeekend = eachWeekendOfMonth(
+        //   getYear(monthISO),
+        //   getMonth(monthISO)
+        // );
+        // nbJours = parse(nbJours, "yyyy-MM-dd", new Date());
+        let nbDay = this.getWorkingDaysInMonth(
+          getYear(monthISO),
+          getMonth(monthISO)
+        );
         if (month.start_date <= this.todayDate()) {
           this.associates.forEach((associate) => {
             associate.PRUs.forEach((PRU) => {
@@ -282,17 +328,17 @@ export default {
                 PRU.start_date <= month.start_date &&
                 PRU.end_date >= month.end_date
               ) {
-                ca -= PRU.value;
+                ca -= PRU.value * nbDay;
               } else if (
                 PRU.start_date >= month.start_date &&
                 PRU.start_date <= month.end_date
               ) {
-                ca -= PRU.value;
+                ca -= PRU.value * nbDay;
               } else if (
                 PRU.end_date >= month.start_date &&
                 PRU.end_date <= month.end_date
               ) {
-                ca -= PRU.value;
+                ca -= PRU.value * nbDay;
               }
             });
           });
@@ -302,23 +348,34 @@ export default {
                 tjm.start_date <= month.start_date &&
                 tjm.end_date >= month.end_date
               ) {
-                ca += tjm.value;
+                ca += tjm.value * nbDay;
               } else if (
                 tjm.start_date >= month.start_date &&
                 tjm.start_date <= month.end_date
               ) {
-                ca += tjm.value;
+                ca += tjm.value * nbDay;
               } else if (
                 tjm.end_date >= month.start_date &&
                 tjm.end_date <= month.end_date
               ) {
-                ca += tjm.value;
+                ca += tjm.value * nbDay;
               }
             });
           });
         }
       });
       return ca;
+    },
+    getWorkingDaysInMonth(year, month) {
+      const startDate = new Date(year, month, 1);
+      const endDate = new Date(year, month + 1, 0);
+
+
+
+      const allDays = eachDayOfInterval({ start: startDate, end: endDate });
+      const workingDays = allDays.filter((day) => !isWeekend(day));
+
+      return workingDays.length;
     },
     getCaGlobalLastYear(months) {
       let ca = 0;
@@ -382,6 +439,15 @@ export default {
     calculateAge(dateOfBirth) {
       const today = new Date();
       return differenceInYears(today, new Date(dateOfBirth));
+    },
+    formatK(number) {
+      if (number >= 1000) {
+        return number / 1000 + "K";
+      } else if (number < -1000) {
+        return number / 1000 + "K";
+      } else {
+        return number;
+      }
     },
   },
 };

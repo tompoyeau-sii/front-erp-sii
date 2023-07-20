@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <v-container>
     <v-row>
       <v-col class="mt-2">
         <v-btn
@@ -82,7 +82,7 @@
         </div>
       </v-col>
     </v-row>
-  </div>
+  </v-container>
 </template>
 
 <script>

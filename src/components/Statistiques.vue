@@ -2,7 +2,7 @@
   <v-container>
     <v-tabs v-model="tab" color="deep-purple-darken-3" align-tabs="center">
       <v-tab value="1">Managers</v-tab>
-      <v-tab value="2">Business</v-tab>
+      <v-tab value="2">Agence</v-tab>
       <v-tab value="3">Clients</v-tab>
     </v-tabs>
     <v-window v-model="tab">

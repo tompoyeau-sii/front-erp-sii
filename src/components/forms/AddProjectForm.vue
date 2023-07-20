@@ -35,28 +35,17 @@
                   required
                 ></v-text-field>
               </v-col>
-              <v-col cols="12" sm="6">
+              <v-col v-if="customer_id == null" cols="12" sm="6">
                 <v-autocomplete
-                  v-if="customer_id == null"
                   v-model="form.customer"
                   :items="customers"
                   item-title="label"
                   item-value="id"
                   label="Client*"
                   variant="solo"
-                ></v-autocomplete>
-                <v-autocomplete
-                  v-else
-                  v-model="form.customer"
-                  :items="customers"
-                  item-title="label"
-                  item-value="id"
-                  label="Client*"
-                  variant="solo"
-                  disabled
                 ></v-autocomplete>
               </v-col>
-              <v-col cols="12">
+              <v-col cols="12" sm="6">
                 <v-autocomplete
                   v-model="form.manager"
                   :items="managers"

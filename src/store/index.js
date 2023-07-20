@@ -9,6 +9,9 @@ export default createStore({
     getToken(state) {
       return state.test
     },
+    getAssociate(state) {
+      return state.test
+    }
     
   },
   mutations: {
