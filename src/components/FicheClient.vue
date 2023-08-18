@@ -83,7 +83,11 @@
             <h5 class="title" v-text="project.label"></h5>
           </v-row>
           <tbody>
+            <v-row>
+              
+            </v-row>
             <tr v-for="associate in project.Missions" :key="associate.id">
+
               <td v-if="associate.start_date < todayDate() && associate.end_date > todayDate()" style="display: flex; align-content: center">
                 <v-avatar>
                   <v-img

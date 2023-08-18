@@ -6,11 +6,11 @@
       </v-col>
     </v-row>
 
-    <p v-for="offDay in offDaysPastYear" :key="offDay">
-      {{ offDay }}
-    </p>
+    <p v-if="isLoadingCustomers"> Chargement des données...</p>
+    <div v-else>
 
-    <v-row>
+    
+    <v-row >
       <v-col cols="12" lg="4" md="6" sm="6">
         <div class="bg-white shadow rounded-5 p-4">
           <p class="etiquette mb-2">Total de collaborateurs SII Le Mans</p>
@@ -104,19 +104,20 @@
             :key="customer.id"
           >
             <p style="font-weight: bold; font-size: 4vh">
-              {{ getCaOfCustomer(customer.id) }}€
+              {{ formatK(getCaOfCustomer(customer.id)) }}€
             </p>
             <span>{{ customer.label }}</span>
           </v-col>
         </v-row>
       </v-col>
+
     </v-row>
+    </div>
   </v-container>
 </template>
 
 <script>
 import Axios from "@/_services/caller.service";
-import axios from "axios";
 import {
   startOfMonth,
   endOfMonth,
@@ -125,10 +126,8 @@ import {
   subYears,
   parse,
   differenceInYears,
-  getDaysInMonth,
   getYear,
   getMonth,
-  eachWeekendOfMonth,
   eachDayOfInterval,
   isWeekend,
 } from "date-fns";
@@ -137,14 +136,11 @@ export default {
   name: "dashboard",
   data() {
     return {
+      date: [],
       associates: [],
-      customers: [],
       missions: [],
       ageMoy: null,
       offDays: [],
-      offDaysPastYear: [],
-      offDaysActualYear: [],
-      offDaysNextYear: [],
     };
   },
   created() {
@@ -154,37 +150,53 @@ export default {
       this.associates.forEach((associate) => {
         moy += this.calculateAge(associate.birthdate);
       });
-      this.ageMoy = moy / this.associates.length;
+      this.ageMoy = (moy / this.associates.length).toFixed(0);
     });
-    Axios.get("/customers").then((res) => {
-      this.customers = res.data?.customer;
-    });
+    // Axios.get("/customers").then((res) => {
+    //   this.customers = res.data?.customer;
+    // });
     Axios.get("/missions").then((res) => {
       this.missions = res.data?.mission;
     });
-    axios.get("https://calendrier.api.gouv.fr/jours-feries/metropole/2022.json").then((res) => {
-      this.offDaysPastYear = res.data;
-      console.log(this.offDaysPastYear)
-    })
-    axios.get("https://calendrier.api.gouv.fr/jours-feries/metropole/2023.json").then((res) => {
-      this.offDaysActualYear = res.data;
-      this.offDaysActualYear.forEach((day) => {
-        this.offDays.push(day)
-      })
-      console.log(this.offDaysActualYear)
-    })
-    axios.get("https://calendrier.api.gouv.fr/jours-feries/metropole/2024.json").then((res) => {
-      this.offDaysNextYear = res.data;
-      this.offDaysNextYear.forEach((day) => {
-        this.offDays.push(day)
-      })
-      console.log(this.offDaysNextYear)
-    })
   },
 
   methods: {
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
+    },
+    // async getOffDays(year) {
+    //   try {
+    //     const url1 = `https://calendrier.api.gouv.fr/jours-feries/metropole/${year}.json`;
+    //     const res1 = await axios.get(url1);
+    //     const offDaysActualYear = Object.keys(res1.data);
+
+    //     const url2 = `https://calendrier.api.gouv.fr/jours-feries/metropole/${
+    //       year + 1
+    //     }.json`;
+    //     const res2 = await axios.get(url2);
+    //     const offDaysNextYear = Object.keys(res2.data);
+
+    //     this.offDays = offDaysActualYear.concat(offDaysNextYear);
+    //   } catch (error) {
+    //     console.error(
+    //       "Une erreur est survenue lors de la récupération des jours fériés :",
+    //       error
+    //     );
+    //     throw error;
+    //   }
+    // },
+    getWorkingDaysInMonth(year, month) {
+      // Attendre que getOffDays ait fini son traitement avant de continuer
+
+      let startDate = new Date(year, month, 1);
+      let endDate = new Date(year, month + 1, 0);
+
+      const allDays = eachDayOfInterval({ start: startDate, end: endDate });
+      const workingDays = allDays.filter((day) => !isWeekend(day));
+
+      let nbJours = workingDays.length;
+
+      return nbJours;
     },
     generateMonthList(year) {
       const list_start = startOfMonth(new Date(year, 3, 1));
@@ -199,12 +211,22 @@ export default {
         const month = format(date, "MMMM", { locale: fr });
         const startDateOfMonth = startOfMonth(date, { weekStartsOn: 1 });
         const endDateOfMonth = endOfMonth(date, { weekEndsOn: 1 });
+
+        let nbDay = this.getWorkingDaysInMonth(
+          getYear(startDateOfMonth),
+          getMonth(startDateOfMonth)
+        );
+
+        // console.log(format(startDateOfMonth, "yyyy-MM-dd") + ' : ' + nbDay)
+
         return {
           monthNumber: month,
           start_date: format(startDateOfMonth, "yyyy-MM-dd"),
           end_date: format(endDateOfMonth, "yyyy-MM-dd"),
+          nb_day: nbDay,
         };
       });
+      // console.log(allMonths)
       return allMonths;
     },
     getCaOfCustomer(customerSelected) {
@@ -225,7 +247,7 @@ export default {
                         tjm.start_date <= month.start_date &&
                         tjm.end_date >= month.end_date
                       ) {
-                        ca += tjm.value;
+                        ca += tjm.value * month.nb_day;
                       }
                     });
                     mission.Associate.PRUs.forEach((pru) => {
@@ -233,7 +255,7 @@ export default {
                         pru.start_date <= month.start_date &&
                         pru.end_date >= month.end_date
                       ) {
-                        ca -= pru.value;
+                        ca -= pru.value * month.nb_day;
                       }
                     });
                   } else if (
@@ -245,12 +267,12 @@ export default {
                         TJM.start_date <= month.start_date &&
                         TJM.end_date >= month.end_date
                       ) {
-                        ca += TJM.value;
+                        ca += TJM.value * month.nb_day;
                       } else if (
                         TJM.start_date >= month.start_date &&
                         TJM.start_date < month.end_date
                       ) {
-                        ca += TJM.value;
+                        ca += TJM.value * month.nb_day;
                       }
                     });
                     mission.Associate.PRUs.forEach((PRU) => {
@@ -258,12 +280,12 @@ export default {
                         PRU.start_date <= month.start_date &&
                         PRU.end_date >= month.end_date
                       ) {
-                        ca -= PRU.value;
+                        ca -= PRU.value * month.nb_day;
                       } else if (
                         PRU.start_date >= month.start_date &&
                         PRU.start_date < month.end_date
                       ) {
-                        ca -= PRU.value;
+                        ca -= PRU.value * month.nb_day;
                       }
                     });
                     //Si la mission termine pendant le mois en cours
@@ -276,12 +298,12 @@ export default {
                         TJM.start_date <= month.start_date &&
                         TJM.end_date >= month.end_date
                       ) {
-                        ca += TJM.value;
+                        ca += TJM.value * month.nb_day;
                       } else if (
                         TJM.end_date >= month.start_date &&
                         TJM.end_date < month.end_date
                       ) {
-                        ca += TJM.value;
+                        ca += TJM.value * month.nb_day;
                       }
                     });
                     mission.Associate.PRUs.forEach((PRU) => {
@@ -289,12 +311,12 @@ export default {
                         PRU.start_date <= month.start_date &&
                         PRU.end_date >= month.end_date
                       ) {
-                        ca -= PRU.value;
+                        ca -= PRU.value * month.nb_day;
                       } else if (
                         PRU.end_date >= month.start_date &&
                         PRU.end_date < month.end_date
                       ) {
-                        ca -= PRU.value;
+                        ca -= PRU.value * month.nb_day;
                       }
                     });
                   }
@@ -310,17 +332,6 @@ export default {
       let ca = 0;
       this.caForMonths = [];
       year.forEach((month) => {
-        let monthISO = parse(month.start_date, "yyyy-MM-dd", new Date());
-        // let nbJours = getDaysInMonth(getYear(monthISO), getMonth(monthISO));
-        // let nbWeekend = eachWeekendOfMonth(
-        //   getYear(monthISO),
-        //   getMonth(monthISO)
-        // );
-        // nbJours = parse(nbJours, "yyyy-MM-dd", new Date());
-        let nbDay = this.getWorkingDaysInMonth(
-          getYear(monthISO),
-          getMonth(monthISO)
-        );
         if (month.start_date <= this.todayDate()) {
           this.associates.forEach((associate) => {
             associate.PRUs.forEach((PRU) => {
@@ -328,17 +339,17 @@ export default {
                 PRU.start_date <= month.start_date &&
                 PRU.end_date >= month.end_date
               ) {
-                ca -= PRU.value * nbDay;
+                ca -= PRU.value * month.nb_day;
               } else if (
                 PRU.start_date >= month.start_date &&
                 PRU.start_date <= month.end_date
               ) {
-                ca -= PRU.value * nbDay;
+                ca -= PRU.value * month.nb_day;
               } else if (
                 PRU.end_date >= month.start_date &&
                 PRU.end_date <= month.end_date
               ) {
-                ca -= PRU.value * nbDay;
+                ca -= PRU.value * month.nb_day;
               }
             });
           });
@@ -348,34 +359,23 @@ export default {
                 tjm.start_date <= month.start_date &&
                 tjm.end_date >= month.end_date
               ) {
-                ca += tjm.value * nbDay;
+                ca += tjm.value * month.nb_day;
               } else if (
                 tjm.start_date >= month.start_date &&
                 tjm.start_date <= month.end_date
               ) {
-                ca += tjm.value * nbDay;
+                ca += tjm.value * month.nb_day;
               } else if (
                 tjm.end_date >= month.start_date &&
                 tjm.end_date <= month.end_date
               ) {
-                ca += tjm.value * nbDay;
+                ca += tjm.value * month.nb_day;
               }
             });
           });
         }
       });
       return ca;
-    },
-    getWorkingDaysInMonth(year, month) {
-      const startDate = new Date(year, month, 1);
-      const endDate = new Date(year, month + 1, 0);
-
-
-
-      const allDays = eachDayOfInterval({ start: startDate, end: endDate });
-      const workingDays = allDays.filter((day) => !isWeekend(day));
-
-      return workingDays.length;
     },
     getCaGlobalLastYear(months) {
       let ca = 0;
@@ -442,13 +442,23 @@ export default {
     },
     formatK(number) {
       if (number >= 1000) {
-        return number / 1000 + "K";
+        let res = number / 1000
+        return res.toFixed(0) + "K"
       } else if (number < -1000) {
-        return number / 1000 + "K";
+        let res = number / 1000
+        return res.toFixed(0) + "K"
       } else {
         return number;
       }
     },
+  },
+  computed: {
+    customers() {
+      return this.$store.getters.getCustomers;
+    },
+    isLoadingCustomers() {
+      return this.$store.getters.isLoadingCustomers;
+    }
   },
 };
 </script>

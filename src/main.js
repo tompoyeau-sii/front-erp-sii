@@ -12,6 +12,8 @@ import '@formkit/addons/css/multistep'
 
 loadFonts()
 
+store.dispatch('initApp')
+
 createApp(App)
   .use(router)
   .use(VueGoogleCharts)

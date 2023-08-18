@@ -7,7 +7,7 @@
           color="deep-purple-darken-1"
           v-bind="props"
         >
-          Ajouter un collaborateur
+          Collaborateur
         </v-btn>
       </template>
       <v-card>

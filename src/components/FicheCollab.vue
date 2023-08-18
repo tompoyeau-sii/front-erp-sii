@@ -49,31 +49,51 @@
         <v-col cols="12" lg="6" md="6 " sm="12">
           <h5 class="pt-3 sub-title">Travail actuellement pour</h5>
           <v-row>
-            <router-link
-              class="col-2 client-en-cours rounded-3 m-2 p-2"
+            <div
+              class="client-en-cours rounded-3 m-2 p-2"
               v-for="mission in MissionsEnCours"
               :key="mission.id"
-              :to="{
-                name: 'FicheClientView',
-                params: { id: mission.Project.Customer.id },
-              }"
             >
-              <p
-                class="text-h5 name"
-                v-text="mission.Project.Customer.label"
-              ></p>
-              <p v-text="'Depuis le ' + formatDate(mission.start_date)"></p>
-              <p v-text="'Se termine le ' + formatDate(mission.end_date)"></p>
-              <p
-                v-text="mission.Project.label + ' / ' + mission.Project.adv"
-              ></p>
-              <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
-              <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
-            </router-link>
+              <v-row>
+                <v-col>
+                  <p
+                    class="text-h5 name"
+                    v-text="mission.Project.Customer.label"
+                  ></p>
+                </v-col>
+                <v-col>
+                  
+                  <UpdateMissionForm
+                  justify="end"
+                    :mission_id="mission.id"
+                    :mission_label="mission.label"
+                    :mission_tjm ="mission.TJMs.map((tjm) => tjm.value)"
+                    />
+                </v-col>
+              </v-row>
+              <router-link
+                class="client-en-cours"
+                :to="{
+                  name: 'FicheClientView',
+                  params: { id: mission.Project.Customer.id },
+                }"
+              >
+                <p v-text="'Depuis le ' + formatDate(mission.start_date)"></p>
+                <p v-text="'Se termine le ' + formatDate(mission.end_date)"></p>
+                <p
+                  v-text="mission.Project.label + ' / ' + mission.Project.adv"
+                ></p>
+                <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
+                <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
+
+              </router-link>
+            </div>
             <v-col lg="2" sm="12" class="client-add">
               <AddMissionForm
                 :associate_id="associate.id"
                 :associate="associate.name"
+                :associate_start_date="associate.start_date"
+                :associate_end_date="associate.end_date"
               />
             </v-col>
           </v-row>
@@ -122,10 +142,14 @@
       <v-row v-else>
         <v-col cols="6">
           <h5 class="pt-3 sub-title">Ce collaborateur est en intercontrat.</h5>
-          <AddMissionForm :associate_id="associate.id" />
+          <AddMissionForm
+                :associate_id="associate.id"
+                :associate="associate.name"
+                :associate_start_date="associate.start_date"
+                :associate_end_date="associate.end_date"
+              />
         </v-col>
       </v-row>
-
 
       <v-row>
         <v-col lg="6" v-if="MissionsFutur.length > 0">
@@ -371,15 +395,13 @@ export default {
         if (pru.end_date > today) {
           this.pru = pru.value;
         }
-      })
+      });
     },
     jobActuel() {
       let today = new Date();
       today = this.formatDateBDD(today);
       for (let job of this.associate.Jobs) {
-        if (
-          job.Associate_Job.end_date > today
-        ) {
+        if (job.Associate_Job.end_date > today) {
           this.job_id = job.id;
           this.job = job.label;
         }

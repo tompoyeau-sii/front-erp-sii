@@ -86,9 +86,9 @@ export default {
         label: "",
       },
       labelRules: [
-        value => {
-          if (value?.length > 3) return true
-          return 'First name must be at least 3 characters.'
+        (value) => {
+          if (value?.length > 3) return true;
+          return "First name must be at least 3 characters.";
         },
       ],
       dialog: false,
@@ -105,31 +105,20 @@ export default {
       });
     },
 
-    formAddCustomer: function () {
-      if (this.form.label !== "") {
-        Axios
-          .post("/customer", {
-            label: this.form.label,
-          })
-          .then(
-            (response) => {
-              this.dialog = false;
-              this.CreateState = false;
-              this.SuccessState = true;
-              this.success = "Nouveau client créé";
-              this.refresh();
-              this.error = "";
-            },
-            (response) => {
-              console.log(response);
-              this.SuccessState = false;
-              this.error = response.data;
-              console.log("erreur : " + this.error);
-            }
-          );
-      } else {
-        this.error = "Veuillez ajouter un libelle.";
-      }
+    formAddCustomer() {
+      Axios.post("/customer", {
+        label: this.form.label,
+      }).then(
+        (response) => {
+          this.dialog = false;
+          this.CreateState = false;
+          this.SuccessState = true;
+          this.success = "Nouveau client créé";
+          this.refresh();
+          this.error = "";
+        }).catch((err) => {
+          this.error = err.response.data.error
+        })
     },
   },
 };

@@ -1,46 +1,25 @@
 <template>
   <div>
-    <v-text-field clearable label="Label" variant="solo"></v-text-field>
-
-    <!-- Affichage de vos données paginées -->
-    <ul>
-      <li v-for="associate in associates" :key="associate.id">
-        {{ associate.name }}
-      </li>
-    </ul>
-
-    <!-- Barre de pagination Vuetify -->
-    <v-pagination v-model="currentPage" :length="totalPages" @input="fetchData"></v-pagination> 
+    <p v-if="isLoadingCustomers">Loading customers...</p>
+    <div v-else>
+      <p v-if="customers.length > 0">Customers:</p>
+      <ul>
+        <li v-for="customer in customers" :key="customer.id">{{ customer.label }}</li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script>
-import Axios from "@/_services/caller.service";
-
 export default {
   name: "test",
-  data() {
-    return {
-      associates: [],
-      currentPage: 1,
-      totalPages: 0,
-    };
-  },
-  mounted() {
-    this.fetchData();
-  },
-  watch: {
-    currentPage(newPage) {
-      this.fetchData(newPage);
+  computed: {
+    customers() {
+      return this.$store.getters.getCustomers;
     },
-  },
-  methods: {
-    async fetchData(page) {
-      const response = await Axios.get(`/associates?page=${page || this.currentPage}`);
-      console.log(response)
-      this.associates = response.data.associate;
-      this.totalPages = response.data.totalPages;
-    },
+    isLoadingCustomers() {
+      return this.$store.getters.isLoadingCustomers;
+    }
   },
 };
 </script>

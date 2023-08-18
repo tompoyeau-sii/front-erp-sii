@@ -132,19 +132,6 @@ td {
   margin-bottom: auto;
   vertical-align: middle;
 }
-.gradient {
-  background: linear-gradient(135deg, #75519b 0%, #e84654 100%);
-  color: white;
-}
-
-.client {
-  background: linear-gradient(135deg, #7117ea 0%, #ea6060 100%);
-  /* background: linear-gradient(135deg, #0FF0B3 0%, #036ED9 100%);
-  background: linear-gradient(135deg, #65799B 0%, #5E2563 100%); */
-  color: white;
-  width: 20vh;
-  min-width: 200px;
-}
 
 .name {
   font-weight: 600;

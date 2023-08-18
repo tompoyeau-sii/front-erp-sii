@@ -10,7 +10,8 @@
         </v-col>
       </v-row>
     </v-row>
-    <div class="row">
+    <p v-if="isLoadingCustomers">Loading customers...</p>
+    <div v-else class="row">
       <router-link
         class="col-2 client rounded-3 m-2 pt-3 shadow-sm"
         v-for="customer in customers"
@@ -47,6 +48,10 @@ import {
   endOfMonth,
   eachMonthOfInterval,
   format,
+  getYear,
+  getMonth,
+  eachDayOfInterval,
+  isWeekend,
 } from "date-fns";
 import { fr } from "date-fns/locale";
 export default {
@@ -56,7 +61,6 @@ export default {
   },
   data() {
     return {
-      customers: [],
       intercontrats: [],
       error: "",
       SuccessState: false,
@@ -68,6 +72,19 @@ export default {
   methods: {
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
+    },
+    getWorkingDaysInMonth(year, month) {
+      // Attendre que getOffDays ait fini son traitement avant de continuer
+
+      let startDate = new Date(year, month, 1);
+      let endDate = new Date(year, month + 1, 0);
+
+      const allDays = eachDayOfInterval({ start: startDate, end: endDate });
+      const workingDays = allDays.filter((day) => !isWeekend(day));
+
+      let nbJours = workingDays.length;
+
+      return nbJours;
     },
     generateMonthList(year) {
       const list_start = startOfMonth(new Date(year, 3, 1));
@@ -82,12 +99,22 @@ export default {
         const month = format(date, "MMMM", { locale: fr });
         const startDateOfMonth = startOfMonth(date, { weekStartsOn: 1 });
         const endDateOfMonth = endOfMonth(date, { weekEndsOn: 1 });
+
+        let nbDay = this.getWorkingDaysInMonth(
+          getYear(startDateOfMonth),
+          getMonth(startDateOfMonth)
+        );
+
+        // console.log(format(startDateOfMonth, "yyyy-MM-dd") + ' : ' + nbDay)
+
         return {
           monthNumber: month,
           start_date: format(startDateOfMonth, "yyyy-MM-dd"),
           end_date: format(endDateOfMonth, "yyyy-MM-dd"),
+          nb_day: nbDay,
         };
       });
+      // console.log(allMonths)
       return allMonths;
     },
     getCaOfCustomer(customerSelected) {
@@ -96,9 +123,7 @@ export default {
       this.customers.forEach((customer) => {
         if (customer.id == customerSelected) {
           months.forEach((month) => {
-            if (
-              month.start_date <= this.todayDate()
-              ) {
+            if (month.start_date <= this.todayDate()) {
               customer.Projects.forEach((project) => {
                 project.Missions.forEach((mission) => {
                   if (
@@ -110,8 +135,7 @@ export default {
                         tjm.start_date <= month.start_date &&
                         tjm.end_date >= month.end_date
                       ) {
-                        ca += tjm.value;
-                        
+                        ca += tjm.value * month.nb_day;
                       }
                     });
                     mission.Associate.PRUs.forEach((pru) => {
@@ -119,7 +143,7 @@ export default {
                         pru.start_date <= month.start_date &&
                         pru.end_date >= month.end_date
                       ) {
-                        ca -= pru.value;
+                        ca -= pru.value * month.nb_day;
                       }
                     });
                   } else if (
@@ -131,27 +155,25 @@ export default {
                         TJM.start_date <= month.start_date &&
                         TJM.end_date >= month.end_date
                       ) {
-                        ca += TJM.value;
-                        console.log(customer.label + ' : '+ ca)
-                        
+                        ca += TJM.value * month.nb_day;
                       } else if (
                         TJM.start_date >= month.start_date &&
                         TJM.start_date < month.end_date
                       ) {
-                        ca += TJM.value;
+                        ca += TJM.value * month.nb_day;
                       }
                     });
                     mission.Associate.PRUs.forEach((PRU) => {
                       if (
                         PRU.start_date <= month.start_date &&
                         PRU.end_date >= month.end_date
-                        ) {
-                          ca -= PRU.value;
-                        } else if (
-                          PRU.start_date >= month.start_date &&
-                          PRU.start_date < month.end_date
-                          ) {
-                            ca -= PRU.value;
+                      ) {
+                        ca -= PRU.value * month.nb_day;
+                      } else if (
+                        PRU.start_date >= month.start_date &&
+                        PRU.start_date < month.end_date
+                      ) {
+                        ca -= PRU.value * month.nb_day;
                       }
                     });
                     //Si la mission termine pendant le mois en cours
@@ -164,12 +186,12 @@ export default {
                         TJM.start_date <= month.start_date &&
                         TJM.end_date >= month.end_date
                       ) {
-                        ca += TJM.value;
+                        ca += TJM.value * month.nb_day;
                       } else if (
                         TJM.end_date >= month.start_date &&
                         TJM.end_date < month.end_date
                       ) {
-                        ca += TJM.value;
+                        ca += TJM.value * month.nb_day;
                       }
                     });
                     mission.Associate.PRUs.forEach((PRU) => {
@@ -177,14 +199,13 @@ export default {
                         PRU.start_date <= month.start_date &&
                         PRU.end_date >= month.end_date
                       ) {
-                        ca -= PRU.value;
+                        ca -= PRU.value * month.nb_day;
                       } else if (
                         PRU.end_date >= month.start_date &&
                         PRU.end_date < month.end_date
                       ) {
-                        ca -= PRU.value;
+                        ca -= PRU.value * month.nb_day;
                       }
-                      
                     });
                   }
                 });
@@ -216,44 +237,52 @@ export default {
     },
   },
   created() {
-    Axios.get("/customers").then((res) => {
-      this.customers = res.data?.customer;
-    });
+    // Axios.get("/customers").then((res) => {
+    //   this.customers = res.data?.customer;
+    // });
     Axios.get("/associates/pdc").then((res) => {
       res.data?.associate.forEach((associate) => {
         if (associate.start_date < this.todayDate()) {
-        if (associate.Missions.length == 0) {
-          let add = 0;
-          associate.Jobs.forEach((job) => {
-            if (add == 0) {
-              if (job.label != "Manager") {
-                add = 1;
-                this.intercontrats.push(associate);
+          if (associate.Missions.length == 0) {
+            let add = 0;
+            associate.Jobs.forEach((job) => {
+              if (add == 0) {
+                if (job.label != "Manager") {
+                  add = 1;
+                  this.intercontrats.push(associate);
+                }
               }
+            });
+          } else {
+            var enMission = false;
+            associate.Missions.forEach((mission) => {
+              if (
+                mission.start_date <= this.todayDate() &&
+                mission.end_date >= this.todayDate()
+              ) {
+                enMission = true;
+                return;
+              }
+            });
+            if (enMission == false) {
+              this.intercontrats.push(associate);
             }
-          });
-        } else {
-          var enMission = false;
-          associate.Missions.forEach((mission) => {
-            if (
-              mission.start_date <= this.todayDate() &&
-              mission.end_date >= this.todayDate()
-            ) {
-              enMission = true;
-              return;
-            }
-          });
-          if (enMission == false) {
-            this.intercontrats.push(associate);
           }
         }
-      }
       });
       this.intercontrats.nbCollab = this.intercontrats.length;
     });
   },
   computed: {
     ...mapGetters(["getToken"]),
+
+    customers() {
+      return this.$store.getters.getCustomers;
+    },
+
+    isLoadingCustomers() {
+      return this.$store.getters.isLoadingCustomers;
+    },
   },
 };
 </script>

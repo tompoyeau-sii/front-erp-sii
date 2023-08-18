@@ -38,7 +38,7 @@
               <tr style="border: white">
                 <th>Collaborateur</th>
                 <th>Durée en jours ouvrés</th>
-                <th>Coût</th>
+                <th>PRU</th>
               </tr>
             </thead>
             <tbody>

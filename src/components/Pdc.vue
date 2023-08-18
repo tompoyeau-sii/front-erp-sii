@@ -1,40 +1,100 @@
 <template>
   <v-container>
     <h1 class="title">Plan de charge</h1>
-
-    <v-progress-circular
-      indeterminate
-      color="purple"
-      v-if="loading"
-    ></v-progress-circular>
-
-    <div v-else>
-      <v-text-field
-        v-model="search"
-        clearable
-        variant="solo"
-        label="Collaborateur"
-      ></v-text-field>
+    <div>
       <v-row>
-        <v-col cols="8">
+        <v-col cols="10">
+          <v-text-field
+            v-model="research"
+            variant="solo"
+            label="Collaborateur"
+            bg-color="deep-purple-darken-3"
+          >
+          </v-text-field>
+        </v-col>
+        <v-col cols="2">
+          <v-btn
+            size="large"
+            rounded="2"
+            icon="mdi-magnify"
+            color="deep-purple-darken-3"
+            class="mr-3"
+            @click="filterAssociates()"
+          >
+          </v-btn>
+          <v-btn
+            size="large"
+            rounded="2"
+            icon="mdi-close"
+            color="deep-purple-lighten-4"
+            @click="stopResearch()"
+          >
+          </v-btn>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="6" lg="2" md="2">
           <v-select
             label="Année"
             :items="years"
             variant="solo"
-            density="compact"
+            bg-color="red-accent-2"
             v-model="selectedYear"
           ></v-select>
         </v-col>
+        <v-col cols="6" lg="2" md="2">
+          <v-select
+            v-model="selectedManager"
+            bg-color="red-accent-2"
+            :items="managers"
+            clearable
+            item-title="full_name"
+            item-value="full_name"
+            label="Manager"
+            variant="solo"
+          ></v-select>
+        </v-col>
+        <v-col cols="6" lg="2" md="2">
+          <v-select
+            v-model="selectedCustomer"
+            variant="solo"
+            clearable
+            label="Client"
+            bg-color="red-accent-2"
+            :items="customers"
+            item-title="label"
+            item-value="label"
+          ></v-select>
+        </v-col>
+        <v-col cols="6" lg="2" md="2">
+          <v-select
+            v-model="selectedProject"
+            variant="solo"
+            label="Projet"
+            clearable
+            bg-color="red-accent-2"
+            :items="projects"
+            item-title="label"
+            item-value="label"
+          ></v-select>
+        </v-col>
+        <!-- <v-btn color="warning"> Absent </v-btn> -->
+      </v-row>
+      <v-row justify="end">
         <v-col>
           <v-btn class="mr-2" color="deep-purple-darken-3"> En mission </v-btn>
           <v-btn class="mr-2" color="deep-purple-lighten-4 ">
             Intercontrat
           </v-btn>
-          <v-btn class="mr-2" color="grey-lighten-1 "> Hors entreprise </v-btn>
+          <v-btn class="mr-2" color="grey-lighten-1 "> Hors SII </v-btn>
         </v-col>
-        <!-- <v-btn color="warning"> Absent </v-btn> -->
       </v-row>
-      <v-row class="rounded shadow m-2">
+      <v-progress-circular
+        indeterminate
+        color="purple"
+        v-if="loading"
+      ></v-progress-circular>
+      <v-row v-else class="rounded shadow m-2">
         <v-table class="col-1">
           <tbody>
             <tr>
@@ -43,7 +103,7 @@
             <tr>
               <th></th>
             </tr>
-            <tr v-for="associate in associatesContrat" :key="associate.id">
+            <tr v-for="associate in filteredAssociates" :key="associate.id">
               <td>
                 <p>
                   {{ associate.first_name + " " + associate.name }}
@@ -84,7 +144,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="associate in associatesContrat" :key="associate.id">
+            <tr v-for="associate in filteredAssociates" :key="associate.id">
               <td
                 id="facture"
                 v-for="year in weeksFiltered"
@@ -108,12 +168,12 @@
             </tr>
           </tbody>
         </v-table>
-        <!-- <v-pagination
-          v-model="currentPage"
-          :length="totalPages"
-          @input="fetchData"
-        ></v-pagination> -->
-        </v-row>
+      </v-row>
+      <v-pagination
+        v-model="currentPage"
+        :length="totalPages"
+        @input="fetchData"
+      ></v-pagination>
     </div>
   </v-container>
 </template>
@@ -131,19 +191,28 @@ export default {
   name: "Pdc",
   data() {
     return {
-      search: null,
+      research: null,
+      value: "",
       weeks: [],
       weeksFiltered: [],
       totalTrue: 0,
       totalFalse: 0,
       associates: "",
+      allAssociates: "",
       associatesContrat: [],
       filteredAssociates: [],
       currentPage: 1,
       totalPages: 0,
+      globalPage: 0,
       loading: true,
+      searchLoading: false,
       selectedYear: 2023,
       years: [2020, 2021, 2022, 2023, 2024, 2025],
+      managers: [],
+      selectedManager: null,
+      selectedCustomer: null,
+      selectedProject: null,
+      calculatedAssociates: [],
     };
   },
   mounted() {
@@ -158,12 +227,30 @@ export default {
     currentPage(newPage) {
       this.fetchData(newPage);
     },
-    search() {
+    research() {
+      if (!this.research) {
+        this.filterAssociates();
+      }
+    },
+    selectedManager() {
+      this.loading = true;
       this.filterAssociates();
+      this.loading = false;
+    },
+    selectedCustomer() {
+      this.loading = true;
+      this.filterAssociates();
+      this.loading = false;
+    },
+    selectedProject() {
+      this.loading = true;
+      this.filterAssociates();
+      this.loading = false;
     },
   },
 
   methods: {
+    //retourne les collaborateurs avec une pagination de 10
     async fetchData(page) {
       this.loading = true;
       const response = await Axios.get(
@@ -171,14 +258,89 @@ export default {
       );
       this.associates = response.data.associate;
       this.totalPages = response.data.totalPages;
+      this.globalPages = response.data.totalPages;
+      this.filterAssociates();
       this.loading = false;
-
-      // Mettre à jour filteredAssociates
-      this.filteredAssociates = [...this.associates];
     },
+    //retourne la date du jour
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
     },
+    //Retourne la liste complete des colloborateurs avec les informations actuelles
+    calculateAssociate() {
+      this.allAssociates.forEach((associate) => {
+        const calculatedAssociate = {
+          id: associate.id,
+          first_name: associate.first_name,
+          name: associate.name,
+          project: this.projetEnCours(associate.id),
+          customer: this.clientEnCours(associate.id),
+          manager: this.managerEnCours(associate.id),
+          Missions: associate.Missions,
+        };
+        this.calculatedAssociates.push(calculatedAssociate);
+      });
+      console.log(this.calculatedAssociates);
+    },
+    //Pour le filtrage par projet, permet de retourner le projet du collaborateur
+    projetEnCours(associate_id) {
+      var missionOfCollab = [];
+      this.allAssociates.forEach((associate) => {
+        if (associate.id == associate_id) {
+          associate.Missions.forEach((mission) => {
+            if (
+              mission.start_date <= this.todayDate() &&
+              mission.end_date >= this.todayDate() &&
+              mission.associate_id == associate_id
+            ) {
+              missionOfCollab.push(mission.Project.label);
+            }
+          });
+        }
+      });
+      return missionOfCollab;
+    },
+    //Pour le filtrage par client, permet de retourner le client du collaborateur
+    clientEnCours(associate_id) {
+      var missionOfCollab = [];
+      this.allAssociates.forEach((associate) => {
+        if (associate.id == associate_id) {
+          associate.Missions.forEach((mission) => {
+            if (
+              mission.start_date <= this.todayDate() &&
+              mission.end_date >= this.todayDate() &&
+              mission.associate_id == associate_id
+            ) {
+              missionOfCollab.push(mission.Project.Customer.label);
+            }
+          });
+        }
+      });
+      return missionOfCollab;
+    },
+    //Pour le filtrage par manager, permet de retourner le manager du collaborateur
+    managerEnCours(associate_id) {
+      var missionOfCollab = [];
+      this.allAssociates.forEach((associate) => {
+        if (associate.id == associate_id) {
+          associate.Missions.forEach((mission) => {
+            if (
+              mission.start_date <= this.todayDate() &&
+              mission.end_date >= this.todayDate() &&
+              mission.associate_id == associate_id
+            ) {
+              missionOfCollab.push(
+                mission.Project.Associate.first_name +
+                  " " +
+                  mission.Project.Associate.name
+              );
+            }
+          });
+        }
+      });
+      return missionOfCollab;
+    },
+    //Donne le format de bdd aux dates
     formatDate(date) {
       const year = date.getFullYear().toString();
       let month = (date.getMonth() + 1).toString();
@@ -191,23 +353,66 @@ export default {
       }
       return year + "-" + month + "-" + day;
     },
-
+    //filtre les résultat en fonction des filtres rentrée
     filterAssociates() {
-      if (!this.search) {
-        this.filteredAssociates = this.associates;
-      } else {
-        const searchTerm = this.search.toLowerCase();
-        this.filteredAssociates = this.associates.filter((associate) => {
+      this.filteredAssociates = this.associates;
+      this.totalPages = this.globalPages;
+
+      if (this.research) {
+        this.loading = true;
+        const searchTerm = this.research.toLowerCase();
+        this.totalPages = 1;
+        this.filteredAssociates = this.allAssociates.filter((associate) => {
           const fullName = associate.first_name + " " + associate.name;
           return fullName.toLowerCase().includes(searchTerm);
         });
+        this.totalPages = 1;
+        this.loading = false;
+      }
+
+      if (this.selectedManager) {
+        this.totalPages = 1;
+        this.filteredAssociates = this.calculatedAssociates.filter(
+          (associate) =>
+            associate.manager.some(
+              (manager) => manager === this.selectedManager
+            )
+        );
+        this.totalPages = 1;
+      }
+
+      if (this.selectedCustomer) {
+        this.totalPages = 1;
+        this.filteredAssociates = this.calculatedAssociates.filter(
+          (associate) =>
+            associate.customer.some(
+              (customer) => customer === this.selectedCustomer
+            )
+        );
+        this.totalPages = 1;
+      }
+
+      if (this.selectedProject) {
+        this.totalPages = 1;
+        this.filteredAssociates = this.calculatedAssociates.filter(
+          (associate) =>
+            associate.project.some(
+              (project) => project === this.selectedProject
+            )
+        );
+        this.totalPages = 1;
       }
     },
-
+    //Arrete la recherche et remet le plan de charge à l'original
+    stopResearch() {
+      this.research = null;
+      this.filterAssociates();
+    },
+    //Retourne le nombre de personne qui sont en contrat et en intercontrat par semaine
     nbContract(week) {
       this.totalTrue = 0;
       this.totalFalse = 0;
-      this.associatesContrat.forEach((associate) => {
+      this.allAssociates.forEach((associate) => {
         if (this.isWorking(associate, week) == 1) {
           this.totalTrue++;
         } else if (this.isWorking(associate, week) == 2) {
@@ -216,12 +421,14 @@ export default {
       });
       return true;
     },
-
+    // Permet de définir si la personne est en contrat ou en intercontrat
     isWorking(associate, year) {
+      this.loading = true;
       if (
         associate.start_date >= year.endDate ||
         associate.end_date < year.startDate
       ) {
+        this.loading = false;
         return 3;
       }
       for (let mission of associate.Missions) {
@@ -229,12 +436,14 @@ export default {
           mission.start_date < year.endDate &&
           mission.end_date > year.startDate
         ) {
+          this.loading = false;
           return 1;
         }
       }
+      this.loading = false;
       return 2;
     },
-
+    //Génére la liste des semaines pour une année passé en paramètre et son année +1
     generateWeekList(year) {
       const startDate = new Date(year, 0, 1); // Premier jour de l'année
       const endDate = new Date(year + 1, 11, 31); // Dernier jour de l'année
@@ -258,7 +467,7 @@ export default {
 
       return weekList;
     },
-
+    //Retourne la liste de semaine entre la S14 et la S13 de l'année d'après
     weeksFilter() {
       this.weeksFiltered = [];
       let i = 0;
@@ -277,10 +486,30 @@ export default {
       });
     },
   },
-
   created() {
     Axios.get("/associates/pdc").then((res) => {
-      this.associatesContrat = res.data?.associate;
+      this.allAssociates = res.data?.associate;
+      this.calculateAssociate();
+    });
+    Axios.get("/associates/managers").then((res) => {
+      //this.managers = res.data?.associate;
+      res.data?.associate.forEach((job) => {
+        job.Associates.forEach((manager) => {
+          if (
+            manager.Associate_Job.start_date < this.todayDate() &&
+            manager.Associate_Job.end_date > this.todayDate()
+          ) {
+            manager.full_name = manager.first_name + " " + manager.name;
+            this.managers.push(manager);
+          }
+        });
+      });
+    });
+    Axios.get("/projects").then((res) => {
+      this.projects = res.data?.project;
+    });
+    Axios.get("/customers").then((res) => {
+      this.customers = res.data?.customer;
     });
 
     this.weeks = this.generateWeekList(this.selectedYear);
@@ -293,7 +522,6 @@ export default {
 </script>
 
 <style scoped>
-
 p {
   font-weight: 600;
   font-size: 12px;

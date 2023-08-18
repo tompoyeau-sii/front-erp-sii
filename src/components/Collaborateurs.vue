@@ -10,10 +10,52 @@
         </v-col>
       </v-row>
     </v-row>
-    <v-row>
-      <v-col> 
-        <v-text-field label="Rechecher..." v-model="search" variant="solo" >
+    <v-row class="ml-1">
+      <v-col cols="12" lg="4" md="4">
+        <v-text-field
+          prepend-inner-icon="mdi-magnify"
+          label="Collaborateur"
+          bg-color="deep-purple-darken-3"
+          v-model="search"
+          variant="solo"
+        >
         </v-text-field>
+      </v-col>
+      <v-col cols="6" lg="2" md="2">
+        <v-select
+          v-model="selectedManager"
+          bg-color="red-accent-2"
+          :items="managers"
+          clearable
+          item-title="full_name"
+          item-value="full_name"
+          label="Manager"
+          variant="solo"
+        ></v-select>
+      </v-col>
+      <v-col cols="6" lg="2" md="2">
+        <v-select
+          v-model="selectedCustomer"
+          variant="solo"
+          clearable
+          label="Client"
+          bg-color="red-accent-2"
+          :items="customers"
+          item-title="label"
+          item-value="label"
+        ></v-select>
+      </v-col>
+      <v-col cols="6" lg="2" md="2">
+        <v-select
+          v-model="selectedProject"
+          variant="solo"
+          label="Projet"
+          clearable
+          bg-color="red-accent-2"
+          :items="projects"
+          item-title="label"
+          item-value="label"
+        ></v-select>
       </v-col>
     </v-row>
     <div class="table-responsive p-3">
@@ -189,6 +231,7 @@ export default {
   data() {
     return {
       associates: [],
+      calculatedAssociates: [],
       filteredAssociates: [],
       allAssociates: [],
       error: "",
@@ -199,14 +242,41 @@ export default {
       globalPages: 0,
       totalPages: 0,
       search: null,
+      managers: [],
+      customers: [],
+      projects: [],
+      selectedManager: null,
+      selectedCustomer: null,
+      selectedProject: null,
     };
   },
   mounted() {
-    this.fetchData()
+    this.fetchData();
   },
   created() {
     Axios.get("/associates/pdc").then((res) => {
       this.allAssociates = res.data?.associate;
+      this.calculateAssociate();
+    });
+    Axios.get("/associates/managers").then((res) => {
+      //this.managers = res.data?.associate;
+      res.data?.associate.forEach((job) => {
+        job.Associates.forEach((manager) => {
+          if (
+            manager.Associate_Job.start_date < this.todayDate() &&
+            manager.Associate_Job.end_date > this.todayDate()
+          ) {
+            manager.full_name = manager.first_name + " " + manager.name;
+            this.managers.push(manager);
+          }
+        });
+      });
+    });
+    Axios.get("/projects").then((res) => {
+      this.projects = res.data?.project;
+    });
+    Axios.get("/customers").then((res) => {
+      this.customers = res.data?.customer;
     });
   },
   watch: {
@@ -216,6 +286,16 @@ export default {
     search() {
       this.filterAssociates();
     },
+    selectedManager() {
+      this.filterAssociates();
+    },
+    selectedCustomer() {
+      this.filterAssociates();
+    },
+    selectedProject() {
+      this.filterAssociates();
+    },
+
   },
 
   methods: {
@@ -226,7 +306,22 @@ export default {
       this.associates = response.data.associate;
       this.totalPages = response.data.totalPages;
       this.globalPages = response.data.totalPages;
-      this.filterAssociates()
+      this.filterAssociates();
+    },
+    calculateAssociate() {
+      this.allAssociates.forEach((associate) => {
+        const calculatedAssociate = {
+          id: associate.id,
+          first_name: associate.first_name,
+          name: associate.name,
+          project: this.projetEnCours(associate.id),
+          customer: this.clientEnCours(associate.id),
+          manager: this.managerEnCours(associate.id),
+          job: this.posteEnCours(associate.id),
+        };
+        this.calculatedAssociates.push(calculatedAssociate);
+      });
+      console.log(this.calculatedAssociates);
     },
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
@@ -310,10 +405,9 @@ export default {
       });
     },
     filterAssociates() {
-      if (!this.search) {
         this.filteredAssociates = this.associates;
         this.totalPages = this.globalPages;
-      } else {
+      if (this.search) {
         const searchTerm = this.search.toLowerCase();
         this.totalPages = 1;
         this.filteredAssociates = this.allAssociates.filter((associate) => {
@@ -321,6 +415,41 @@ export default {
           return fullName.toLowerCase().includes(searchTerm);
         });
         this.totalPages = Math.ceil(this.filteredAssociates.length / 10);
+      }
+
+      if (this.selectedManager) {
+        this.totalPages = 1;
+        this.filteredAssociates = this.calculatedAssociates.filter(
+          (associate) =>
+            associate.manager.some(
+              (manager) => manager === this.selectedManager
+            )
+        );
+        this.totalPages = Math.ceil(this.filterAssociates.length / 10);
+      }
+
+      if (this.selectedCustomer) {
+        this.totalPages = 1;
+        this.filteredAssociates = this.calculatedAssociates.filter(
+          (associate) =>
+            associate.customer.some(
+              (customer) => customer === this.selectedCustomer
+            )
+        );
+        this.totalPages = Math.ceil(this.filterAssociates.length / 10);
+      }
+
+      
+
+      if (this.selectedProject) {
+        this.totalPages = 1;
+        this.filteredAssociates = this.calculatedAssociates.filter(
+          (associate) =>
+            associate.project.some(
+              (project) => project === this.selectedProject
+            )
+        );
+        this.totalPages = Math.ceil(this.filterAssociates.length / 10);
       }
     },
   },

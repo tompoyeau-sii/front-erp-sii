@@ -31,7 +31,7 @@
                       v-model="form.label"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12" >
+                  <v-col cols="12">
                     <v-autocomplete
                       v-if="associate_id == null"
                       v-model="form.associate"
@@ -245,7 +245,12 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 export default {
   name: "AddMissionForm",
-  props: ["associate_id", "customer_id"],
+  props: [
+    "associate_id",
+    "customer_id",
+    "associate_start_date",
+    "associate_end_date",
+  ],
   data() {
     return {
       associate: "",
@@ -316,6 +321,67 @@ export default {
     formatDate(date) {
       return (date = format(new Date(date), "PP", { locale: fr }));
     },
+    next() {
+      if (
+        this.form.label != null &&
+        this.form.associate != null &&
+        this.form.project != null &&
+        this.form.start_date != null &&
+        this.form.end_date != null &&
+        this.form.tjm != null &&
+        this.form.label != "" &&
+        this.form.associate != "" &&
+        this.form.project != "" &&
+        this.form.start_date != "" &&
+        this.form.end_date != "" &&
+        this.form.tjm != ""
+      ) {
+        if (this.form.start_date < this.form.end_date) {
+          if (this.form.start_date >= this.associate_start_date) {
+            if (
+              this.form.end_date <= this.associate_end_date ||
+              this.associate_end_date == null
+            ) {
+              this.missionFiltered = this.filteredMissions(
+                this.form.start_date,
+                this.form.end_date
+              );
+              if (this.missionFiltered.length == 0) {
+                this.step++;
+                this.error = "";
+                this.form.old_mission_imputation = 0;
+                this.form.new_mission_imputation = 100;
+              } else if (this.missionFiltered.length == 1) {
+                this.step++;
+                this.form.old_mission_id = this.missionFiltered
+                  .map((mission) => mission.id)
+                  .toString();
+                this.form.old_mission_start = this.missionFiltered
+                  .map((mission) => mission.start_date)
+                  .toString();
+                this.form.old_mission_end = this.missionFiltered
+                  .map((mission) => mission.end_date)
+                  .toString();
+                this.error = "";
+              } else {
+                this.error =
+                  "Vous ne pouvez pas avoir plus de 2 missions en même temps.";
+              }
+            } else {
+            this.error =
+              "Les dates ne correspondent pas avec les de départ du collaborateur";
+          }
+          } else {
+            this.error =
+              "Les dates ne correspondent pas avec les dates d'embauche du collaborateur" + this.associate_start_date;
+          }
+        } else {
+          this.error = "La date début doit être inférieur à la date de fin !";
+        }
+      } else {
+        this.error = "Veuillez compléter tous les champs.";
+      }
+    },
     formAddMission() {
       if (
         this.form.label !== null &&
@@ -327,26 +393,31 @@ export default {
         this.totalImputation == 100
       ) {
         if (this.form.start_date < this.form.end_date) {
-          Axios.post("/mission", {
-            label: this.form.label,
-            associate_id: this.form.associate,
-            project_id: this.form.project,
-            tjm: this.form.tjm,
-            start_date: this.form.start_date,
-            end_date: this.form.end_date,
-            old_mission_id: this.form.old_mission_id,
-            old_mission_start: this.form.old_mission_start,
-            old_mission_end: this.form.old_mission_end,
-            old_mission_imputation: this.form.old_mission_imputation,
-            new_mission_imputation: this.form.new_mission_imputation,
-          }).then((response) => {
-            console.log("réussi");
-            this.dialog = false;
-            this.CreateState = false;
-            this.SuccessState = true;
-            this.success = "Nouvelle mission créée";
-            this.error = "";
-          });
+            Axios.post("/mission", {
+              label: this.form.label,
+              associate_id: this.form.associate,
+              project_id: this.form.project,
+              tjm: this.form.tjm,
+              start_date: this.form.start_date,
+              end_date: this.form.end_date,
+              old_mission_id: this.form.old_mission_id,
+              old_mission_start: this.form.old_mission_start,
+              old_mission_end: this.form.old_mission_end,
+              old_mission_imputation: this.form.old_mission_imputation,
+              new_mission_imputation: this.form.new_mission_imputation,
+            })
+              .then((response) => {
+                console.log("réussi");
+                this.dialog = false;
+                this.CreateState = false;
+                this.SuccessState = true;
+                this.success = "Nouvelle mission créée";
+                this.error = "";
+              })
+              .catch((err) => {
+                this.error = err.response.data.error;
+              });
+          
         } else {
           this.error = "La date début doit être inférieur à la date de fin !";
         }
@@ -396,54 +467,6 @@ export default {
       });
       console.log(list);
       return list;
-    },
-    next() {
-      if (
-        this.form.label != null &&
-        this.form.associate != null &&
-        this.form.project != null &&
-        this.form.start_date != null &&
-        this.form.end_date != null &&
-        this.form.tjm != null &&
-        this.form.label != "" &&
-        this.form.associate != "" &&
-        this.form.project != "" &&
-        this.form.start_date != "" &&
-        this.form.end_date != "" &&
-        this.form.tjm != ""
-      ) {
-        if (this.form.start_date < this.form.end_date) {
-          this.missionFiltered = this.filteredMissions(
-            this.form.start_date,
-            this.form.end_date
-          );
-          if (this.missionFiltered.length == 0) {
-            this.step++;
-            this.error = "";
-            this.form.old_mission_imputation = 0;
-            this.form.new_mission_imputation = 100;
-          } else if (this.missionFiltered.length == 1) {
-            this.step++;
-            this.form.old_mission_id = this.missionFiltered
-              .map((mission) => mission.id)
-              .toString();
-            this.form.old_mission_start = this.missionFiltered
-              .map((mission) => mission.start_date)
-              .toString();
-            this.form.old_mission_end = this.missionFiltered
-              .map((mission) => mission.end_date)
-              .toString();
-            this.error = "";
-          } else {
-            this.error =
-              "Vous ne pouvez pas avoir plus de 2 missions en même temps.";
-          }
-        } else {
-        this.error = "La date début doit être inférieur à la date de fin !";
-      }
-      } else {
-        this.error = "Veuillez compléter tous les champs.";
-      }
     },
   },
   created() {
