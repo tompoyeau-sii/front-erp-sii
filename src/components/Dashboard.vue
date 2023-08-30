@@ -10,7 +10,7 @@
     <div v-else>
 
     
-    <v-row >
+    <v-row>
       <v-col cols="12" lg="4" md="6" sm="6">
         <div class="bg-white shadow rounded-5 p-4">
           <p class="etiquette mb-2">Total de collaborateurs SII Le Mans</p>
@@ -144,8 +144,9 @@ export default {
     };
   },
   created() {
-    Axios.get("/associates/pdc").then((res) => {
+    Axios.get("/associates/all").then((res) => {
       this.associates = res.data?.associate;
+      console.log(this.associates)
       let moy = 0;
       this.associates.forEach((associate) => {
         moy += this.calculateAge(associate.birthdate);

@@ -37,6 +37,8 @@
             :associate_job_id="job_id"
             :associate_job="job"
             :associate_gender="associate.gender_id"
+            :associate_manager_id="manager_id"
+            :associate_manager="manager"
           />
         </v-col>
       </v-row>
@@ -62,13 +64,12 @@
                   ></p>
                 </v-col>
                 <v-col>
-                  
                   <UpdateMissionForm
-                  justify="end"
+                    justify="end"
                     :mission_id="mission.id"
                     :mission_label="mission.label"
-                    :mission_tjm ="mission.TJMs.map((tjm) => tjm.value)"
-                    />
+                    :mission_tjm="mission.TJMs.map((tjm) => tjm.value)"
+                  />
                 </v-col>
               </v-row>
               <router-link
@@ -85,7 +86,6 @@
                 ></p>
                 <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
                 <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
-
               </router-link>
             </div>
             <v-col lg="2" sm="12" class="client-add">
@@ -103,14 +103,10 @@
         <v-col cols="12" lg="6" md="6" sm="12">
           <h5 class="pt-3 sub-title">Manager</h5>
           <v-row>
-            <router-link
+            <div
               class="col-2 manager rounded-3 m-2 pt-2 shadow-sm"
-              v-for="mission in MissionsEnCours"
-              :key="mission.id"
-              :to="{
-                name: 'FicheCollabView',
-                params: { id: mission.Project.Associate.id },
-              }"
+              v-for="manager in associate.managers"
+              :key="manager.id"
             >
               <v-row>
                 <v-col cols="3" class="mt-1 ml-2">
@@ -125,15 +121,11 @@
                 <v-col cols="2">
                   <p
                     class=""
-                    v-text="
-                      mission.Project.Associate.first_name +
-                      ' ' +
-                      mission.Project.Associate.name
-                    "
+                    v-text="manager.first_name + ' ' + manager.name"
                   ></p>
                 </v-col>
               </v-row>
-            </router-link>
+            </div>
           </v-row>
         </v-col>
       </v-row>
@@ -143,11 +135,11 @@
         <v-col cols="6">
           <h5 class="pt-3 sub-title">Ce collaborateur est en intercontrat.</h5>
           <AddMissionForm
-                :associate_id="associate.id"
-                :associate="associate.name"
-                :associate_start_date="associate.start_date"
-                :associate_end_date="associate.end_date"
-              />
+            :associate_id="associate.id"
+            :associate="associate.name"
+            :associate_start_date="associate.start_date"
+            :associate_end_date="associate.end_date"
+          />
         </v-col>
       </v-row>
 
@@ -321,6 +313,8 @@ export default {
       pru: null,
       job: null,
       job_id: null,
+      manager: null,
+      manager_id: null,
     };
   },
   methods: {
@@ -407,6 +401,16 @@ export default {
         }
       }
     },
+    managerActuel() {
+      let today = new Date();
+      today = this.formatDateBDD(today);
+      for (let manager of this.associate.managers) {
+        if (manager.Associate_Manager.end_date >= today && manager.Associate_Manager.start_date <= today) {
+          this.manager_id = manager.id;
+          this.manager = manager.first_name + ' '+ manager.name;
+        }
+      }
+    },
     formatDate(date) {
       return (date = format(new Date(date), "PP", { locale: fr }));
     },
@@ -420,6 +424,10 @@ export default {
     this.todayDate = this.formatDate(new Date());
     this.pruActuel();
     this.jobActuel();
+    this.managerActuel();
+
+    console.log(this.manager)
+    console.log(this.manager_id)
   },
   computed: {
     MissionsFinis() {

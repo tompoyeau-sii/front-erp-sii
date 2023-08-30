@@ -16,6 +16,9 @@ export default createStore({
     getCustomers(state) {
       return state.customers;
     },
+    getAssociates(state) {
+      return state.associates;
+    },
     isLoading(state) {
       return state.isLoading;
     }
@@ -27,8 +30,8 @@ export default createStore({
     setCustomers(state, data) {
       state.customers = data;
     },
-    setCustomers(state, data) {
-      state.customers = data;
+    setAssociates(state, data) {
+      state.associates = data;
     },
     setLoading(state, isLoading) {
       state.isLoading = isLoading;
@@ -40,12 +43,12 @@ export default createStore({
         commit('setLoading', true); // Définir isLoadingCustomers sur true au début du chargement
         const customers = await Axios.get("/customers");
         commit('setCustomers', customers.data?.customer);
-        const allAssociates = await Axios.get("/associates/pdc");
+        const allAssociates = await Axios.get("/associates/all");
         commit('setAssociates', allAssociates.data?.associate);
         
       } catch (error) {
         // Gérer les erreurs si nécessaire
-        console.error("Erreur lors du chargement des clients:", error);
+        console.error("Erreur lors du chargement des données:", error);
       } finally {
         commit('setLoading', false); // Définir isLoadingCustomers sur false une fois le chargement terminé
       }

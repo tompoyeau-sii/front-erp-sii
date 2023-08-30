@@ -2,7 +2,7 @@
   <v-container>
     <h1 class="title">Plan de charge</h1>
     <div>
-      <v-row>
+      <!-- <v-row>
         <v-col cols="10">
           <v-text-field
             v-model="research"
@@ -78,8 +78,8 @@
             item-value="label"
           ></v-select>
         </v-col>
-        <!-- <v-btn color="warning"> Absent </v-btn> -->
-      </v-row>
+         <v-btn color="warning"> Absent </v-btn> 
+       </v-row>  -->
       <v-row justify="end">
         <v-col>
           <v-btn class="mr-2" color="deep-purple-darken-3"> En mission </v-btn>
@@ -103,10 +103,10 @@
             <tr>
               <th></th>
             </tr>
-            <tr v-for="associate in filteredAssociates" :key="associate.id">
+            <tr v-for="associate in uniqueAssociates" :key="associate.full_name">
               <td>
                 <p>
-                  {{ associate.first_name + " " + associate.name }}
+                  {{ associate.full_name }}
                 </p>
               </td>
             </tr>
@@ -115,53 +115,40 @@
         <v-table class="col-11">
           <thead>
             <tr>
-              <th v-for="year in weeksFiltered" :key="year.weekNumber">
-                <span
-                  class="bg-purple"
-                  v-if="
-                    year.startDate <= todayDate() && year.endDate >= todayDate()
-                  "
-                >
-                  {{ "S" + year.weekNumber }}
-                </span>
-                <span v-else>
-                  {{ "S" + year.weekNumber }}
+              <th v-for="week in pdc" :key="week.weekNumber">
+                <span>
+                  {{ week.weekNumber }}
                 </span>
               </th>
             </tr>
             <tr>
-              <th v-for="year in weeksFiltered" :key="year.weekNumber">
-                <div v-if="nbContract(year)">
-                  <span class="text-deep-purple-darken-3">
-                    {{ totalTrue }}
-                  </span>
+              <th v-for="week in pdc" :key="week.weekNumber">
+                <div>
+                  <span class="text-deep-purple-darken-3"> ? </span>
                   /
-                  <span class="text-deep-purple-lighten-4">
-                    {{ totalFalse }}
-                  </span>
+                  <span class="text-deep-purple-lighten-4"> ? </span>
                 </div>
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="associate in filteredAssociates" :key="associate.id">
+            <tr v-for="associate in uniqueAssociates" :key="associate.full_name">
               <td
                 id="facture"
-                v-for="year in weeksFiltered"
-                :key="year.weekNumber"
+               v-for="weekData in pdc" :key="weekData.weekNumber"
               >
                 <div style="display: flex">
                   <v-btn
                     color="deep-purple-darken-3"
-                    v-if="isWorking(associate, year) == 1"
+                    v-if="associate.state == 1"
                   ></v-btn>
                   <v-btn
                     color="deep-purple-lighten-4"
-                    v-else-if="isWorking(associate, year) == 2"
+                    v-else-if="associate.state == 2"
                   ></v-btn>
                   <v-btn
                     color="grey-lighten-1"
-                    v-else-if="isWorking(associate, year) == 3"
+                    v-else-if="associate.state == 3"
                   ></v-btn>
                 </div>
               </td>
@@ -187,6 +174,7 @@ import {
   endOfWeek,
   format,
 } from "date-fns";
+import { weeksFilter, generateWeekList } from "@/_utils/utils";
 export default {
   name: "Pdc",
   data() {
@@ -216,7 +204,7 @@ export default {
     };
   },
   mounted() {
-    this.fetchData();
+    // this.fetchData();
   },
   watch: {
     selectedYear(newYear) {
@@ -250,23 +238,23 @@ export default {
   },
 
   methods: {
-    //retourne les collaborateurs avec une pagination de 10
-    async fetchData(page) {
-      this.loading = true;
-      const response = await Axios.get(
-        `/associates?page=${page || this.currentPage}`
-      );
-      this.associates = response.data.associate;
-      this.totalPages = response.data.totalPages;
-      this.globalPages = response.data.totalPages;
-      this.filterAssociates();
-      this.loading = false;
-    },
-    //retourne la date du jour
+    // Retourne les collaborateurs avec une pagination de 10
+    // async fetchData(page) {
+    //   this.loading = true;
+    //   const response = await Axios.get(
+    //     `/associates?page=${page || this.currentPage}`
+    //   );
+    //   this.associates = response.data.associate;
+    //   this.totalPages = response.data.totalPages;
+    //   this.globalPages = response.data.totalPages;
+    //   this.filterAssociates();
+    //   this.loading = false;
+    // },
+    // Retourne la date du jour
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
     },
-    //Retourne la liste complete des colloborateurs avec les informations actuelles
+    // Retourne la liste complete des colloborateurs avec les informations actuelles
     calculateAssociate() {
       this.allAssociates.forEach((associate) => {
         const calculatedAssociate = {
@@ -282,7 +270,7 @@ export default {
       });
       console.log(this.calculatedAssociates);
     },
-    //Pour le filtrage par projet, permet de retourner le projet du collaborateur
+    // Pour le filtrage par projet, permet de retourner le projet du collaborateur
     projetEnCours(associate_id) {
       var missionOfCollab = [];
       this.allAssociates.forEach((associate) => {
@@ -300,7 +288,7 @@ export default {
       });
       return missionOfCollab;
     },
-    //Pour le filtrage par client, permet de retourner le client du collaborateur
+    // Pour le filtrage par client, permet de retourner le client du collaborateur
     clientEnCours(associate_id) {
       var missionOfCollab = [];
       this.allAssociates.forEach((associate) => {
@@ -318,7 +306,7 @@ export default {
       });
       return missionOfCollab;
     },
-    //Pour le filtrage par manager, permet de retourner le manager du collaborateur
+    // Pour le filtrage par manager, permet de retourner le manager du collaborateur
     managerEnCours(associate_id) {
       var missionOfCollab = [];
       this.allAssociates.forEach((associate) => {
@@ -340,7 +328,7 @@ export default {
       });
       return missionOfCollab;
     },
-    //Donne le format de bdd aux dates
+    // Donne le format de bdd aux dates
     formatDate(date) {
       const year = date.getFullYear().toString();
       let month = (date.getMonth() + 1).toString();
@@ -353,7 +341,7 @@ export default {
       }
       return year + "-" + month + "-" + day;
     },
-    //filtre les résultat en fonction des filtres rentrée
+    // Filtre les résultats en fonction des filtres rentrées
     filterAssociates() {
       this.filteredAssociates = this.associates;
       this.totalPages = this.globalPages;
@@ -403,12 +391,12 @@ export default {
         this.totalPages = 1;
       }
     },
-    //Arrete la recherche et remet le plan de charge à l'original
+    // Arrete la recherche et remet le plan de charge à l'original
     stopResearch() {
       this.research = null;
       this.filterAssociates();
     },
-    //Retourne le nombre de personne qui sont en contrat et en intercontrat par semaine
+    // Retourne le nombre de personne qui sont en contrat et en intercontrat par semaine
     nbContract(week) {
       this.totalTrue = 0;
       this.totalFalse = 0;
@@ -443,80 +431,71 @@ export default {
       this.loading = false;
       return 2;
     },
-    //Génére la liste des semaines pour une année passé en paramètre et son année +1
-    generateWeekList(year) {
-      const startDate = new Date(year, 0, 1); // Premier jour de l'année
-      const endDate = new Date(year + 1, 11, 31); // Dernier jour de l'année
-
-      const allWeeks = eachWeekOfInterval({
-        start: startDate,
-        end: endDate,
-        weekStartsOn: 1,
-      });
-
-      const weekList = allWeeks.map((date) => {
-        const weekNumber = getISOWeek(date);
-        const startDateOfWeek = startOfWeek(date, { weekStartsOn: 1 });
-        const endDateOfWeek = endOfWeek(date, { weekStartsOn: 1 });
-        return {
-          weekNumber,
-          startDate: format(startDateOfWeek, "yyyy-MM-dd"),
-          endDate: format(endDateOfWeek, "yyyy-MM-dd"),
-        };
-      });
-
-      return weekList;
-    },
-    //Retourne la liste de semaine entre la S14 et la S13 de l'année d'après
-    weeksFilter() {
-      this.weeksFiltered = [];
-      let i = 0;
-      let tour = false;
-      this.weeks.forEach((week) => {
-        i++;
-        if (i > 14 && !tour) {
-          this.weeksFiltered.push(week);
-        } else if (i < 14 && tour == true) {
-          this.weeksFiltered.push(week);
-        }
-        if (i == 53) {
-          i = 0;
-          tour = true;
-        }
-      });
-    },
   },
   created() {
-    Axios.get("/associates/pdc").then((res) => {
-      this.allAssociates = res.data?.associate;
-      this.calculateAssociate();
+    this.loading = true;
+    Axios.get("pdc").then((res) => {
+      this.pdc = res.data?.pdc;
+      this.loading = false;
     });
-    Axios.get("/associates/managers").then((res) => {
-      //this.managers = res.data?.associate;
-      res.data?.associate.forEach((job) => {
-        job.Associates.forEach((manager) => {
-          if (
-            manager.Associate_Job.start_date < this.todayDate() &&
-            manager.Associate_Job.end_date > this.todayDate()
-          ) {
-            manager.full_name = manager.first_name + " " + manager.name;
-            this.managers.push(manager);
+
+    // Axios.get("/associates/all").then((res) => {
+    //   this.allAssociates = res.data?.associate;
+    //   this.calculateAssociate();
+    // });
+    // Axios.get("/associates/managers").then((res) => {
+    //   //this.managers = res.data?.associate;
+    //   res.data?.associate.forEach((job) => {
+    //     job.Associates.forEach((manager) => {
+    //       if (
+    //         manager.Associate_Job.start_date < this.todayDate() &&
+    //         manager.Associate_Job.end_date > this.todayDate()
+    //       ) {
+    //         manager.full_name = manager.first_name + " " + manager.name;
+    //         this.managers.push(manager);
+    //       }
+    //     });
+    //   });
+    // });
+    // Axios.get("/projects").then((res) => {
+    //   this.projects = res.data?.project;
+    // });
+    // Axios.get("/customers").then((res) => {
+    //   this.customers = res.data?.customer;
+    // });
+
+    // this.weeks = generateWeekList(this.selectedYear);
+    // this.weeksFiltered = weeksFilter(this.weeks);
+    // // Initialise filteredAssociates avec la même valeur que associates
+    // this.filteredAssociates = [...this.associates];
+  },
+
+  computed: {
+    uniqueAssociates() {
+      const uniqueAssociatesMap = new Map();
+      this.pdc.forEach((weekData) => {
+        weekData.associates.forEach((associate) => {
+          if (!uniqueAssociatesMap.has(associate.full_name)) {
+            uniqueAssociatesMap.set(associate.full_name, associate);
           }
         });
       });
-    });
-    Axios.get("/projects").then((res) => {
-      this.projects = res.data?.project;
-    });
-    Axios.get("/customers").then((res) => {
-      this.customers = res.data?.customer;
-    });
-
-    this.weeks = this.generateWeekList(this.selectedYear);
-    this.weeksFilter();
-
-    // Initialise filteredAssociates avec la même valeur que associates
-    this.filteredAssociates = [...this.associates];
+      return Array.from(uniqueAssociatesMap.values());
+    },
+  },
+  methods: {
+    getAssociateState(fullName, weekNumber) {
+      const weekData = this.pdc.find((week) => week.weekNumber === weekNumber);
+      if (weekData) {
+        const associateData = weekData.associates.find(
+          (associate) => associate.full_name === fullName
+        );
+        if (associateData) {
+          return associateData.state;
+        }
+      }
+      return "";
+    },
   },
 };
 </script>

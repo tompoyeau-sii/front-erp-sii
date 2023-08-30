@@ -19,7 +19,7 @@
         <v-card-text>
           <v-container>
             <v-row>
-              <v-col cols="12">
+              <v-col cols="12" sm="6">
                 <v-text-field
                   label="Libelle du projet*"
                   v-model="form.label"
@@ -35,23 +35,13 @@
                   required
                 ></v-text-field>
               </v-col>
-              <v-col v-if="customer_id == null" cols="12" sm="6">
+              <v-col v-if="customer_id == null" cols="12">
                 <v-autocomplete
                   v-model="form.customer"
                   :items="customers"
                   item-title="label"
                   item-value="id"
                   label="Client*"
-                  variant="solo"
-                ></v-autocomplete>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-autocomplete
-                  v-model="form.manager"
-                  :items="managers"
-                  item-title="full_name"
-                  item-value="id"
-                  label="Manager*"
                   variant="solo"
                 ></v-autocomplete>
               </v-col>
@@ -112,8 +102,7 @@ export default {
       form: {
         label: "",
         adv: null,
-        customer: this.customer_id,
-        manager: null,
+        customer: this.customer_id
       },
       dialog: false,
       error: "",
@@ -121,26 +110,7 @@ export default {
       snackbar: false,
       associates: [],
       customers: [],
-      managers: [],
     };
-  },
-  created() {
-    Axios.get("/associates/managers").then((res) => {
-      //this.managers = res.data?.associate;
-      console.log(res.data?.associate);
-      res.data?.associate.forEach((job) => {
-        job.Associates.forEach((manager) => {
-          if (
-            manager.Associate_Job.start_date < this.todayDate() &&
-            manager.Associate_Job.end_date > this.todayDate()
-            ) {
-              manager.full_name = manager.first_name + " " + manager.name;
-              console.log(manager)
-              this.managers.push(manager);
-          }
-        });
-      });
-    });
   },
   methods: {
     todayDate() {
@@ -150,14 +120,12 @@ export default {
       if (
         this.form.label !== "" &&
         this.form.adv !== "" &&
-        this.form.customer !== "" &&
-        this.form.manager !== ""
+        this.form.customer !== ""
       ) {
         Axios.post("/project", {
           label: this.form.label,
           adv: this.form.adv,
-          customer_id: this.form.customer,
-          manager_id: this.form.manager,
+          customer_id: this.form.customer
         }).then(
           (response) => {
             this.dialog = false;

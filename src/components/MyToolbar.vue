@@ -7,13 +7,11 @@
     mobile-breakpoint="960"
   >
     <!-- <v-img aspect-ratio class="sii" load src="../assets/SIIlogo.svg"></v-img> -->
-
     <v-img
-      style="text-align: center"
+      style="text-align: center;"
       aspect-ratio
       class="sii"
-      load
-      src="../assets/img/picsou.png"
+      src="../assets/img/Piscou-logo-primaire@2x.png"
     ></v-img>
     <v-list nav>
       <router-link to="/dashboard">
@@ -72,7 +70,7 @@
       </router-link>
     </template>
   </v-navigation-drawer>
-  <v-app-bar v-if="!drawer" color="#f2f2f2" elevation="0" >
+  <v-app-bar v-if="!drawer" color="transparent" elevation="0" >
     <v-app-bar-nav-icon color="deep-purple-darken-3" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
   </v-app-bar>
 </template>
@@ -125,10 +123,12 @@ a {
 }
 
 .sii {
-  width: 12vh;
+  width: 18vh;
   display: block;
   align-content: center;
   align-self: center;
   margin: auto;
+  margin-top: 5vh;
+  margin-bottom: 3vh;
 }
 </style>

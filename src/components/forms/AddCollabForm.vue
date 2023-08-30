@@ -99,6 +99,16 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
+                  <v-autocomplete
+                    v-model="form.manager"
+                    :items="managers"
+                    item-title="full_name"
+                    item-value="id"
+                    label="Manager"
+                    variant="solo"
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="12">
                   <v-alert
                     v-if="error != ''"
                     class="mb-5 vibrate"
@@ -145,6 +155,7 @@
 
 <script>
 import Axios from "@/_services/caller.service";
+import { format } from "date-fns";
 export default {
   name: "AddCollabForm",
   data() {
@@ -158,9 +169,11 @@ export default {
         job: null,
         start_date: "",
         pru: "",
+        manager: null,
       },
       dialog: false,
       success: "",
+      managers: [],
       SuccessState: false,
       jobs: [],
       graduations: [],
@@ -180,7 +193,10 @@ export default {
   },
 
   methods: {
-    formAddCollab: function () {
+    todayDate() {
+      return format(new Date(), "yyyy-MM-dd");
+    },
+    formAddCollab () {
       if (
         this.form.first_name != "" &&
         this.form.name != "" &&
@@ -190,6 +206,7 @@ export default {
         this.form.birthdate != "" &&
         this.form.mail != "" &&
         this.form.start_date != "" &&
+        this.form.manager != "" &&
         this.form.pru != ""
       ) {
         Axios.post("/associate", {
@@ -202,6 +219,7 @@ export default {
           start_date: this.form.start_date,
           mail: this.computedMail,
           pru: this.form.pru,
+          manager_id: this.form.manager,
         })
           .then((response) => {
             console.log(response);
@@ -211,9 +229,9 @@ export default {
             this.success = "Nouveau collaborateur ajouté.";
             this.error = "";
           })
-          .catch(function (err) {
-             this.SuccessState = false;
-            console.log(err);
+          .catch((err) => {
+            console.log(err)
+            this.error = err.response.data.error;
           });
       } else {
         this.error = "Tous les champs sont obligatoires.";
@@ -221,6 +239,20 @@ export default {
     },
   },
   created() {
+    Axios.get("/associates/managers").then((res) => {
+      //this.managers = res.data?.associate;
+      res.data?.associate.forEach((job) => {
+        job.Associates.forEach((manager) => {
+          if (
+            manager.Associate_Job.start_date < this.todayDate() &&
+            manager.Associate_Job.end_date > this.todayDate()
+          ) {
+            manager.full_name = manager.first_name + " " + manager.name;
+            this.managers.push(manager);
+          }
+        });
+      });
+    });
     Axios.get("/jobs").then((res) => {
       this.jobs = res.data?.job;
     });

@@ -240,7 +240,7 @@ export default {
     // Axios.get("/customers").then((res) => {
     //   this.customers = res.data?.customer;
     // });
-    Axios.get("/associates/pdc").then((res) => {
+    Axios.get("/associates/all").then((res) => {
       res.data?.associate.forEach((associate) => {
         if (associate.start_date < this.todayDate()) {
           if (associate.Missions.length == 0) {

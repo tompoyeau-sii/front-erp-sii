@@ -189,7 +189,7 @@ export default {
       this.customers = res.data?.customer;
       this.filteredCustomers = this.filterAssociate(this.customers);
       this.chart.customerData = [
-        ["Client", "Collaborateurs"],
+        ["Client", "Collab"],
         ...this.filteredCustomers.map(({ label, nbCollab }) => [
           label,
           nbCollab,
@@ -202,6 +202,7 @@ export default {
     });
     Axios.get("/associates/managers").then((res) => {
       //this.managers = res.data?.associate;
+      console.log(res.data?.associate)
       res.data?.associate.forEach((job) => {
         job.Associates.forEach((manager) => {
           if (
@@ -214,7 +215,7 @@ export default {
         });
       });
     });
-    Axios.get("/associates/pdc").then((res) => {
+    Axios.get("/associates/all").then((res) => {
       this.associates = res.data?.associate;
       this.associates.forEach((associate) => {
         if (associate.gender_id == 1) {

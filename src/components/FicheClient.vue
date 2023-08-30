@@ -25,14 +25,14 @@
         </v-col>
       </v-row>
     </v-row>
-
+<!-- 
     <v-row>
       <v-col v-if="projects.length != 0" lg="2" md="6" sm="6">
         <h5 class="pt-3 title">Manager</h5>
       </v-col>
-    </v-row>
+    </v-row> -->
     <!-- Affichage du/des manager du client -->
-    <div class="row">
+    <!-- <div class="row">
       <router-link
         class="col-2 manager rounded-3 m-2 pt-3 shadow-sm"
         v-for="project in projects"
@@ -60,7 +60,7 @@
           </div>
         </div>
       </router-link>
-    </div>
+    </div> -->
     <v-row class="mt-3">
       <v-col lg="6">
         <h5 class="title" v-if="projects.length !== 0">Projets</h5>
@@ -83,12 +83,15 @@
             <h5 class="title" v-text="project.label"></h5>
           </v-row>
           <tbody>
-            <v-row>
-              
-            </v-row>
+            <v-row> </v-row>
             <tr v-for="associate in project.Missions" :key="associate.id">
-
-              <td v-if="associate.start_date < todayDate() && associate.end_date > todayDate()" style="display: flex; align-content: center">
+              <td
+                v-if="
+                  associate.start_date < todayDate() &&
+                  associate.end_date > todayDate()
+                "
+                style="display: flex; align-content: center"
+              >
                 <v-avatar>
                   <v-img
                     src="../assets/img/collab/generic.png"
@@ -141,6 +144,7 @@ export default {
   },
   created() {
     this.projects = this.$route.params.client.Projects;
+    console.log(this.projects);
   },
   methods: {
     retourPagePrecedente() {

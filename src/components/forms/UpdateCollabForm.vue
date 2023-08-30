@@ -93,6 +93,16 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
+                  <v-autocomplete
+                    v-model="form.manager"
+                    :items="managers"
+                    item-title="full_name"
+                    item-value="id"
+                    label="Manager"
+                    variant="solo"
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="12">
                   <v-alert
                     v-if="error != ''"
                     class="mb-5 vibrate"
@@ -112,9 +122,7 @@
             <v-btn color="white" variant="text" @click="dialog = false">
               Annuler
             </v-btn>
-            <v-btn color="white" variant="text" type="submit">
-              Modifier
-            </v-btn>
+            <v-btn color="white" variant="text" type="submit"> Modifier </v-btn>
           </v-card-actions>
         </v-form>
       </v-card>
@@ -124,6 +132,7 @@
 
 <script>
 import Axios from "@/_services/caller.service";
+import { format } from "date-fns";
 export default {
   name: "UpdateCollabForm",
   props: [
@@ -138,6 +147,8 @@ export default {
     "associate_job",
     "associate_job_id",
     "associate_gender",
+    "associate_manager",
+    "associate_manager_id",
   ],
   data() {
     return {
@@ -151,13 +162,15 @@ export default {
         job: this.associate_job_id,
         start_date: this.associate_start_date,
         pru: this.associate_pru,
-        mail: this.associate_mail
+        mail: this.associate_mail,
+        manager: this.associate_manager_id,
       },
       dialog: false,
       success: "",
       jobs: [],
       graduations: [],
       error: "",
+      managers: [],
     };
   },
 
@@ -173,6 +186,9 @@ export default {
   },
 
   methods: {
+    todayDate() {
+      return format(new Date(), "yyyy/MM/dd");
+    },
     formUpdateCollab() {
       if (
         this.form.first_name != "" &&
@@ -183,7 +199,8 @@ export default {
         this.form.birthdate != "" &&
         this.form.mail != "" &&
         this.form.start_date != "" &&
-        this.form.pru != ""
+        this.form.pru != "" &&
+        this.form.manager != ""
       ) {
         Axios.post("/associate/update/" + this.associate_id, {
           name: this.form.name,
@@ -195,6 +212,7 @@ export default {
           start_date: this.form.start_date,
           mail: this.form.mail,
           pru: this.form.pru,
+          manager_id: this.form.manager,
         })
           .then((response) => {
             console.log(response);
@@ -203,8 +221,9 @@ export default {
             this.error = "";
             this.success = "Collaborateurs modifié.";
           })
-          .catch(function (err) {
-            console.log(err);
+          .catch((err) => {
+            console.log(err)
+            this.error = err.response.data.error;
           });
       } else {
         this.error = "Tous les champs sont obligatoires.";
@@ -217,6 +236,20 @@ export default {
     });
     Axios.get("/graduations").then((res) => {
       this.graduations = res.data?.graduation;
+    });
+    Axios.get("/associates/managers").then((res) => {
+      //this.managers = res.data?.associate;
+      res.data?.associate.forEach((job) => {
+        job.Associates.forEach((manager) => {
+          if (
+            manager.Associate_Job.start_date < this.todayDate() &&
+            manager.Associate_Job.end_date > this.todayDate()
+          ) {
+            manager.full_name = manager.first_name + " " + manager.name;
+            this.managers.push(manager);
+          }
+        });
+      });
     });
   },
 };

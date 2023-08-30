@@ -86,12 +86,8 @@
             </td>
             <td
               class="mt-auto mb-auto"
-              v-if="posteEnCours(associate.id).map((job) => job) != ''"
-              v-text="
-                posteEnCours(associate.id)
-                  .map((job) => job)
-                  .join(', ')
-              "
+              v-if="associate.Jobs.map((job) => job) != ''"
+              v-text="associate.Jobs.map((job) => job.label).join(', ')"
             ></td>
             <td
               class="mt-auto mb-auto text-grey"
@@ -106,21 +102,17 @@
             <!-- Affichage du nom prenom du manager -->
             <td
               class="mt-auto mb-auto"
-              v-if="
-                managerEnCours(associate.id).map((mission) => mission) != ''
-              "
+              v-if="associate.managers.map((manager) => manager) != ''"
               v-text="
-                managerEnCours(associate.id)
-                  .map((mission) => mission)
+                associate.managers
+                  .map((manager) => manager.first_name + ' ' + manager.name)
                   .join(', ')
               "
             ></td>
 
             <td
               class="mt-auto mb-auto text-blue"
-              v-else-if="
-                posteEnCours(associate.id).map((job) => job) == 'Manager'
-              "
+              v-else-if="associate.Jobs.map((job) => job.label) == 'Manager'"
               v-text="'Manager'"
             ></td>
             <td
@@ -145,9 +137,7 @@
             ></td>
             <td
               class="mt-auto mb-auto text-blue"
-              v-else-if="
-                posteEnCours(associate.id).map((job) => job) == 'Manager'
-              "
+              v-else-if="associate.Jobs.map((job) => job.label) == 'Manager'"
               v-text="'Manager'"
             ></td>
             <td
@@ -171,9 +161,7 @@
             ></td>
             <td
               class="mt-auto mb-auto text-blue"
-              v-else-if="
-                posteEnCours(associate.id).map((job) => job) == 'Manager'
-              "
+              v-else-if="associate.Jobs.map((job) => job.label) == 'Manager'"
               v-text="'Manager'"
             ></td>
             <td
@@ -254,7 +242,7 @@ export default {
     this.fetchData();
   },
   created() {
-    Axios.get("/associates/pdc").then((res) => {
+    Axios.get("/associates/all").then((res) => {
       this.allAssociates = res.data?.associate;
       this.calculateAssociate();
     });
@@ -295,7 +283,6 @@ export default {
     selectedProject() {
       this.filterAssociates();
     },
-
   },
 
   methods: {
@@ -304,9 +291,13 @@ export default {
         `/associates?page=${page || this.currentPage}`
       );
       this.associates = response.data.associate;
+      console.log(this.associates);
       this.totalPages = response.data.totalPages;
       this.globalPages = response.data.totalPages;
       this.filterAssociates();
+    },
+    todayDate() {
+      return format(new Date(), "yyyy-MM-dd");
     },
     calculateAssociate() {
       this.allAssociates.forEach((associate) => {
@@ -316,8 +307,8 @@ export default {
           name: associate.name,
           project: this.projetEnCours(associate.id),
           customer: this.clientEnCours(associate.id),
-          manager: this.managerEnCours(associate.id),
-          job: this.posteEnCours(associate.id),
+          managers: associate.managers.map((job) => job.full_name),
+          jobs: this.posteEnCours(associate.id),
         };
         this.calculatedAssociates.push(calculatedAssociate);
       });
@@ -360,27 +351,6 @@ export default {
       });
       return missionOfCollab;
     },
-    managerEnCours(associate_id) {
-      var missionOfCollab = [];
-      this.allAssociates.forEach((associate) => {
-        if (associate.id == associate_id) {
-          associate.Missions.forEach((mission) => {
-            if (
-              mission.start_date <= this.todayDate() &&
-              mission.end_date >= this.todayDate() &&
-              mission.associate_id == associate_id
-            ) {
-              missionOfCollab.push(
-                mission.Project.Associate.first_name +
-                  " " +
-                  mission.Project.Associate.name
-              );
-            }
-          });
-        }
-      });
-      return missionOfCollab;
-    },
     posteEnCours(associate_id) {
       var missionOfCollab = [];
       this.allAssociates.forEach((associate) => {
@@ -405,8 +375,8 @@ export default {
       });
     },
     filterAssociates() {
-        this.filteredAssociates = this.associates;
-        this.totalPages = this.globalPages;
+      this.filteredAssociates = this.associates;
+      this.totalPages = this.globalPages;
       if (this.search) {
         const searchTerm = this.search.toLowerCase();
         this.totalPages = 1;
@@ -438,8 +408,6 @@ export default {
         );
         this.totalPages = Math.ceil(this.filterAssociates.length / 10);
       }
-
-      
 
       if (this.selectedProject) {
         this.totalPages = 1;
