@@ -20,7 +20,7 @@
       >
         <div>
           <p class="text-h5 name" v-text="customer.label"></p>
-          <p>{{ getCaOfCustomer(customer.id) }}€</p>
+          <p>{{ formatK(getCaOfCustomer(customer.id)) }}€</p>
           <p>{{ filterAssociate(customer) + " collaborateurs" }}</p>
         </div>
       </router-link>
@@ -216,7 +216,17 @@ export default {
       });
       return ca;
     },
-
+    formatK(number) {
+      if (number >= 1000) {
+        let res = number / 1000
+        return res.toFixed(0) + "K"
+      } else if (number < -1000) {
+        let res = number / 1000
+        return res.toFixed(0) + "K"
+      } else {
+        return number;
+      }
+    },
     filterAssociate(customer) {
       const associateIds = new Set();
 

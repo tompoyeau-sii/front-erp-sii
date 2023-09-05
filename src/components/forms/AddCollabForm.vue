@@ -181,22 +181,11 @@ export default {
     };
   },
 
-  computed: {
-    computedMail() {
-      return (
-        this.form.first_name.toLowerCase() +
-        "." +
-        this.form.name.toLowerCase() +
-        "@sii.fr"
-      );
-    },
-  },
-
   methods: {
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
     },
-    formAddCollab () {
+    formAddCollab() {
       if (
         this.form.first_name != "" &&
         this.form.name != "" &&
@@ -230,7 +219,7 @@ export default {
             this.error = "";
           })
           .catch((err) => {
-            console.log(err)
+            console.log(err);
             this.error = err.response.data.error;
           });
       } else {
@@ -238,27 +227,26 @@ export default {
       }
     },
   },
-  created() {
-    Axios.get("/associates/managers").then((res) => {
-      //this.managers = res.data?.associate;
-      res.data?.associate.forEach((job) => {
-        job.Associates.forEach((manager) => {
-          if (
-            manager.Associate_Job.start_date < this.todayDate() &&
-            manager.Associate_Job.end_date > this.todayDate()
-          ) {
-            manager.full_name = manager.first_name + " " + manager.name;
-            this.managers.push(manager);
-          }
-        });
-      });
-    });
-    Axios.get("/jobs").then((res) => {
-      this.jobs = res.data?.job;
-    });
-    Axios.get("/graduations").then((res) => {
-      this.graduations = res.data?.graduation;
-    });
+
+  computed: {
+    computedMail() {
+      let first_name = this.form.first_name.toLowerCase();
+      first_name = first_name.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+      let name = this.form.name.toLowerCase();
+      name = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+      return first_name + "." + name + "@sii.fr";
+    },
+    jobs() {
+      return this.$store.getters.getJobs;
+    },
+    graduations() {
+      return this.$store.getters.getGraduations;
+    },
+    managers() {
+      return this.$store.getters.getManagers;
+    },
   },
 };
 </script>

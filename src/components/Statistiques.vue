@@ -11,7 +11,7 @@
           <v-row>
             <v-col cols="12" lg="6">
               <v-select
-                v-model="manager"
+                v-model="managerSelected"
                 label="Manager"
                 :items="managers"
                 item-title="full_name"
@@ -69,6 +69,7 @@
             </v-col>
             <v-col cols="12">
               <GChart
+                v-if="dataLoadedAgence"
                 type="LineChart"
                 class="shadow"
                 :options="chart.caOptions"
@@ -110,7 +111,6 @@
             :options="chart.customerCaOptions"
           />
         </v-col>
-        
       </v-window-item>
     </v-window>
   </v-container>
@@ -127,7 +127,7 @@ import {
   getYear,
   getMonth,
   eachDayOfInterval,
-  isWeekend 
+  isWeekend,
 } from "date-fns";
 import { fr } from "date-fns/locale";
 export default {
@@ -138,8 +138,9 @@ export default {
       // Select
       yearSelected: 2023,
       customerSelected: null,
+      managerSelected: null,
+
       //Liste initialisé par les listes de données reçu par l'API
-      managers: [],
       projects: [],
       customers: [],
       caForMonths: [],
@@ -148,7 +149,6 @@ export default {
       nbHommes: 0,
       nbFemmes: 0,
       intercontrats: [],
-      manager: null,
       tab: null,
       associates: [],
       missions: [],
@@ -157,24 +157,30 @@ export default {
 
       //Data loarder
       dataLoadedManager: false, // propriété pour savoir si les données sont chargées ou non
+      dataLoadedAgence: false,
       dataLoadedCustomer: false,
-      
+
       chart: {
         //Parité homme /femme
         pariteData: [],
         pariteOptions: [],
+
         //graphique ca des managers
         managerData: [],
         managerOptions: [],
+
         //graphique marge des managers
         managerMargeData: [],
         managerMargeOptions: [],
+
         //graphique nb collab chez les clients
         customerData: [],
         customerOptions: [],
+
         //graphique ca par client
         customerCaData: [],
         customerCaOptions: [],
+
         //ca global de l'agence
         caData: [],
         caOptions: [],
@@ -182,8 +188,21 @@ export default {
     };
   },
   created() {
-    Axios.get("/missions").then((res) => {
-      this.missions = res.data?.mission;
+    Axios.get("/statistiques/agence", {
+      params: {
+        year: this.yearSelected,
+      },
+    }).then((res) => {
+      this.caForMonths = res.data?.caForMonths;
+      this.chart.caData = [
+        ["Mois", "CA"],
+        ...this.caForMonths.map(({ month, value }) => [month, value]),
+      ];
+      this.chart.caOptions = {
+        title: "Chiffre d'affaire de l'agence",
+        colors: ["#4527A0"],
+      };
+      this.dataLoadedAgence = true;
     });
     Axios.get("/customers").then((res) => {
       this.customers = res.data?.customer;
@@ -197,140 +216,107 @@ export default {
       ];
       this.chart.customerOptions = {
         title: "Nombre de collaborateurs par clients",
-        colors: ['#4527A0']
+        colors: ["#4527A0"],
       };
-    });
-    Axios.get("/associates/managers").then((res) => {
-      //this.managers = res.data?.associate;
-      console.log(res.data?.associate)
-      res.data?.associate.forEach((job) => {
-        job.Associates.forEach((manager) => {
-          if (
-            manager.Associate_Job.start_date < this.todayDate() &&
-            manager.Associate_Job.end_date > this.todayDate()
-          ) {
-            manager.full_name = manager.first_name + " " + manager.name;
-            this.managers.push(manager);
-          }
-        });
-      });
-    });
-    Axios.get("/associates/all").then((res) => {
-      this.associates = res.data?.associate;
-      this.associates.forEach((associate) => {
-        if (associate.gender_id == 1) {
-          this.nbHommes++;
-        } else if (associate.gender_id == 2) {
-          this.nbFemmes++;
-        }
-        if (associate.Missions.length == 0) {
-          this.intercontrats.push(associate);
-        } else {
-          var enMission = false;
-          associate.Missions.forEach((mission) => {
-            if (
-              mission.start_date <= this.todayDate() &&
-              mission.end_date >= this.todayDate()
-            ) {
-              enMission = true;
-              return;
-            }
-          });
-          if (enMission == false) {
-            this.intercontrats.push(associate);
-          }
-        }
-      });
-      this.chart.pariteData = [
-        ["Genre", "Population"],
-        ["Hommes", this.nbHommes][("Femmes", this.nbFemmes)],
-      ];
-      this.chart.pariteOptions = {
-        title: "Parité Hommes/Femmes",
-      };
-      this.intercontrats.nbCollab = this.intercontrats.length;
-    });
-    Axios.get("/projects").then((res) => {
-      this.projects = res.data?.project;
-      this.getCaGlobal(this.generateMonthList(2023));
-      (this.chart.caData = [
-        ["Mois", "CA"],
-        ...this.caForMonths.map(({ month, value }) => [month, value]),
-      ]),
-        (this.chart.caOptions = {
-          title: "Chiffre d'affaire de l'agence",
-          colors: ['#4527A0']
-        });
     });
   },
 
   watch: {
-    manager(newManager) {
-      this.ca = this.getCaOfManager(
-        this.generateMonthList(this.yearSelected),
-        newManager
-      );
-      this.marge = this.getMargeOfManager(
-        this.generateMonthList(this.yearSelected),
-        newManager
-      );
-
-      (this.chart.managerData = [
-        ["Mois", "CA"],
-        ...this.ca.map(({ month, value }) => [month, value]),
-      ]),
-        (this.chart.managerOptions = {
-          title: "Chiffre d'affaire du manager",
-          colors: ['#4527A0'],
-        });
-
-      (this.chart.managerMargeData = [
-        ["Mois", "Marge"],
-        ...this.marge.map(({ month, value }) => [month, value]),
-      ]),
-        (this.chart.managerMargeOptions = {
-          title: "Marge du manager",
-          colors: ['#4527A0'],
-        });
-      this.dataLoadedManager = true;
-    },
-    yearSelected(newYear) {
-      if (this.manager) {
-        this.ca = this.getCaOfManager(
-          this.generateMonthList(newYear),
-          this.manager
-        );
-
+    managerSelected(newManager) {
+      Axios.get("/statistiques/manager", {
+        params: {
+          year: this.yearSelected,
+          manager: newManager,
+        },
+      }).then((res) => {
+        this.ca = res.data?.ca;
         (this.chart.managerData = [
           ["Mois", "CA"],
           ...this.ca.map(({ month, value }) => [month, value]),
         ]),
           (this.chart.managerOptions = {
             title: "Chiffre d'affaire du manager",
-            colors: ['#4527A0'],
+            colors: ["#4527A0"],
           });
-        this.dataLoaded = true;
+
+        (this.chart.managerMargeData = [
+          ["Mois", "Marge"],
+          ...this.ca.map(({ month, marge }) => [month, marge]),
+        ]),
+          (this.chart.managerMargeOptions = {
+            title: "Marge du manager",
+            colors: ["#4527A0"],
+          });
+        this.dataLoadedManager = true;
+      });
+    },
+    yearSelected(newYear) {
+      //Si un manager est séléctionné, alors on recalcul son chiffre
+      if (this.managerSelected) {
+        Axios.get("/statistiques/manager", {
+          params: {
+            year: newYear,
+            manager: this.managerSelected,
+          },
+        }).then((res) => {
+          this.ca = res.data?.ca;
+          (this.chart.managerData = [
+            ["Mois", "CA"],
+            ...this.ca.map(({ month, value }) => [month, value]),
+          ]),
+            (this.chart.managerOptions = {
+              title: "Chiffre d'affaire du manager",
+              colors: ["#4527A0"],
+            });
+
+          (this.chart.managerMargeData = [
+            ["Mois", "Marge"],
+            ...this.ca.map(({ month, marge }) => [month, marge]),
+          ]),
+            (this.chart.managerMargeOptions = {
+              title: "Marge du manager",
+              colors: ["#4527A0"],
+            });
+
+          this.dataLoadedManager = true;
+        });
       }
-      this.getCaGlobal(this.generateMonthList(newYear));
-      this.chart.caData = [
-        ["Mois", "CA"],
-        ...this.caForMonths.map(({ month, value }) => [month, value]),
-      ];
+      //Calcul du CA global de l'agence
+      Axios.get("/statistiques/agence", {
+        params: {
+          year: newYear,
+        },
+      }).then((res) => {
+        this.caForMonths = res.data?.caForMonths;
+        this.chart.caData = [
+          ["Mois", "CA"],
+          ...this.caForMonths.map(({ month, value }) => [month, value]),
+        ];
+      });
     },
     customerSelected(newCustomer) {
-      this.caOfCustomer = this.getCaOfCustomer(
-        this.generateMonthList(this.yearSelected),
-        newCustomer
-      );
-      (this.chart.customerCaData = [
-        ["Mois", "CA"],
-        ...this.caOfCustomer.map(({ month, value }) => [month, value]),
-      ]),
-        (this.chart.customerCaOptions = {
-          title: "Chiffre d'affaire du client",
-          colors: ['#4527A0'],
-        });
-      this.dataLoadedCustomer = true;
+      Axios.get("/statistiques/customer", {
+        params: {
+          customer: this.customerSelected,
+        },
+      }).then((res) => {
+        this.caOfCustomer = res.data?.caOfCustomer;
+        (this.chart.customerCaData = [
+          ["Mois", "CA"],
+          ...this.caOfCustomer.map(({ month, value }) => [month, value]),
+        ]),
+          (this.chart.customerCaOptions = {
+            title: "Chiffre d'affaire du client",
+            colors: ["#4527A0"],
+          });
+        this.dataLoadedCustomer = true;
+      });
+    },
+  },
+
+  computed: {
+    managers() {
+      return this.$store.getters.getManagers;
     },
   },
 
@@ -407,370 +393,6 @@ export default {
       });
       // console.log(allMonths)
       return allMonths;
-    },
-    //Retourne pour chaque mois, le chiffre d'affaire d'un client passé en paramètre
-    getCaOfCustomer(months, customerSelected) {
-      let ca = 0;
-      this.caOfCustomer = [];
-      this.customers.forEach((customer) => {
-        if (customer.id == customerSelected) {
-          months.forEach((month) => {
-            customer.Projects.forEach((project) => {
-              project.Missions.forEach((mission) => {
-                if (
-                  mission.start_date <= month.start_date &&
-                  mission.end_date >= month.end_date
-                ) {
-                  mission.TJMs.forEach((tjm) => {
-                    if (
-                      tjm.start_date <= month.start_date &&
-                      tjm.end_date >= month.end_date
-                    ) {
-                      ca += tjm.value * month.nb_day
-                    }
-                  });
-                  mission.Associate.PRUs.forEach((pru) => {
-                    if (
-                      pru.start_date <= month.start_date &&
-                      pru.end_date >= month.end_date
-                    ) {
-                      ca -= pru.value * month.nb_day;
-                    }
-                  });
-                } else if (
-                  mission.start_date >= month.start_date &&
-                  mission.start_date < month.end_date
-                ) {
-                  mission.TJMs.forEach((TJM) => {
-                    if (
-                      TJM.start_date <= month.start_date &&
-                      TJM.end_date >= month.end_date
-                    ) {
-                      ca += TJM.value * month.nb_day;
-                    } else if (
-                      TJM.start_date >= month.start_date &&
-                      TJM.start_date < month.end_date
-                    ) {
-                      ca += TJM.value * month.nb_day;
-                    }
-                  });
-                  mission.Associate.PRUs.forEach((PRU) => {
-                    if (
-                      PRU.start_date <= month.start_date &&
-                      PRU.end_date >= month.end_date
-                    ) {
-                      ca -= PRU.value * month.nb_day;
-                    } else if (
-                      PRU.start_date >= month.start_date &&
-                      PRU.start_date < month.end_date
-                    ) {
-                      ca -= PRU.value * month.nb_day;
-                    }
-                  });
-                  //Si la mission termine pendant le mois en cours
-                } else if (
-                  mission.end_date >= month.start_date &&
-                  mission.end_date <= month.end_date
-                ) {
-                  mission.TJMs.forEach((TJM) => {
-                    if (
-                      TJM.start_date <= month.start_date &&
-                      TJM.end_date >= month.end_date
-                    ) {
-                      ca += TJM.value * month.nb_day;
-                    } else if (
-                      TJM.end_date >= month.start_date &&
-                      TJM.end_date < month.end_date
-                    ) {
-                      ca += TJM.value * month.nb_day;
-                    }
-                  });
-                  mission.Associate.PRUs.forEach((PRU) => {
-                    if (
-                      PRU.start_date <= month.start_date &&
-                      PRU.end_date >= month.end_date
-                    ) {
-                      ca -= PRU.value * month.nb_day;
-                    } else if (
-                      PRU.end_date >= month.start_date &&
-                      PRU.end_date < month.end_date
-                    ) {
-                      ca -= PRU.value * month.nb_day;
-                    }
-                  });
-                }
-              });
-            });
-            this.caOfCustomer.push({ month: month.monthNumber, value: ca });
-          });
-        }
-      });
-      return this.caOfCustomer;
-    },
-    //Retourne pour chaque mois, le chiffre d'affaire d'un manager passé en paramètre
-    getCaOfManager(months, managerSelected) {
-      this.ca = [];
-      let value = 0;
-      this.managers.forEach((manager) => {
-        if (manager.id == managerSelected) {
-          months.forEach((month) => {
-            manager.PRUs.forEach((PRU) => {
-              if (
-                PRU.start_date <= month.end_date && // Vérifie si la date de début du PRU est antérieure ou égale à la date de fin du mois
-                PRU.end_date >= month.start_date // Vérifie si la date de fin du PRU est postérieure ou égale à la date de début du mois
-              ) {
-                value -= PRU.value * month.nb_day;
-              }
-            });
-            manager.Projects.forEach((project) => {
-              project.Missions.forEach((mission) => {
-                // Si la mission commence avant et fini après le mois en cours
-                if (
-                  mission.start_date <= month.start_date &&
-                  mission.end_date >= month.end_date
-                ) {
-                  mission.TJMs.forEach((TJM) => {
-                    if (
-                      TJM.start_date <= month.start_date &&
-                      TJM.end_date >= month.end_date
-                    ) {
-                      value += TJM.value * month.nb_day;
-                    }
-                  });
-                  mission.Associate.PRUs.forEach((PRU) => {
-                    if (
-                      PRU.start_date <= month.start_date &&
-                      PRU.end_date >= month.end_date
-                    ) {
-                      value -= PRU.value * month.nb_day;
-                    }
-                  });
-                  //Si la mission commence pendant le mois en cours
-                } else if (
-                  mission.start_date >= month.start_date &&
-                  mission.start_date < month.end_date
-                ) {
-                  mission.TJMs.forEach((TJM) => {
-                    if (
-                      TJM.start_date <= month.start_date &&
-                      TJM.end_date >= month.end_date
-                    ) {
-                      value += TJM.value * month.nb_day;
-                    } else if ( 
-                      TJM.start_date >= month.start_date &&
-                      TJM.start_date < month.end_date
-                    ) {
-                      value += TJM.value * month.nb_day;
-                    }
-                  });
-                  mission.Associate.PRUs.forEach((PRU) => {
-                    if (
-                      PRU.start_date <= month.start_date &&
-                      PRU.end_date >= month.end_date
-                    ) {
-                      value -= PRU.value * month.nb_day;
-                    } else if (
-                      PRU.start_date >= month.start_date &&
-                      PRU.start_date < month.end_date
-                    ) {
-                      value -= PRU.value * month.nb_day;
-                    }
-                  });
-                  //Si la mission termine pendant le mois en cours
-                } else if (
-                  mission.end_date >= month.start_date &&
-                  mission.end_date <= month.end_date
-                ) {
-                  mission.TJMs.forEach((TJM) => {
-                    if (
-                      TJM.start_date <= month.start_date &&
-                      TJM.end_date >= month.end_date
-                    ) {
-                      value += TJM.value * month.nb_day;
-                    } else if (
-                      TJM.end_date >= month.start_date &&
-                      TJM.end_date < month.end_date
-                    ) {
-                      value += TJM.value * month.nb_day;
-                    }
-                  });
-                  mission.Associate.PRUs.forEach((PRU) => {
-                    if (
-                      PRU.start_date <= month.start_date &&
-                      PRU.end_date >= month.end_date
-                    ) {
-                      value -= PRU.value * month.nb_day;
-                    } else if (
-                      PRU.end_date >= month.start_date &&
-                      PRU.end_date < month.end_date
-                    ) {
-                      value -= PRU.value * month.nb_day;
-                    }
-                  });
-                }
-              });
-            });
-            this.ca.push({ month: month.monthNumber, value: value });
-          });
-        }
-      });
-      return this.ca;
-    },
-    getMargeOfManager(months, managerSelected) {
-      this.marge = [];
-      this.managers.forEach((manager) => {
-        if (manager.id == managerSelected) {
-          months.forEach((month) => {
-            let value = 0;
-            manager.PRUs.forEach((PRU) => {
-              if (
-                PRU.start_date <= month.end_date && // Vérifie si la date de début du PRU est antérieure ou égale à la date de fin du mois
-                PRU.end_date >= month.start_date // Vérifie si la date de fin du PRU est postérieure ou égale à la date de début du mois
-              ) {
-                value -= PRU.value * month.nb_day;
-              }
-            });
-            manager.Projects.forEach((project) => {
-              project.Missions.forEach((mission) => {
-                // Si la mission commence avant et fini après le mois en cours
-                if (
-                  mission.start_date <= month.start_date &&
-                  mission.end_date >= month.end_date
-                ) {
-                  mission.TJMs.forEach((TJM) => {
-                    if (
-                      TJM.start_date <= month.start_date &&
-                      TJM.end_date >= month.end_date
-                    ) {
-                      value += TJM.value * month.nb_day;
-                    }
-                  });
-                  mission.Associate.PRUs.forEach((PRU) => {
-                    if (
-                      PRU.start_date <= month.start_date &&
-                      PRU.end_date >= month.end_date
-                    ) {
-                      value -= PRU.value * month.nb_day;
-                    }
-                  });
-                  //Si la mission commence pendant le mois en cours
-                } else if (
-                  mission.start_date >= month.start_date &&
-                  mission.start_date < month.end_date
-                ) {
-                  mission.TJMs.forEach((TJM) => {
-                    if (
-                      TJM.start_date <= month.start_date &&
-                      TJM.end_date >= month.end_date
-                    ) {
-                      value += TJM.value * month.nb_day;
-                    } else if ( 
-                      TJM.start_date >= month.start_date &&
-                      TJM.start_date < month.end_date
-                    ) {
-                      value += TJM.value * month.nb_day;
-                    }
-                  });
-                  mission.Associate.PRUs.forEach((PRU) => {
-                    if (
-                      PRU.start_date <= month.start_date &&
-                      PRU.end_date >= month.end_date
-                    ) {
-                      value -= PRU.value * month.nb_day;
-                    } else if (
-                      PRU.start_date >= month.start_date &&
-                      PRU.start_date < month.end_date
-                    ) {
-                      value -= PRU.value * month.nb_day;
-                    }
-                  });
-                  //Si la mission termine pendant le mois en cours
-                } else if (
-                  mission.end_date >= month.start_date &&
-                  mission.end_date <= month.end_date
-                ) {
-                  mission.TJMs.forEach((TJM) => {
-                    if (
-                      TJM.start_date <= month.start_date &&
-                      TJM.end_date >= month.end_date
-                    ) {
-                      value += TJM.value * month.nb_day;
-                    } else if (
-                      TJM.end_date >= month.start_date &&
-                      TJM.end_date < month.end_date
-                    ) {
-                      value += TJM.value * month.nb_day;
-                    }
-                  });
-                  mission.Associate.PRUs.forEach((PRU) => {
-                    if (
-                      PRU.start_date <= month.start_date &&
-                      PRU.end_date >= month.end_date
-                    ) {
-                      value -= PRU.value * month.nb_day;
-                    } else if (
-                      PRU.end_date >= month.start_date &&
-                      PRU.end_date < month.end_date
-                    ) {
-                      value -= PRU.value * month.nb_day;
-                    }
-                  });
-                }
-              });
-            });
-            this.marge.push({ month: month.monthNumber, value: value });
-          });
-        }
-      });
-      return this.marge;
-    },
-    //Retourne pour chaque mois, le chiffre d'affaire de l'agence
-    getCaGlobal(months) {
-      let ca = 0;
-      this.caForMonths = [];
-      months.forEach((month) => {
-        this.associates.forEach((associate) => {
-          associate.PRUs.forEach((PRU) => {
-            if (
-              PRU.start_date <= month.start_date &&
-              PRU.end_date >= month.end_date
-            ) {
-              ca -= PRU.value * month.nb_day;
-            } else if (
-              PRU.start_date >= month.start_date &&
-              PRU.start_date <= month.end_date
-            ) {
-              ca -= PRU.value * month.nb_day;
-            } else if (
-              PRU.end_date >= month.start_date &&
-              PRU.end_date <= month.end_date
-            ) {
-              ca -= PRU.value * month.nb_day;
-            }
-          });
-        });
-        this.missions.forEach((mission) => {
-          mission.TJMs.forEach((tjm) => {
-            if (
-              tjm.start_date <= month.start_date &&
-              tjm.end_date >= month.end_date
-            ) {
-              ca += tjm.value * month.nb_day;
-            } else if (
-              tjm.start_date >= month.start_date &&
-              tjm.start_date <= month.end_date
-            ) {
-              ca += tjm.value * month.nb_day;
-            } else if (
-              tjm.end_date >= month.start_date &&
-              tjm.end_date <= month.end_date
-            ) {
-              ca += tjm.value * month.nb_day;
-            }
-          });
-        });
-        this.caForMonths.push({ month: month.monthNumber, value: ca });
-      });
     },
   },
 };

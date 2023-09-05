@@ -153,9 +153,6 @@ export default {
       });
       this.ageMoy = (moy / this.associates.length).toFixed(0);
     });
-    // Axios.get("/customers").then((res) => {
-    //   this.customers = res.data?.customer;
-    // });
     Axios.get("/missions").then((res) => {
       this.missions = res.data?.mission;
     });

@@ -24,15 +24,15 @@
         </v-col>
         <v-col cols="6" lg="2" md="2">
           <v-select
-            v-model="selectedManager"
-            bg-color="red-accent-2"
-            :items="managers"
-            clearable
-            item-title="full_name"
-            item-value="full_name"
-            label="Manager"
-            variant="solo"
-          ></v-select>
+          v-model="selectedManager"
+          bg-color="red-accent-2"
+          :items="managers"
+          clearable
+          item-title="full_name"
+          item-value="full_name"
+          label="Manager"
+          variant="solo"
+        ></v-select>
         </v-col>
         <v-col cols="6" lg="2" md="2">
           <v-select
@@ -87,12 +87,14 @@
           <v-btn class="mr-2" color="grey-lighten-1 "> Hors SII </v-btn>
         </v-col>
       </v-row>
-      <v-progress-circular
-        indeterminate
-        color="purple"
-        v-if="loading"
-      ></v-progress-circular>
-      <v-row v-else class="rounded shadow m-2">
+      <v-row justify="center" v-if="loading">
+        <v-progress-circular
+          indeterminate
+          color="purple"
+         
+        ></v-progress-circular>
+      </v-row>
+      <v-row  v-else class="rounded shadow m-2">
         <v-table class="col-1">
           <tbody>
             <tr>
@@ -101,10 +103,7 @@
             <tr>
               <th></th>
             </tr>
-            <tr
-              v-for="associate in uniqueAssociates"
-              :key="associate.full_name"
-            >
+            <tr v-for="associate in pdcCalculated" :key="associate.full_name">
               <td>
                 <p>
                   {{ associate.full_name }}
@@ -137,10 +136,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="associate in uniqueAssociates"
-              :key="associate.full_name"
-            >
+            <tr v-for="associate in pdcCalculated" :key="associate.full_name">
               <td
                 id="facture"
                 v-for="weekData in pdc"
@@ -165,10 +161,7 @@
           </tbody>
         </v-table>
       </v-row>
-      <v-pagination
-        v-model="currentPage"
-        :length="totalPages"
-      ></v-pagination>
+      <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
     </div>
   </v-container>
 </template>
@@ -190,16 +183,31 @@ export default {
       loading: true,
       selectedYear: 2023,
       years: [2020, 2021, 2022, 2023, 2024, 2025],
-      managers: [],
-      projects: [],
-      customers: [],
       selectedManager: null,
+      managers: [],
       selectedCustomer: null,
       selectedProject: null,
+      pdcCalculated: [],
     };
   },
 
   methods: {
+    research() {
+      this.loading = true;
+      console.log(this.researchCollab);
+      Axios.get("pdc", {
+        params: {
+          year: this.selectedYear,
+          collab: this.researchCollab,
+        },
+      }).then((res) => {
+        this.pdc = res.data?.pdc;
+        console.log(this.pdc);
+        this.pdcCalculated = this.uniqueAssociates();
+
+        this.loading = false;
+      });
+    },
     // Retourne la date du jour
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
@@ -217,81 +225,19 @@ export default {
       }
       return year + "-" + month + "-" + day;
     },
-    // Filtre les résultats en fonction des filtres rentrées
-    filterAssociates() {
-      this.filteredAssociates = this.associates;
-      this.totalPages = this.globalPages;
-
-      if (this.research) {
-        this.loading = true;
-        const searchTerm = this.research.toLowerCase();
-        this.totalPages = 1;
-        this.filteredAssociates = this.allAssociates.filter((associate) => {
-          const fullName = associate.first_name + " " + associate.name;
-          return fullName.toLowerCase().includes(searchTerm);
-        });
-        this.totalPages = 1;
-        this.loading = false;
-      }
-
-      if (this.selectedManager) {
-        this.totalPages = 1;
-        this.filteredAssociates = this.calculatedAssociates.filter(
-          (associate) =>
-            associate.manager.some(
-              (manager) => manager === this.selectedManager
-            )
-        );
-        this.totalPages = 1;
-      }
-
-      if (this.selectedCustomer) {
-        this.totalPages = 1;
-        this.filteredAssociates = this.calculatedAssociates.filter(
-          (associate) =>
-            associate.customer.some(
-              (customer) => customer === this.selectedCustomer
-            )
-        );
-        this.totalPages = 1;
-      }
-
-      if (this.selectedProject) {
-        this.totalPages = 1;
-        this.filteredAssociates = this.calculatedAssociates.filter(
-          (associate) =>
-            associate.project.some(
-              (project) => project === this.selectedProject
-            )
-        );
-        this.totalPages = 1;
-      }
-    },
-    research() {
-      this.loading = true;
-      Axios.get("pdc/" + this.selectedYear).then((res) => {
-        this.pdc = res.data?.pdc;
-        this.loading = false;
-      });
-    },
     // Arrete la recherche et remet le plan de charge à l'original
     stopResearch() {
       this.loading = true;
-      Axios.get("pdc/" + this.selectedYear).then((res) => {
+      Axios.get("pdc", {
+        params: {
+          year: this.selectedYear,
+        },
+      }).then((res) => {
         this.pdc = res.data?.pdc;
+        this.pdcCalculated = this.uniqueAssociates();
         this.loading = false;
       });
     },
-  },
-  created() {
-    this.loading = true;
-    Axios.get("pdc/" + this.selectedYear).then((res) => {
-      this.pdc = res.data?.pdc;
-      this.loading = false;
-    });
-  },
-
-  computed: {
     uniqueAssociates() {
       const uniqueAssociatesMap = new Map();
       this.pdc.forEach((weekData) => {
@@ -304,18 +250,28 @@ export default {
       return Array.from(uniqueAssociatesMap.values());
     },
   },
-  methods: {
-    getAssociateState(fullName, weekNumber) {
-      const weekData = this.pdc.find((week) => week.weekNumber === weekNumber);
-      if (weekData) {
-        const associateData = weekData.associates.find(
-          (associate) => associate.full_name === fullName
-        );
-        if (associateData) {
-          return associateData.state;
-        }
-      }
-      return "";
+  created() {
+    this.loading = true;
+    Axios.get("pdc", {
+      params: {
+        year: this.selectedYear,
+      },
+    }).then((res) => {
+      this.pdc = res.data?.pdc;
+      this.pdcCalculated = this.uniqueAssociates();
+      this.loading = false;
+    });
+  },
+
+  computed: {
+    customers() {
+      return this.$store.getters.getCustomers;
+    },
+    projects() {
+      return this.$store.getters.getProjects;
+    },
+    managers() {
+      return this.$store.getters.getManagers;
     },
   },
 };

@@ -123,7 +123,7 @@
             <td
               class="mt-auto mb-auto text-red"
               v-else
-              v-text="'Intercontrat'"
+              v-text="'Pas de manager'"
             ></td>
             <!-- Affichage du nom de client -->
             <td
@@ -246,26 +246,6 @@ export default {
       this.allAssociates = res.data?.associate;
       this.calculateAssociate();
     });
-    Axios.get("/associates/managers").then((res) => {
-      //this.managers = res.data?.associate;
-      res.data?.associate.forEach((job) => {
-        job.Associates.forEach((manager) => {
-          if (
-            manager.Associate_Job.start_date < this.todayDate() &&
-            manager.Associate_Job.end_date > this.todayDate()
-          ) {
-            manager.full_name = manager.first_name + " " + manager.name;
-            this.managers.push(manager);
-          }
-        });
-      });
-    });
-    Axios.get("/projects").then((res) => {
-      this.projects = res.data?.project;
-    });
-    Axios.get("/customers").then((res) => {
-      this.customers = res.data?.customer;
-    });
   },
   watch: {
     currentPage(newPage) {
@@ -376,6 +356,7 @@ export default {
     },
     filterAssociates() {
       this.filteredAssociates = this.associates;
+      console.log(this.calculatedAssociates)
       this.totalPages = this.globalPages;
       if (this.search) {
         const searchTerm = this.search.toLowerCase();
@@ -421,6 +402,17 @@ export default {
       }
     },
   },
+  computed: {
+    customers() {
+      return this.$store.getters.getCustomers;
+    },
+    projects() {
+      return this.$store.getters.getProjects;
+    },
+    managers() {
+      return this.$store.getters.getManagers;
+    },
+  }
 };
 </script>
 

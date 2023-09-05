@@ -19,7 +19,6 @@
     "roboto-fontface": "*",
     "sequelize": "^6.28.0",
     "vue": "^3.2.41",
-    "vue-chartjs": "^5.2.0",
     "vue-date-fns": "^2.0.2",
     "vue-google-charts": "^1.1.0",
     "vue-router": "^4.0.3",
