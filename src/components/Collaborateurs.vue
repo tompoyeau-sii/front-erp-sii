@@ -70,7 +70,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="associate in filteredAssociates" :key="associate.id">
+          <tr v-for="associate in calculatedAssociates" :key="associate">
             <td style="display: flex; align-content: center">
               <v-avatar>
                 <v-img
@@ -79,15 +79,12 @@
                 ></v-img>
               </v-avatar>
 
-              <p
-                class="mt-auto mb-auto ml-2"
-                v-text="associate.first_name + ' ' + associate.name"
-              ></p>
+              <p class="mt-auto mb-auto ml-2" v-text="associate.fullName"></p>
             </td>
             <td
               class="mt-auto mb-auto"
               v-if="associate.Jobs.map((job) => job) != ''"
-              v-text="associate.Jobs.map((job) => job.label).join(', ')"
+              v-text="associate.Jobs.map((job) => job).join(', ')"
             ></td>
             <td
               class="mt-auto mb-auto text-grey"
@@ -103,16 +100,12 @@
             <td
               class="mt-auto mb-auto"
               v-if="associate.managers.map((manager) => manager) != ''"
-              v-text="
-                associate.managers
-                  .map((manager) => manager.first_name + ' ' + manager.name)
-                  .join(', ')
-              "
+              v-text="associate.managers.map((manager) => manager).join(', ')"
             ></td>
 
             <td
               class="mt-auto mb-auto text-blue"
-              v-else-if="associate.Jobs.map((job) => job.label) == 'Manager'"
+              v-else-if="associate.Jobs.map((job) => job) == 'Manager'"
               v-text="'Manager'"
             ></td>
             <td
@@ -137,7 +130,7 @@
             ></td>
             <td
               class="mt-auto mb-auto text-blue"
-              v-else-if="associate.Jobs.map((job) => job.label) == 'Manager'"
+              v-else-if="associate.Jobs.map((job) => job) == 'Manager'"
               v-text="'Manager'"
             ></td>
             <td
@@ -161,7 +154,7 @@
             ></td>
             <td
               class="mt-auto mb-auto text-blue"
-              v-else-if="associate.Jobs.map((job) => job.label) == 'Manager'"
+              v-else-if="associate.Jobs.map((job) => job) == 'Manager'"
               v-text="'Manager'"
             ></td>
             <td
@@ -222,6 +215,8 @@ export default {
       calculatedAssociates: [],
       filteredAssociates: [],
       allAssociates: [],
+      allAssociatesCalculated: [],
+
       error: "",
       SuccessState: false,
       snackbar: false,
@@ -236,6 +231,7 @@ export default {
       selectedManager: null,
       selectedCustomer: null,
       selectedProject: null,
+      filtered: false, // Valeur permettant de savoir si la liste possède déjà un filtre
     };
   },
   mounted() {
@@ -244,7 +240,19 @@ export default {
   created() {
     Axios.get("/associates/all").then((res) => {
       this.allAssociates = res.data?.associate;
-      this.calculateAssociate();
+      this.allAssociates.forEach((associate) => {
+        const associates = {
+          id: associate.id,
+          fullName: associate.first_name + " " + associate.name,
+          first_name: associate.first_name,
+          name: associate.name,
+          project: this.projetEnCours(associate.id),
+          customer: this.clientEnCours(associate.id),
+          managers: this.managerEnCours(associate.id),
+          Jobs: this.posteEnCours(associate.id),
+        };
+        this.allAssociatesCalculated.push(associates);
+      });
     });
   },
   watch: {
@@ -271,27 +279,45 @@ export default {
         `/associates?page=${page || this.currentPage}`
       );
       this.associates = response.data.associate;
-      console.log(this.associates);
       this.totalPages = response.data.totalPages;
       this.globalPages = response.data.totalPages;
-      this.filterAssociates();
+      this.calculateAssociate();
     },
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
     },
     calculateAssociate() {
-      this.allAssociates.forEach((associate) => {
-        const calculatedAssociate = {
-          id: associate.id,
-          first_name: associate.first_name,
-          name: associate.name,
-          project: this.projetEnCours(associate.id),
-          customer: this.clientEnCours(associate.id),
-          managers: associate.managers.map((job) => job.full_name),
-          jobs: this.posteEnCours(associate.id),
-        };
-        this.calculatedAssociates.push(calculatedAssociate);
-      });
+      if (this.filtered) {
+        (this.calculatedAssociates = []),
+          this.allAssociates.forEach((associate) => {
+            const calculatedAssociate = {
+              id: associate.id,
+              fullName: associate.first_name + " " + associate.name,
+              first_name: associate.first_name,
+              name: associate.name,
+              project: this.projetEnCours(associate.id),
+              customer: this.clientEnCours(associate.id),
+              managers: this.managerEnCours(associate.id),
+              Jobs: this.posteEnCours(associate.id),
+            };
+            this.calculatedAssociates.push(calculatedAssociate);
+          });
+      } else {
+        (this.calculatedAssociates = []),
+          this.associates.forEach((associate) => {
+            const calculatedAssociate = {
+              id: associate.id,
+              fullName: associate.first_name + " " + associate.name,
+              first_name: associate.first_name,
+              name: associate.name,
+              project: this.projetEnCours(associate.id),
+              customer: this.clientEnCours(associate.id),
+              managers: this.managerEnCours(associate.id),
+              Jobs: this.posteEnCours(associate.id),
+            };
+            this.calculatedAssociates.push(calculatedAssociate);
+          });
+      }
       console.log(this.calculatedAssociates);
     },
     todayDate() {
@@ -309,6 +335,17 @@ export default {
             ) {
               missionOfCollab.push(mission.Project.label);
             }
+          });
+        }
+      });
+      return missionOfCollab;
+    },
+    managerEnCours(associate_id) {
+      var missionOfCollab = [];
+      this.allAssociates.forEach((associate) => {
+        if (associate.id == associate_id) {
+          associate.managers.forEach((manager) => {
+            missionOfCollab.push(manager.first_name + " " + manager.name);
           });
         }
       });
@@ -348,56 +385,104 @@ export default {
       });
       return missionOfCollab;
     },
-    refresh() {
-      this.associates = [];
-      Axios.get("/associates").then((res) => {
-        this.associates = res.data?.associate;
-      });
-    },
     filterAssociates() {
-      this.filteredAssociates = this.associates;
-      console.log(this.calculatedAssociates)
-      this.totalPages = this.globalPages;
+      this.calculateAssociate();
+      if (
+        !this.selectedCustomer &&
+        !this.selectedManager &&
+        !this.selectedProject
+      ) {
+        this.filtered = false;
+        this.totalPages = this.globalPages;
+        this.calculateAssociate();
+      }
+      // on filtre sur le nom prenom des collabs
       if (this.search) {
         const searchTerm = this.search.toLowerCase();
         this.totalPages = 1;
-        this.filteredAssociates = this.allAssociates.filter((associate) => {
-          const fullName = associate.first_name + " " + associate.name;
-          return fullName.toLowerCase().includes(searchTerm);
-        });
+
+        // On vérifie si la liste est déjà entrain d'être filtré et si oui on reprend la liste déjà filtré et on rajoute le nouveau filtre
+        if (this.filtered) {
+          this.calculatedAssociates = this.calculatedAssociates.filter(
+            (associate) => {
+              return associate.fullName.toLowerCase().includes(searchTerm);
+            }
+          );
+        } else {
+          this.calculatedAssociates = this.allAssociatesCalculated.filter(
+            (associate) => {
+              let full_name = associate.first_name + " " + associate.name;
+              return full_name.toLowerCase().includes(searchTerm);
+            }
+          );
+        }
+        this.filtered = true;
         this.totalPages = Math.ceil(this.filteredAssociates.length / 10);
       }
 
+      // filtre sur le manager
       if (this.selectedManager) {
         this.totalPages = 1;
-        this.filteredAssociates = this.calculatedAssociates.filter(
-          (associate) =>
-            associate.manager.some(
-              (manager) => manager === this.selectedManager
-            )
-        );
+        if (this.filtered) {
+          this.calculatedAssociates = this.calculatedAssociates.filter(
+            (associate) =>
+              associate.managers.some(
+                (manager) => manager === this.selectedManager
+              )
+          );
+        } else {
+          this.calculatedAssociates = this.allAssociatesCalculated.filter(
+            (associate) =>
+              associate.managers.some(
+                (manager) => manager === this.selectedManager
+              )
+          );
+        }
+        this.filtered = true;
         this.totalPages = Math.ceil(this.filterAssociates.length / 10);
       }
 
+      // filtre sur le client
       if (this.selectedCustomer) {
         this.totalPages = 1;
-        this.filteredAssociates = this.calculatedAssociates.filter(
-          (associate) =>
-            associate.customer.some(
-              (customer) => customer === this.selectedCustomer
-            )
-        );
+        if (this.filtered) {
+          this.calculatedAssociates = this.calculatedAssociates.filter(
+            (associate) =>
+              associate.customer.some(
+                (customer) => customer === this.selectedCustomer
+              )
+          );
+        } else {
+          this.calculatedAssociates = this.allAssociatesCalculated.filter(
+            (associate) =>
+              associate.customer.some(
+                (customer) => customer === this.selectedCustomer
+              )
+          );
+        }
+        this.filtered = true;
         this.totalPages = Math.ceil(this.filterAssociates.length / 10);
       }
 
+      //filtre sur le projet
       if (this.selectedProject) {
         this.totalPages = 1;
-        this.filteredAssociates = this.calculatedAssociates.filter(
-          (associate) =>
-            associate.project.some(
-              (project) => project === this.selectedProject
-            )
-        );
+        if (this.filtered) {
+          this.calculatedAssociates = this.calculatedAssociates.filter(
+            (associate) =>
+              associate.project.some(
+                (project) => project === this.selectedProject
+              )
+          );
+        } else {
+          this.calculatedAssociates = this.allAssociatesCalculated.filter(
+            (associate) =>
+              associate.project.some(
+                (project) => project === this.selectedProject
+              )
+          );
+        }
+        this.filtered = true;
         this.totalPages = Math.ceil(this.filterAssociates.length / 10);
       }
     },
@@ -412,7 +497,7 @@ export default {
     managers() {
       return this.$store.getters.getManagers;
     },
-  }
+  },
 };
 </script>
 
