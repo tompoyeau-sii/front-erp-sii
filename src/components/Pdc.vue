@@ -24,15 +24,15 @@
         </v-col>
         <v-col cols="6" lg="2" md="2">
           <v-select
-          v-model="selectedManager"
-          bg-color="red-accent-2"
-          :items="managers"
-          clearable
-          item-title="full_name"
-          item-value="full_name"
-          label="Manager"
-          variant="solo"
-        ></v-select>
+            v-model="selectedManager"
+            bg-color="red-accent-2"
+            :items="managers"
+            clearable
+            item-title="full_name"
+            item-value="full_name"
+            label="Manager"
+            variant="solo"
+          ></v-select>
         </v-col>
         <v-col cols="6" lg="2" md="2">
           <v-select
@@ -88,13 +88,9 @@
         </v-col>
       </v-row>
       <v-row justify="center" v-if="loading">
-        <v-progress-circular
-          indeterminate
-          color="purple"
-         
-        ></v-progress-circular>
+        <v-progress-circular indeterminate color="purple"></v-progress-circular>
       </v-row>
-      <v-row  v-else class="rounded shadow m-2">
+      <v-row v-else class="rounded shadow m-2">
         <v-table class="col-1">
           <tbody>
             <tr>
@@ -174,9 +170,8 @@ export default {
   data() {
     return {
       value: "",
+      filtered: false,
       researchCollab: null,
-      associates: "",
-      allAssociates: "",
       currentPage: 1,
       totalPages: 0,
       globalPage: 0,
@@ -184,7 +179,6 @@ export default {
       selectedYear: 2023,
       years: [2020, 2021, 2022, 2023, 2024, 2025],
       selectedManager: null,
-      managers: [],
       selectedCustomer: null,
       selectedProject: null,
       pdcCalculated: [],
@@ -194,16 +188,15 @@ export default {
   methods: {
     research() {
       this.loading = true;
-      console.log(this.researchCollab);
       Axios.get("pdc", {
         params: {
           year: this.selectedYear,
-          collab: this.researchCollab,
         },
       }).then((res) => {
         this.pdc = res.data?.pdc;
-        console.log(this.pdc);
         this.pdcCalculated = this.uniqueAssociates();
+        this.filterAssociates();
+        console.log(this.pdcCalculated);
 
         this.loading = false;
       });
@@ -228,6 +221,10 @@ export default {
     // Arrete la recherche et remet le plan de charge à l'original
     stopResearch() {
       this.loading = true;
+      this.selectedCustomer = null;
+      this.selectedProject = null;
+      this.selectedManager = null;
+      this.searchTerm = null;
       Axios.get("pdc", {
         params: {
           year: this.selectedYear,
@@ -249,6 +246,50 @@ export default {
       });
       return Array.from(uniqueAssociatesMap.values());
     },
+    filterAssociates() {
+      // on filtre sur le nom prenom des collabs
+      if (this.researchCollab) {
+        const searchTerm = this.researchCollab.toLowerCase();
+        this.totalPages = 1;
+        console.log('test')
+        this.pdcCalculated = this.pdcCalculated.filter((associate) => {
+          return associate.full_name.toLowerCase().includes(searchTerm);
+        });
+        this.filtered = true;
+      }
+
+      // filtre sur le manager
+      if (this.selectedManager) {
+        this.totalPages = 1;
+        this.pdcCalculated = this.pdcCalculated.filter((associate) =>
+          associate.managers.some((manager) => manager === this.selectedManager)
+        );
+
+        this.filtered = true;
+      }
+
+      // filtre sur le client
+      if (this.selectedCustomer) {
+        this.totalPages = 1;
+        this.pdcCalculated = this.pdcCalculated.filter((associate) =>
+          associate.customers.some(
+            (customer) => customer === this.selectedCustomer
+          )
+        );
+        this.filtered = true;
+        this.totalPages = Math.ceil(this.filterAssociates.length / 10);
+      }
+
+      //filtre sur le projet
+      if (this.selectedProject) {
+        this.totalPages = 1;
+        this.pdcCalculated = this.pdcCalculated.filter((associate) =>
+          associate.projects.some((project) => project === this.selectedProject)
+        );
+        this.filtered = true;
+        this.totalPages = Math.ceil(this.filterAssociates.length / 10);
+      }
+    },
   },
   created() {
     this.loading = true;
@@ -260,6 +301,7 @@ export default {
       this.pdc = res.data?.pdc;
       this.pdcCalculated = this.uniqueAssociates();
       this.loading = false;
+      console.log(this.pdcCalculated);
     });
   },
 
