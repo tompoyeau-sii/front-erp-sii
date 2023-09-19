@@ -99,7 +99,7 @@
             <tr>
               <th></th>
             </tr>
-            <tr v-for="associate in pdcCalculated" :key="associate.full_name">
+            <tr v-for="associate in pdc" :key="associate">
               <td>
                 <p>
                   {{ associate.full_name }}
@@ -111,14 +111,14 @@
         <v-table class="col-11">
           <thead>
             <tr>
-              <th v-for="week in pdc" :key="week.weekNumber">
+              <th v-for="week in outWeeks" :key="week.weekNumber">
                 <span>
                   {{ week.weekNumber }}
                 </span>
               </th>
             </tr>
             <tr>
-              <th v-for="week in pdc" :key="week.weekNumber">
+              <th v-for="week in outWeeks" :key="week.weekNumber">
                 <div>
                   <span class="text-deep-purple-darken-3">
                     {{ week.nbInMission }}
@@ -132,24 +132,24 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="associate in pdcCalculated" :key="associate.full_name">
+            <tr v-for="associate in pdc" :key="associate.full_name">
               <td
                 id="facture"
-                v-for="weekData in pdc"
-                :key="weekData.weekNumber"
-              >
+                v-for="week in associate.weeks"
+                :key="week"
+              > 
                 <div style="display: flex">
                   <v-btn
                     color="deep-purple-darken-3"
-                    v-if="associate.state == 1"
+                    v-if="week.state == 1"
                   ></v-btn>
                   <v-btn
                     color="deep-purple-lighten-4"
-                    v-else-if="associate.state == 2"
+                    v-else-if="week.state == 2"
                   ></v-btn>
                   <v-btn
                     color="grey-lighten-1"
-                    v-else-if="associate.state == 3"
+                    v-else-if="week.state == 3"
                   ></v-btn>
                 </div>
               </td>
@@ -187,36 +187,7 @@ export default {
 
   methods: {
     research() {
-      this.loading = true;
-      Axios.get("pdc", {
-        params: {
-          year: this.selectedYear,
-        },
-      }).then((res) => {
-        this.pdc = res.data?.pdc;
-        this.pdcCalculated = this.uniqueAssociates();
-        this.filterAssociates();
-        console.log(this.pdcCalculated);
-
-        this.loading = false;
-      });
-    },
-    // Retourne la date du jour
-    todayDate() {
-      return format(new Date(), "yyyy-MM-dd");
-    },
-    // Donne le format de bdd aux dates
-    formatDate(date) {
-      const year = date.getFullYear().toString();
-      let month = (date.getMonth() + 1).toString();
-      if (month.length < 2) {
-        month = "0" + month;
-      }
-      let day = date.getDate().toString();
-      if (day.length < 2) {
-        day = "0" + day;
-      }
-      return year + "-" + month + "-" + day;
+      this.filterAssociates();
     },
     // Arrete la recherche et remet le plan de charge à l'original
     stopResearch() {
@@ -231,64 +202,66 @@ export default {
         },
       }).then((res) => {
         this.pdc = res.data?.pdc;
-        this.pdcCalculated = this.uniqueAssociates();
         this.loading = false;
       });
     },
-    uniqueAssociates() {
-      const uniqueAssociatesMap = new Map();
-      this.pdc.forEach((weekData) => {
-        weekData.associates.forEach((associate) => {
-          if (!uniqueAssociatesMap.has(associate.full_name)) {
-            uniqueAssociatesMap.set(associate.full_name, associate);
-          }
-        });
-      });
-      return Array.from(uniqueAssociatesMap.values());
-    },
     filterAssociates() {
+
+      this.loading = true;
+      Axios.get("pdc", {
+        params: {
+          year: this.selectedYear,
+          search: this.researchCollab,
+          manager: this.selectedManager,
+          customer: this.selectedCustomer,
+          project: this.selectedProject,
+        },
+      }).then((res) => {
+        this.pdc = res.data?.pdc;
+        this.outWeeks = res.data?.outWeeks;
+        this.loading = false;
+      });
+
       // on filtre sur le nom prenom des collabs
-      if (this.researchCollab) {
-        const searchTerm = this.researchCollab.toLowerCase();
-        this.totalPages = 1;
-        console.log('test')
-        this.pdcCalculated = this.pdcCalculated.filter((associate) => {
-          return associate.full_name.toLowerCase().includes(searchTerm);
-        });
-        this.filtered = true;
-      }
+      // if (this.researchCollab) {
+      //   const searchTerm = this.researchCollab.toLowerCase();
+      //   this.totalPages = 1;
+      //   this.pdc = this.pdc.filter((associate) => {
+      //     return associate.full_name.toLowerCase().includes(searchTerm);
+      //   });
+      //   this.filtered = true;
+      // }
 
-      // filtre sur le manager
-      if (this.selectedManager) {
-        this.totalPages = 1;
-        this.pdcCalculated = this.pdcCalculated.filter((associate) =>
-          associate.managers.some((manager) => manager === this.selectedManager)
-        );
+      // // filtre sur le manager
+      // if (this.selectedManager) {
+      //   this.totalPages = 1;
+      //   this.pdc = this.pdc.filter((associate) =>
+      //     associate.managers.some((manager) => manager === this.selectedManager)
+      //   );
+      //   this.filtered = true;
+      // }
 
-        this.filtered = true;
-      }
+      // // filtre sur le client
+      // if (this.selectedCustomer) {
+      //   this.totalPages = 1;
+      //   this.pdc = this.pdc.filter((associate) =>
+      //     associate.customers.some(
+      //       (customer) => customer === this.selectedCustomer
+      //     )
+      //   );
+      //   this.filtered = true;
+      //   this.totalPages = Math.ceil(this.filterAssociates.length / 10);
+      // }
 
-      // filtre sur le client
-      if (this.selectedCustomer) {
-        this.totalPages = 1;
-        this.pdcCalculated = this.pdcCalculated.filter((associate) =>
-          associate.customers.some(
-            (customer) => customer === this.selectedCustomer
-          )
-        );
-        this.filtered = true;
-        this.totalPages = Math.ceil(this.filterAssociates.length / 10);
-      }
-
-      //filtre sur le projet
-      if (this.selectedProject) {
-        this.totalPages = 1;
-        this.pdcCalculated = this.pdcCalculated.filter((associate) =>
-          associate.projects.some((project) => project === this.selectedProject)
-        );
-        this.filtered = true;
-        this.totalPages = Math.ceil(this.filterAssociates.length / 10);
-      }
+      // //filtre sur le projet
+      // if (this.selectedProject) {
+      //   this.totalPages = 1;
+      //   this.pdc = this.pdc.filter((associate) =>
+      //     associate.projects.some((project) => project === this.selectedProject)
+      //   );
+      //   this.filtered = true;
+      //   this.totalPages = Math.ceil(this.filterAssociates.length / 10);
+      // }
     },
   },
   created() {
@@ -299,9 +272,10 @@ export default {
       },
     }).then((res) => {
       this.pdc = res.data?.pdc;
-      this.pdcCalculated = this.uniqueAssociates();
+      this.outWeeks = res.data?.outWeeks;
+      // this.pdcCalculated = this.uniqueAssociates();
       this.loading = false;
-      console.log(this.pdcCalculated);
+      // console.log(this.pdcCalculated);
     });
   },
 
