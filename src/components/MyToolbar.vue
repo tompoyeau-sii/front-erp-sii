@@ -60,6 +60,14 @@
       </router-link>
     </v-list>
     <template v-slot:append>
+       <v-list-item>
+        <v-btn 
+          prepend-icon="mdi-alert"
+          color="warning"
+          v-if="simulationMode == 'true'">
+          Mode simulation
+        </v-btn>
+      </v-list-item>
       <router-link to="/">
         <v-list-item
           v-on:click="disconnect"
@@ -82,6 +90,7 @@ export default {
   data() {
     return {
       drawer: null,
+      simulationMode : localStorage.getItem("simulationMode"),
     };
   },
   methods: {

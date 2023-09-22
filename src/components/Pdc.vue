@@ -164,7 +164,6 @@
 
 <script>
 import Axios from "@/_services/caller.service";
-import { format } from "date-fns";
 export default {
   name: "Pdc",
   data() {
@@ -221,48 +220,8 @@ export default {
         this.outWeeks = res.data?.outWeeks;
         this.loading = false;
       });
-
-      // on filtre sur le nom prenom des collabs
-      // if (this.researchCollab) {
-      //   const searchTerm = this.researchCollab.toLowerCase();
-      //   this.totalPages = 1;
-      //   this.pdc = this.pdc.filter((associate) => {
-      //     return associate.full_name.toLowerCase().includes(searchTerm);
-      //   });
-      //   this.filtered = true;
-      // }
-
-      // // filtre sur le manager
-      // if (this.selectedManager) {
-      //   this.totalPages = 1;
-      //   this.pdc = this.pdc.filter((associate) =>
-      //     associate.managers.some((manager) => manager === this.selectedManager)
-      //   );
-      //   this.filtered = true;
-      // }
-
-      // // filtre sur le client
-      // if (this.selectedCustomer) {
-      //   this.totalPages = 1;
-      //   this.pdc = this.pdc.filter((associate) =>
-      //     associate.customers.some(
-      //       (customer) => customer === this.selectedCustomer
-      //     )
-      //   );
-      //   this.filtered = true;
-      //   this.totalPages = Math.ceil(this.filterAssociates.length / 10);
-      // }
-
-      // //filtre sur le projet
-      // if (this.selectedProject) {
-      //   this.totalPages = 1;
-      //   this.pdc = this.pdc.filter((associate) =>
-      //     associate.projects.some((project) => project === this.selectedProject)
-      //   );
-      //   this.filtered = true;
-      //   this.totalPages = Math.ceil(this.filterAssociates.length / 10);
-      // }
     },
+    
   },
   created() {
     this.loading = true;

@@ -15,6 +15,7 @@ export default createStore({
     managers: '',
     graduations: '',
     jobs: '',
+    simulationMode: false,
     isLoading: false // Nouvel état pour gérer le chargement des clients
   },
   getters: {
@@ -38,6 +39,9 @@ export default createStore({
     },
     getJobs(state) {
       return state.jobs;
+    },
+    getSimulationMode(state) {
+      return state.simulationMode;
     },
     isLoading(state) {
       return state.isLoading;
@@ -64,6 +68,9 @@ export default createStore({
     },
     setJobs(state, data) {
       state.jobs = data;
+    },
+    setSimulationMode(state, data) {
+      state.simulationMode = data;
     },
     setLoading(state, isLoading) {
       state.isLoading = isLoading;
