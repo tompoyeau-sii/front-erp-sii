@@ -104,6 +104,7 @@
                     :items="managers"
                     item-title="full_name"
                     item-value="id"
+                    clearable
                     label="Manager"
                     variant="solo"
                   ></v-autocomplete>
@@ -173,10 +174,7 @@ export default {
       },
       dialog: false,
       success: "",
-      managers: [],
       SuccessState: false,
-      jobs: [],
-      graduations: [],
       error: "",
     };
   },
@@ -195,33 +193,43 @@ export default {
         this.form.birthdate != "" &&
         this.form.mail != "" &&
         this.form.start_date != "" &&
-        this.form.manager != "" &&
         this.form.pru != ""
       ) {
-        Axios.post("/associate", {
-          name: this.form.name,
-          first_name: this.form.first_name,
-          gender: this.form.sexe,
-          graduation_id: this.form.graduation,
-          job_id: this.form.job,
-          birthdate: this.form.birthdate,
-          start_date: this.form.start_date,
-          mail: this.computedMail,
-          pru: this.form.pru,
-          manager_id: this.form.manager,
-        })
-          .then((response) => {
-            console.log(response);
-            this.dialog = false;
-            this.CreateState = false;
-            this.SuccessState = true;
-            this.success = "Nouveau collaborateur ajouté.";
-            this.error = "";
+        if (
+          (this.form.manager == null && this.form.job == 1) ||
+          this.form.manager != null
+        ) {
+          Axios.post("/associate", {
+            name: this.form.name,
+            first_name: this.form.first_name,
+            gender: this.form.sexe,
+            graduation_id: this.form.graduation,
+            job_id: this.form.job,
+            birthdate: this.form.birthdate,
+            start_date: this.form.start_date,
+            mail: this.computedMail,
+            pru: this.form.pru,
+            manager_id: this.form.manager,
           })
-          .catch((err) => {
-            console.log(err);
-            this.error = err.response.data.error;
-          });
+            .then((response) => {
+              console.log(response);
+
+              this.dialog = false;
+              this.CreateState = false;
+              this.SuccessState = true;
+              this.success = "Nouveau collaborateur ajouté.";
+              this.error = "";
+              
+            })
+            .catch((err) => {
+              console.log(err);
+              this.error = err.response.data.error;
+            });
+        } else {
+          console.log(this.form.manager);
+          console.log(this.form.job);
+          this.error = "Veuillez sélectioner un manager.";
+        }
       } else {
         this.error = "Tous les champs sont obligatoires.";
       }

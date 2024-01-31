@@ -84,11 +84,11 @@
           </v-row>
           <tbody>
             <v-row> </v-row>
-            <tr v-for="associate in project.Missions" :key="associate.id">
+            <tr v-for="mission in project.Missions" :key="mission.id">
               <td
                 v-if="
-                  associate.start_date < todayDate() &&
-                  associate.end_date > todayDate()
+                  mission.date_range_mission[0].value < todayDate() &&
+                  mission.date_range_mission[1].value > todayDate()
                 "
                 style="display: flex; align-content: center"
               >
@@ -101,9 +101,9 @@
                 <p
                   class="mt-auto mb-auto ml-2"
                   v-text="
-                    associate.Associate.first_name +
+                    mission.Associate.first_name +
                     ' ' +
-                    associate.Associate.name
+                    mission.Associate.name
                   "
                 ></p>
               </td>

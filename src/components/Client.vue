@@ -6,7 +6,7 @@
       </v-col>
       <v-row justify="end">
         <v-col lg="6">
-          <AddClientForm />
+          <AddClientForm :onSuccess="refresh" />
         </v-col>
       </v-row>
     </v-row>
@@ -20,7 +20,7 @@
       >
         <div>
           <p class="text-h5 name" v-text="customer.label"></p>
-          <p>{{ formatK(getCaOfCustomer(customer.id)) }}€</p>
+          <p>{{ customer.value }}€</p>
           <p>{{ filterAssociate(customer) + " collaborateurs" }}</p>
         </div>
       </router-link>
@@ -53,7 +53,7 @@ import {
   eachDayOfInterval,
   isWeekend,
 } from "date-fns";
-import { fr } from "date-fns/locale";
+
 export default {
   name: "Client",
   components: {
@@ -65,156 +65,16 @@ export default {
       error: "",
       SuccessState: false,
       snackbar: false,
-      test: this.$store.getters.getToken,
       nbCollab: [],
+      customers: []
     };
+  },
+  created() {
+    
   },
   methods: {
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
-    },
-    getWorkingDaysInMonth(year, month) {
-      // Attendre que getOffDays ait fini son traitement avant de continuer
-
-      let startDate = new Date(year, month, 1);
-      let endDate = new Date(year, month + 1, 0);
-
-      const allDays = eachDayOfInterval({ start: startDate, end: endDate });
-      const workingDays = allDays.filter((day) => !isWeekend(day));
-
-      let nbJours = workingDays.length;
-
-      return nbJours;
-    },
-    generateMonthList(year) {
-      const list_start = startOfMonth(new Date(year, 3, 1));
-      const list_end = startOfMonth(new Date(year + 1, 2, 1));
-      const monthsList = eachMonthOfInterval({
-        start: list_start,
-        end: list_end,
-        monthStartsOn: 1,
-      });
-
-      const allMonths = monthsList.map((date) => {
-        const month = format(date, "MMMM", { locale: fr });
-        const startDateOfMonth = startOfMonth(date, { weekStartsOn: 1 });
-        const endDateOfMonth = endOfMonth(date, { weekEndsOn: 1 });
-
-        let nbDay = this.getWorkingDaysInMonth(
-          getYear(startDateOfMonth),
-          getMonth(startDateOfMonth)
-        );
-
-        // console.log(format(startDateOfMonth, "yyyy-MM-dd") + ' : ' + nbDay)
-
-        return {
-          monthNumber: month,
-          start_date: format(startDateOfMonth, "yyyy-MM-dd"),
-          end_date: format(endDateOfMonth, "yyyy-MM-dd"),
-          nb_day: nbDay,
-        };
-      });
-      // console.log(allMonths)
-      return allMonths;
-    },
-    getCaOfCustomer(customerSelected) {
-      let ca = 0;
-      let months = this.generateMonthList(2023);
-      this.customers.forEach((customer) => {
-        if (customer.id == customerSelected) {
-          months.forEach((month) => {
-            if (month.start_date <= this.todayDate()) {
-              customer.Projects.forEach((project) => {
-                project.Missions.forEach((mission) => {
-                  if (
-                    mission.start_date <= month.start_date &&
-                    mission.end_date >= month.end_date
-                  ) {
-                    mission.TJMs.forEach((tjm) => {
-                      if (
-                        tjm.start_date <= month.start_date &&
-                        tjm.end_date >= month.end_date
-                      ) {
-                        ca += tjm.value * month.nb_day;
-                      }
-                    });
-                    mission.Associate.PRUs.forEach((pru) => {
-                      if (
-                        pru.start_date <= month.start_date &&
-                        pru.end_date >= month.end_date
-                      ) {
-                        ca -= pru.value * month.nb_day;
-                      }
-                    });
-                  } else if (
-                    mission.start_date >= month.start_date &&
-                    mission.start_date < month.end_date
-                  ) {
-                    mission.TJMs.forEach((TJM) => {
-                      if (
-                        TJM.start_date <= month.start_date &&
-                        TJM.end_date >= month.end_date
-                      ) {
-                        ca += TJM.value * month.nb_day;
-                      } else if (
-                        TJM.start_date >= month.start_date &&
-                        TJM.start_date < month.end_date
-                      ) {
-                        ca += TJM.value * month.nb_day;
-                      }
-                    });
-                    mission.Associate.PRUs.forEach((PRU) => {
-                      if (
-                        PRU.start_date <= month.start_date &&
-                        PRU.end_date >= month.end_date
-                      ) {
-                        ca -= PRU.value * month.nb_day;
-                      } else if (
-                        PRU.start_date >= month.start_date &&
-                        PRU.start_date < month.end_date
-                      ) {
-                        ca -= PRU.value * month.nb_day;
-                      }
-                    });
-                    //Si la mission termine pendant le mois en cours
-                  } else if (
-                    mission.end_date >= month.start_date &&
-                    mission.end_date <= month.end_date
-                  ) {
-                    mission.TJMs.forEach((TJM) => {
-                      if (
-                        TJM.start_date <= month.start_date &&
-                        TJM.end_date >= month.end_date
-                      ) {
-                        ca += TJM.value * month.nb_day;
-                      } else if (
-                        TJM.end_date >= month.start_date &&
-                        TJM.end_date < month.end_date
-                      ) {
-                        ca += TJM.value * month.nb_day;
-                      }
-                    });
-                    mission.Associate.PRUs.forEach((PRU) => {
-                      if (
-                        PRU.start_date <= month.start_date &&
-                        PRU.end_date >= month.end_date
-                      ) {
-                        ca -= PRU.value * month.nb_day;
-                      } else if (
-                        PRU.end_date >= month.start_date &&
-                        PRU.end_date < month.end_date
-                      ) {
-                        ca -= PRU.value * month.nb_day;
-                      }
-                    });
-                  }
-                });
-              });
-            }
-          });
-        }
-      });
-      return ca;
     },
     formatK(number) {
       if (number >= 1000) {
@@ -239,17 +99,12 @@ export default {
       const nbCollab = associateIds.size;
       return nbCollab;
     },
-    refresh() {
-      this.customers = [];
-      Axios.get("/customers").then((res) => {
-        this.customers = res.data?.customer;
-      });
-    },
   },
   created() {
-    // Axios.get("/customers").then((res) => {
-    //   this.customers = res.data?.customer;
-    // });
+    Axios.get("/statistiques/customer/actualMonth").then((res) => {
+      this.customers = res.data?.caOfActualMonthCustomer
+      console.log(this.customers)
+    })
     Axios.get("/associates/all").then((res) => {
       res.data?.associate.forEach((associate) => {
         if (associate.start_date < this.todayDate()) {
@@ -286,13 +141,6 @@ export default {
   computed: {
     ...mapGetters(["getToken"]),
 
-    customers() {
-      return this.$store.getters.getCustomers;
-    },
-
-    isLoadingCustomers() {
-      return this.$store.getters.isLoadingCustomers;
-    },
   },
 };
 </script>

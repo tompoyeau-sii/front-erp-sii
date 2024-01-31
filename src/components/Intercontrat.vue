@@ -20,7 +20,7 @@
     <v-row>
       <v-col cols="4">
         <div class="bg-white shadow rounded-5 p-4">
-          <p class="mb-2 etiquette">Perte mensuel</p>
+          <p class="mb-2 etiquette">Perte quotidienne</p>
           <v-row justify="end">
             <v-icon
               class="title"

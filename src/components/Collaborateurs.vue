@@ -216,18 +216,13 @@ export default {
       filteredAssociates: [],
       allAssociates: [],
       allAssociatesCalculated: [],
-
       error: "",
       SuccessState: false,
       snackbar: false,
-      missions: [],
       currentPage: 1,
       globalPages: 0,
       totalPages: 0,
       search: null,
-      managers: [],
-      customers: [],
-      projects: [],
       selectedManager: null,
       selectedCustomer: null,
       selectedProject: null,
@@ -318,7 +313,6 @@ export default {
             this.calculatedAssociates.push(calculatedAssociate);
           });
       }
-      console.log(this.calculatedAssociates);
     },
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
@@ -329,8 +323,8 @@ export default {
         if (associate.id == associate_id) {
           associate.Missions.forEach((mission) => {
             if (
-              mission.start_date <= this.todayDate() &&
-              mission.end_date >= this.todayDate() &&
+              mission.date_range_mission[0].value <= this.todayDate() &&
+              mission.date_range_mission[1].value >= this.todayDate() &&
               mission.associate_id == associate_id
             ) {
               missionOfCollab.push(mission.Project.label);
@@ -357,8 +351,8 @@ export default {
         if (associate.id == associate_id) {
           associate.Missions.forEach((mission) => {
             if (
-              mission.start_date <= this.todayDate() &&
-              mission.end_date >= this.todayDate() &&
+              mission.date_range_mission[0].value <= this.todayDate() &&
+              mission.date_range_mission[1].value >= this.todayDate() &&
               mission.associate_id == associate_id
             ) {
               missionOfCollab.push(mission.Project.Customer.label);
@@ -370,12 +364,14 @@ export default {
     },
     posteEnCours(associate_id) {
       var missionOfCollab = [];
+      let today = new Date();
+      let formattedDate = format(today, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
       this.allAssociates.forEach((associate) => {
         if (associate.id == associate_id) {
           associate.Jobs.forEach((job) => {
             if (
-              job.Associate_Job.start_date <= this.todayDate() &&
-              job.Associate_Job.end_date >= this.todayDate() &&
+              job.Associate_Job.start_date < formattedDate &&
+              job.Associate_Job.end_date > formattedDate &&
               job.Associate_Job.associate_id == associate_id
             ) {
               missionOfCollab.push(job.label);

@@ -9,7 +9,7 @@
         <v-form v-on:submit.prevent="formUpdateCollab">
           <v-card-title>
             <v-row justify="center" class="mt-3">
-              <h1 class="form-title">Modifier un collaborateur</h1>
+              <h1 class="form-title">Modifier le collaborateur</h1>
             </v-row>
           </v-card-title>
           <v-card-text>
@@ -128,6 +128,16 @@
       </v-card>
     </v-dialog>
   </v-row>
+  <v-snackbar
+    v-if="SuccessState == true"
+    v-model="snackbar"
+    w-auto
+    color="green"
+    timeout="3000"
+  >
+    <v-icon start icon="mdi-checkbox-marked-circle"></v-icon>
+    {{ success }}
+  </v-snackbar>
 </template>
 
 <script>
@@ -167,10 +177,9 @@ export default {
       },
       dialog: false,
       success: "",
-      jobs: [],
-      graduations: [],
       error: "",
-      managers: [],
+      SuccessState: false,
+      snackbar: false,
     };
   },
 
@@ -209,9 +218,9 @@ export default {
         this.form.birthdate != "" &&
         this.form.mail != "" &&
         this.form.start_date != "" &&
-        this.form.pru != "" &&
-        this.form.manager != ""
+        this.form.pru != ""
       ) {
+        if((this.form.manager == null && this.form.job == 1) || (this.form.manager != null)) {
         Axios.post("/associate/update/" + this.associate_id, {
           name: this.form.name,
           first_name: this.form.first_name,
@@ -229,12 +238,14 @@ export default {
             this.dialog = false;
             this.SuccessState = true;
             this.error = "";
-            this.success = "Collaborateurs modifié.";
+            this.success = "Collaborateur modifié.";
+            this.snackbar = true;
           })
           .catch((err) => {
             console.log(err);
             this.error = err.response.data.error;
           });
+        }
       } else {
         this.error = "Tous les champs sont obligatoires.";
       }

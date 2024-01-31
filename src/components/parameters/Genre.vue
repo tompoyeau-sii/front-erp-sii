@@ -128,6 +128,7 @@ export default {
               this.errorState = false;
               this.SuccessState = true;
               this.success = "Nouveau genre ajouté";
+              this.fetchGenders();
             },
             (response) => {
               console.log(response.headers);
@@ -140,11 +141,14 @@ export default {
         this.error = "Veuillez ajouter un libelle.";
       }
     },
+    fetchGenders: function () {
+      Axios.get("http://localhost:8080/api/genders").then((res) => {
+        this.genres = res.data?.gender;
+      });
+    },
   },
   created() {
-    Axios.get("/genders").then((res) => {
-      this.genres = res.data?.gender;
-    });
+    this.fetchGenders();
   },
 };
 </script>

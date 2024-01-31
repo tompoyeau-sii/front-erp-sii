@@ -99,6 +99,7 @@
 
 <script>
 import Axios from "@/_services/caller.service";
+
 export default {
   name: "Diplome",
   data() {
@@ -117,37 +118,43 @@ export default {
   methods: {
     formAddGraduation: function () {
       if (this.form.label !== "") {
-        Axios
-          .post("http://localhost:8080/api/graduation", {
-            label: this.form.label,
-          })
-          .then(
-            (response) => {
-              console.log(response);
-              this.dialog = false;
-              this.errorState = false;
-              this.SuccessState = true;
-              this.success = "Nouveau diplôme créé";
-            },
-            (response) => {
-              console.log(response.headers);
-              this.errorState = true;
-              this.error = response.headers;
-            }
-          );
+        Axios.post("http://localhost:8080/api/graduation", {
+          label: this.form.label,
+        }).then(
+          (response) => {
+            console.log(response);
+            this.dialog = false;
+            this.errorState = false;
+            this.SuccessState = true;
+            this.success = "Nouveau diplôme créé";
+
+            // Ajouter la requête pour récupérer la liste mise à jour
+            this.fetchGraduations();
+          },
+          (response) => {
+            console.log(response.headers);
+            this.errorState = true;
+            this.error = response.headers;
+          }
+        );
       } else {
         this.errorState = true;
         this.error = "Veuillez ajouter un libelle.";
       }
     },
+    fetchGraduations: function () {
+      Axios.get("http://localhost:8080/api/graduations").then((res) => {
+        this.graduations = res.data?.graduation;
+      });
+    },
   },
   created() {
-    Axios.get("http://localhost:8080/api/graduations").then((res) => {
-      this.graduations = res.data?.graduation;
-    });
+    // Appeler la méthode pour récupérer la liste des diplômes au chargement initial
+    this.fetchGraduations();
   },
 };
 </script>
+
 
 <style scoped>
 td {

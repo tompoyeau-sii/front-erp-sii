@@ -14,9 +14,11 @@
       </v-col>
     </div>
 
-    <h1 class="title pt-3">Mode simulation</h1>
+    <PdcYear />
 
-    <Simulation />
+    <!-- <h1 class="title pt-3">Mode simulation</h1>
+
+    <Simulation /> -->
   </v-container>
 </template>
 
@@ -26,7 +28,8 @@ import Parametre from "@/components/parameters/Parametre.vue";
 import Diplome from "@/components/parameters/Diplome.vue";
 import Jobs from "@/components/parameters/Jobs.vue";
 import Genres from "@/components/parameters/Genre.vue";
-import Simulation from "@/components/Simulation.vue";
+import Simulation from "@/components/parameters/Simulation.vue";
+import PdcYear from "@/components/parameters/PdcYear.vue";
 export default {
   name: "ParametreView",
 
@@ -36,6 +39,7 @@ export default {
     Jobs,
     Genres,
     Simulation,
+    PdcYear
 },
 };
 </script>

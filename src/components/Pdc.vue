@@ -112,7 +112,13 @@
           <thead>
             <tr>
               <th v-for="week in outWeeks" :key="week.weekNumber">
-                <span>
+                <span
+                  v-if="week.currentWeek"
+                  class="bg-deep-purple-darken-3 p-1 rounded"
+                >
+                  {{ week.weekNumber }}
+                </span>
+                <span v-else>
                   {{ week.weekNumber }}
                 </span>
               </th>
@@ -133,11 +139,7 @@
           </thead>
           <tbody>
             <tr v-for="associate in pdc" :key="associate.full_name">
-              <td
-                id="facture"
-                v-for="week in associate.weeks"
-                :key="week"
-              > 
+              <td id="facture" v-for="week in associate.weeks" :key="week">
                 <div style="display: flex">
                   <v-btn
                     color="deep-purple-darken-3"
@@ -175,7 +177,7 @@ export default {
       totalPages: 0,
       globalPage: 0,
       loading: true,
-      selectedYear: 2023,
+      selectedYear: null,
       years: [2020, 2021, 2022, 2023, 2024, 2025],
       selectedManager: null,
       selectedCustomer: null,
@@ -205,7 +207,6 @@ export default {
       });
     },
     filterAssociates() {
-
       this.loading = true;
       Axios.get("pdc", {
         params: {
@@ -221,21 +222,26 @@ export default {
         this.loading = false;
       });
     },
-    
   },
   created() {
     this.loading = true;
-    Axios.get("pdc", {
-      params: {
-        year: this.selectedYear,
-      },
-    }).then((res) => {
-      this.pdc = res.data?.pdc;
-      this.outWeeks = res.data?.outWeeks;
-      // this.pdcCalculated = this.uniqueAssociates();
-      this.loading = false;
-      // console.log(this.pdcCalculated);
-    });
+    Axios.get("http://localhost:8080/api/pdc/year")
+      .then((res) => {
+        this.selectedYear = res.data?.pdc.actual_year;
+      })
+      .then((year) => {
+        Axios.get("pdc", {
+          params: {
+            year: this.selectedYear,
+          },
+        }).then((res) => {
+          this.pdc = res.data?.pdc;
+          this.outWeeks = res.data?.outWeeks;
+          // this.pdcCalculated = this.uniqueAssociates();
+          this.loading = false;
+          // console.log(this.pdcCalculated);
+        });
+      });
   },
 
   computed: {

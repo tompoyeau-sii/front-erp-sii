@@ -54,21 +54,22 @@
             <div
               class="client-en-cours rounded-3 m-2 p-2"
               v-for="mission in MissionsEnCours"
-              :key="mission.id"
+              :key="mission.reference"
             >
               <v-row>
                 <v-col>
                   <p
-                    class="text-h5 name"
+                    class="text-h5 mt-2 name"
                     v-text="mission.Project.Customer.label"
                   ></p>
                 </v-col>
-                <v-col>
-                  <UpdateMissionForm
+                <v-col class="text-right" >
+                   <UpdateMissionForm
                     justify="end"
                     :mission_id="mission.id"
-                    :mission_label="mission.label"
                     :mission_tjm="mission.TJMs.map((tjm) => tjm.value)"
+                    :mission_start_date="mission.date_range_mission[0].value"
+                    :mission_end_date="mission.date_range_mission[1].value"
                   />
                 </v-col>
               </v-row>
@@ -79,13 +80,13 @@
                   params: { id: mission.Project.Customer.id },
                 }"
               >
-                <p v-text="'Depuis le ' + formatDate(mission.start_date)"></p>
-                <p v-text="'Se termine le ' + formatDate(mission.end_date)"></p>
+                <p v-text="'Depuis le ' + formatDate(mission.date_range_mission[0].value)"></p>
+                <p v-text="'Se termine le ' + formatDate(mission.date_range_mission[1].value)"></p>
                 <p
                   v-text="mission.Project.label + ' / ' + mission.Project.adv"
                 ></p>
                 <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
-                <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
+                <!-- <p v-if="mission.end" v-text="formatDate(mission.end)"></p> -->
               </router-link>
             </div>
             <v-col lg="2" sm="12" class="client-add">
@@ -105,8 +106,6 @@
           <v-row>
             <div
               class="col-2 manager rounded-3 m-2 pt-2 shadow-sm"
-              v-for="manager in associate.managers"
-              :key="manager.id"
             >
               <v-row>
                 <v-col cols="3" class="mt-1 ml-2">
@@ -121,7 +120,7 @@
                 <v-col cols="2">
                   <p
                     class=""
-                    v-text="manager.first_name + ' ' + manager.name"
+                    v-text="this.manager"
                   ></p>
                 </v-col>
               </v-row>
@@ -161,7 +160,7 @@
                 class="text-h5 name"
                 v-text="mission.Project.Customer.label"
               ></p>
-              <p v-text="'Commence le ' + formatDate(mission.start_date)"></p>
+              <p v-text="'Commence le ' + formatDate(mission.date_range_mission[0].value)"></p> 
               <p
                 v-text="mission.Project.label + ' / ' + mission.Project.adv"
               ></p>
@@ -171,30 +170,37 @@
           </v-row>
         </v-col>
 
-        <v-col lg="6" v-if="MissionsFinis.length > 0">
-          <h5 class="pt-3 sub-title">Missions terminées</h5>
+        <v-col v-if="MissionsFinis.length > 0" lg="6">
+          <h5 class="pt-3 sub-title">Mission terminées</h5>
           <v-row>
-            <router-link
-              class="col-2 client-fini rounded-3 m-2 p-2 shadow-sm"
+            <div
+              class="client-fini rounded-3 m-2 p-2"
               v-for="mission in MissionsFinis"
-              :key="mission.id"
-              refresh
-              :to="{
-                name: 'FicheClientView',
-                params: { label: mission.Project.Customer.label },
-              }"
+              :key="mission.reference"
             >
-              <p
-                class="text-h5 name"
-                v-text="mission.Project.Customer.label"
-              ></p>
-              <p v-text="'Terminé le ' + formatDate(mission.end_date)"></p>
-              <p
-                v-text="mission.Project.label + ' / ' + mission.Project.adv"
-              ></p>
-              <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
-              <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
-            </router-link>
+              <v-row>
+                <v-col>
+                  <p
+                    class="text-h5 name"
+                    v-text="mission.Project.Customer.label"
+                  ></p>
+                </v-col>
+              </v-row>
+              <router-link
+                class="client-en-cours"
+                :to="{
+                  name: 'FicheClientView',
+                  params: { id: mission.Project.Customer.id },
+                }"
+              >
+                <p v-text="'Terminée le ' + formatDate(mission.date_range_mission[1].value)"></p>
+                <p
+                  v-text="mission.Project.label + ' / ' + mission.Project.adv"
+                ></p>
+                <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
+                <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
+              </router-link>
+            </div>
           </v-row>
         </v-col>
       </v-row>
@@ -203,7 +209,7 @@
     <!-- Partie basse avec les infos récap chiffré du collab -->
     <v-row>
       <v-col cols="6" lg="3" md="4" sm="6">
-        <div class="shadow rounded-5 mt-5 p-4">
+        <div class="shadow rounded-5 mt-5 p-4 bg-white">
           <p class="etiquette mb-2">PRU</p>
           <v-row justify="end">
             <p class="data m-2" v-text="pru"></p>
@@ -211,7 +217,7 @@
         </div>
       </v-col>
       <v-col cols="6" lg="3" md="4" sm="6">
-        <div class="shadow rounded-5 mt-5 p-4" v-if="associate.start_date">
+        <div class="shadow rounded-5 mt-5 p-4 bg-white" v-if="associate.start_date">
           <p class="etiquette mb-2">Date d'embauche</p>
           <v-row justify="end">
             <p class="data m-2" v-text="formatDate(associate.start_date)"></p>
@@ -219,7 +225,7 @@
         </div>
       </v-col>
       <v-col cols="6" lg="3" md="4" sm="6">
-        <div class="shadow rounded-5 mt-5 p-4" v-if="associate.birthdate">
+        <div class="shadow rounded-5 mt-5 p-4 bg-white" v-if="associate.birthdate">
           <p class="etiquette mb-2">Age</p>
           <v-row justify="end">
             <p class="data m-2" v-text="calculateAge(associate.birthdate)"></p>
@@ -227,7 +233,7 @@
         </div>
       </v-col>
       <v-col cols="6" lg="3" md="4" sm="6">
-        <div class="shadow rounded-5 mt-5 p-4" v-if="associate.Graduation">
+        <div class="shadow rounded-5 mt-5 p-4 bg-white" v-if="associate.Graduation">
           <p class="etiquette mb-2">Diplôme</p>
           <v-row justify="end">
             <p class="data m-2" v-text="associate.Graduation.label"></p>
@@ -235,44 +241,6 @@
         </div>
       </v-col>
     </v-row>
-
-    <div v-if="associate.Missions.length != 0">
-      <v-row>
-        <h5 class="pt-3 sub-title">Suivi des missions</h5>
-      </v-row>
-
-      <v-row>
-        <v-timeline
-          side="end"
-          align="start"
-          v-for="mission in associate.Missions"
-          :key="mission.id"
-        >
-          <v-timeline-item dot-color="deep-purple-lighten-3" size="small">
-            <template v-slot:opposite>
-              {{ formatDate(mission.end_date) }}
-            </template>
-            <div>
-              <strong>{{
-                mission.Project.label + " | " + mission.Project.adv
-              }}</strong>
-              <div class="text-caption">Fin de la mission</div>
-            </div>
-          </v-timeline-item>
-          <v-timeline-item dot-color="deep-purple-darken-4" size="small">
-            <template v-slot:opposite>
-              {{ formatDate(mission.start_date) }}
-            </template>
-            <div>
-              <strong>{{
-                mission.Project.label + " | " + mission.Project.adv
-              }}</strong>
-              <div class="text-caption">Début de la mission</div>
-            </div>
-          </v-timeline-item>
-        </v-timeline>
-      </v-row>
-    </div>
   </v-container>
 </template>
 
@@ -324,6 +292,9 @@ export default {
     calculateAge(dateOfBirth) {
       const today = new Date();
       return differenceInYears(today, new Date(dateOfBirth));
+    },
+    formatDate(date) {
+      return (date = format(new Date(date), "PP", { locale: fr }));
     },
     formatDateBDD(date) {
       return (date = format(new Date(date), "yyyy-MM-dd"));
@@ -403,16 +374,18 @@ export default {
     },
     managerActuel() {
       let today = new Date();
-      today = this.formatDateBDD(today);
+      let formattedDate = format(today, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
       for (let manager of this.associate.managers) {
-        if (manager.Associate_Manager.end_date >= today && manager.Associate_Manager.start_date <= today) {
+        console.log(manager.Associate_Manager.start_date)
+        console.log(formattedDate)
+        if (
+          manager.Associate_Manager.end_date > formattedDate &&
+          manager.Associate_Manager.start_date <= formattedDate
+        ) {
           this.manager_id = manager.id;
-          this.manager = manager.first_name + ' '+ manager.name;
+          this.manager = manager.first_name + " " + manager.name;
         }
       }
-    },
-    formatDate(date) {
-      return (date = format(new Date(date), "PP", { locale: fr }));
     },
   },
   created() {
@@ -421,21 +394,19 @@ export default {
     });
 
     this.associate = this.$route.params.collab;
+    console.log(this.$route.params.collab);
     this.todayDate = this.formatDate(new Date());
     this.pruActuel();
     this.jobActuel();
     this.managerActuel();
-
-    console.log(this.manager)
-    console.log(this.manager_id)
   },
-  computed: {
+   computed: {
     MissionsFinis() {
       if (this.associate.Missions == "") {
         return false;
       }
       return this.associate.Missions.filter((mission) => {
-        return this.missionFini(mission.start_date, mission.end_date);
+        return this.missionFini(mission.date_range_mission[0].value, mission.date_range_mission[1].value);
       });
     },
     MissionsEnCours() {
@@ -443,15 +414,15 @@ export default {
         return false;
       }
       return this.associate.Missions.filter((mission) => {
-        return this.missionEnCours(mission.start_date, mission.end_date);
+        return this.missionEnCours(mission.date_range_mission[0].value, mission.date_range_mission[1].value);
       });
-    },
+    },  
     MissionsFutur() {
       if (this.associate.Missions == "") {
         return false;
       }
       return this.associate.Missions.filter((mission) => {
-        return this.missionFutur(mission.start_date, mission.end_date);
+        return this.missionFutur(mission.date_range_mission[0].value, mission.date_range_mission[1].value);
       });
     },
   },
@@ -466,7 +437,7 @@ export default {
 }
 
 .etiquette {
-  color: #a9a9a9;
+  color: #a9a9a9
 }
 
 .data {

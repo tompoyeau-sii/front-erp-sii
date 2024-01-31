@@ -229,6 +229,7 @@ export default {
           manager: newManager,
         },
       }).then((res) => {
+        console.log(res.data?.ca)
         this.ca = res.data?.ca;
         (this.chart.managerData = [
           ["Mois", "CA"],

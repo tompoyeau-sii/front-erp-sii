@@ -80,6 +80,9 @@
 import Axios from "@/_services/caller.service";
 export default {
   name: "AddClientForm",
+  props: {
+    onSuccess: Function, // Prop pour recevoir la fonction onSuccess du parent
+  },
   data() {
     return {
       form: {
@@ -87,14 +90,15 @@ export default {
       },
       labelRules: [
         (value) => {
-          if (value?.length > 3) return true;
-          return "First name must be at least 3 characters.";
+          if (value?.length > 2) return true;
+          return "Le nom du client doit avoir plus de 2 caractères.";
         },
       ],
       dialog: false,
       error: "",
       SuccessState: false,
       snackbar: false,
+      
     };
   },
   methods: {
@@ -116,6 +120,7 @@ export default {
           this.success = "Nouveau client créé";
           this.refresh();
           this.error = "";
+          this.onSuccess();
         }).catch((err) => {
           this.error = err.response.data.error
         })
