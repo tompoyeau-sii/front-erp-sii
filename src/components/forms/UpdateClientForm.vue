@@ -2,14 +2,14 @@
   <v-row justify="end" class="m-3">
     <v-dialog v-model="dialog" width="750px">
       <template v-slot:activator="{ props }">
-        <v-btn
-          icon="mdi-pencil"
-          color="deep-purple-darken-1"
-          v-bind="props"
-        />
+        <v-btn icon="mdi-pencil" color="deep-purple-darken-1" v-bind="props" />
       </template>
       <v-card class="gradient">
-        <v-form fast-fail @submit.prevent v-on:submit.prevent="formUpdateCustomer">
+        <v-form
+          fast-fail
+          @submit.prevent
+          v-on:submit.prevent="formUpdateCustomer"
+        >
           <v-card-title>
             <v-row justify="center" class="mt-3">
               <h1 class="form-title">Modifier un client</h1>
@@ -23,7 +23,6 @@
                     label="Libelle d'entreprise*"
                     v-model="form.label"
                     variant="solo"
-                    :rules="labelRules"
                     required
                   ></v-text-field>
                   <v-alert
@@ -84,12 +83,6 @@ export default {
       form: {
         label: this.customer,
       },
-      labelRules: [
-        value => {
-          if (value?.length > 2) return true
-          return 'Le label doit au moins faire 3 caractères.'
-        },
-      ],
       dialog: false,
       error: "",
       SuccessState: false,
@@ -98,26 +91,22 @@ export default {
   },
   methods: {
     formUpdateCustomer() {
-      if (this.form.label !== "") {
-        Axios
-          .post("/customer/update/" + this.customer_id, {
-            label: this.form.label,
+      if (this.form.label !== "" || this.form.label !== null) {
+        console.log(this.form.label)
+        Axios.post("/customer/update/" + this.customer_id, {
+          label: this.form.label,
+        })
+          .then((response) => {
+            this.dialog = false;
+            this.CreateState = false;
+            this.SuccessState = true;
+            this.success = "Client modifié";
+            this.error = "";
           })
-          .then(
-            (response) => {
-              this.dialog = false;
-              this.CreateState = false;
-              this.SuccessState = true;
-              this.success = "Client modifié";
-              this.error = "";
-            },
-            (response) => {
-              this.SuccessState = false;
-              console.log(response);
-              this.error = response.data;
-              console.log("erreur : " + this.error);
-            }
-          );
+          .catch((err) => {
+            this.error = err.response.data.error;
+            this.SuccessState = false;
+          });
       } else {
         this.error = "Veuillez ajouter un libelle.";
       }

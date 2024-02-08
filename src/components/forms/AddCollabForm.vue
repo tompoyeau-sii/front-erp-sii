@@ -195,9 +195,13 @@ export default {
         this.form.start_date != "" &&
         this.form.pru != ""
       ) {
-        if (
+        if (this.form.manager == null && this.form.job != 1) {
+          this.error = "Veuillez sélectioner un manager.";
+        } else if (this.form.manager != null && this.form.job == 1) {
+          this.error = "Un manager ne peux pas avoir de manager.";
+        } else if (
           (this.form.manager == null && this.form.job == 1) ||
-          this.form.manager != null
+          (this.form.manager != null && this.form.job != 1)
         ) {
           Axios.post("/associate", {
             name: this.form.name,
@@ -219,15 +223,12 @@ export default {
               this.SuccessState = true;
               this.success = "Nouveau collaborateur ajouté.";
               this.error = "";
-              
             })
             .catch((err) => {
               console.log(err);
               this.error = err.response.data.error;
             });
         } else {
-          console.log(this.form.manager);
-          console.log(this.form.job);
           this.error = "Veuillez sélectioner un manager.";
         }
       } else {

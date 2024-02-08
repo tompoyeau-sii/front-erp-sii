@@ -16,9 +16,9 @@
 
     <PdcYear />
 
-    <!-- <h1 class="title pt-3">Mode simulation</h1>
+    <h1 class="title pt-3">Mode simulation</h1>
 
-    <Simulation /> -->
+    <Simulation /> 
   </v-container>
 </template>
 

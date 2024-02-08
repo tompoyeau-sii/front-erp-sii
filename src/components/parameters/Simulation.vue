@@ -12,7 +12,7 @@
     class="text-none mb-4 mr-3"
     color="deep-purple-darken-3"
     variant="flat"
-    @click="changeMode"
+    @click="toggleSimulationMode"
     prepend-icon="mdi-chart-box-outline"
   >
     Passer en mode simulation
@@ -24,36 +24,39 @@
     class="text-none mb-4"
     prepend-icon="mdi-refresh"
     color="deep-purple-lighten-4"
-    @click="loading = !loading"
+    @click="refreshData"
     variant="flat"
   >
     Rafraichir les données
   </v-btn>
-
-  <p v-if="simulationMode === 'true'">true</p>
 </template>
 
 <script>
-import { mapMutations } from "vuex";
+import { mapMutations, mapGetters } from "vuex";
+
 export default {
   data: () => ({
     loading: false,
-    simulationMode: localStorage.getItem("simulationMode"),
+    refresh: false,
   }),
 
-
-  methods: {
-  ...mapMutations(["setSimulationMode"]),
-  changeMode() {
-    if (localStorage.getItem("simulationMode") === 'true') {
-      localStorage.setItem("simulationMode", false);
-      this.simulationMode = localStorage.getItem("simulationMode")
-    } else {
-      localStorage.setItem("simulationMode", true);
-      this.simulationMode = localStorage.getItem("simulationMode")
+  computed: {
+    ...mapGetters(['getSimulationMode']),
+    simulationMode() {
+      return this.getSimulationMode;
     }
   },
-},
+
+  methods: {
+    ...mapMutations(['setSimulationMode']),
+    toggleSimulationMode() {
+      const newMode = this.simulationMode === 'true' ? 'false' : 'true';
+      this.setSimulationMode(newMode);
+    },
+    refreshData() {
+      // Vos actions pour rafraîchir les données ici
+    },
+  },
 };
 </script>
 

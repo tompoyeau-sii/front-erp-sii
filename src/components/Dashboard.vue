@@ -12,7 +12,7 @@
         <v-col cols="12" lg="4" md="6" sm="6">
           <div class="bg-white shadow rounded-5 p-4">
             <p class="etiquette mb-2">Total de collaborateurs SII Le Mans</p>
-            <v-row justify="end">
+            <v-row justify="end" align="center">
               <v-icon
                 class="title"
                 icon="mdi-account-group"
@@ -28,7 +28,7 @@
             <p class="etiquette mb-2">
               Chiffre d'affaires depuis le début de l'exercice
             </p>
-            <v-row justify="end">
+            <v-row justify="end" align="center">
               <v-icon
                 class="title"
                 icon="mdi-currency-eur"
@@ -44,7 +44,7 @@
         <v-col cols="12" lg="4">
           <div class="bg-white shadow rounded-5 p-4">
             <p class="etiquette mb-2">Évolution du chiffre d'affaires</p>
-            <v-row justify="end">
+            <v-row justify="end" align="center">
               <v-icon class="title" icon="mdi-finance" size="x-large"></v-icon>
               <p class="data text-green m-2">
                 {{ getEvolutionCA(getCaOfAgence(), getCaLastYearOfAgence()) }}
@@ -57,7 +57,7 @@
         <v-col cols="12" lg="4" md="6" sm="6">
           <div class="bg-white shadow rounded-5 p-4">
             <p class="etiquette mb-2">Moyenne d'age</p>
-            <v-row justify="end">
+            <v-row justify="end" align="center">
               <v-icon
                 class="title"
                 icon="mdi-account-group"

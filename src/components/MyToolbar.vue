@@ -3,12 +3,14 @@
     v-if="isLog()"
     v-model="drawer"
     class="toolBar"
-    style="background: linear-gradient(180deg,rgba(117, 81, 155, 1) 0%,rgba(232, 70, 84, 1) 100%) !important;"
+    style="
+      background: linear-gradient(180deg,rgba(117, 81, 155, 1) 0%,rgba(232, 70, 84, 1) 100%) !important;
+    "
     mobile-breakpoint="960"
   >
     <!-- <v-img aspect-ratio class="sii" load src="../assets/SIIlogo.svg"></v-img> -->
     <v-img
-      style="text-align: center;"
+      style="text-align: center"
       aspect-ratio
       class="sii"
       src="../assets/img/Piscou-logo-primaire@2x.png"
@@ -60,13 +62,14 @@
       </router-link>
     </v-list>
     <template v-slot:append>
-       <v-list-item>
+      <v-list-item>
         <v-btn 
-          prepend-icon="mdi-alert"
-          color="warning"
-          v-if="simulationMode == 'true'">
-          Mode simulation
-        </v-btn>
+    v-if="simulationMode === 'true'"
+    prepend-icon="mdi-alert"
+    color="warning"
+    @click="toggleSimulationMode">
+    Mode simulation
+  </v-btn>
       </v-list-item>
       <router-link to="/">
         <v-list-item
@@ -78,22 +81,26 @@
       </router-link>
     </template>
   </v-navigation-drawer>
-  <v-app-bar v-if="!drawer" color="transparent" elevation="0" >
-    <v-app-bar-nav-icon color="deep-purple-darken-3" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+  <v-app-bar v-if="!drawer" color="transparent" elevation="0">
+    <v-app-bar-nav-icon
+      color="deep-purple-darken-3"
+      @click.stop="drawer = !drawer"
+    ></v-app-bar-nav-icon>
   </v-app-bar>
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
 import { accountService } from "@/_services";
 export default {
   name: "myToolbar",
   data() {
     return {
       drawer: null,
-      simulationMode : localStorage.getItem("simulationMode"),
     };
   },
   methods: {
+    ...mapActions(["setSimulationMode"]),
     detectScreenSize() {
       var screenWidth =
         window.innerWidth ||
@@ -109,11 +116,22 @@ export default {
       }
     },
     disconnect: function (event) {
+      this.setSimulationMode(false);
       accountService.logout();
     },
     isLog: function () {
       return accountService.isLogged();
     },
+    toggleSimulationMode() {
+      const newMode = this.simulationMode === 'true' ? 'false' : 'true';
+      this.setSimulationMode(newMode);
+    }
+  },
+  computed: {
+    ...mapGetters(['getSimulationMode']),
+    simulationMode() {
+      return this.getSimulationMode;
+    }
   },
 };
 </script>

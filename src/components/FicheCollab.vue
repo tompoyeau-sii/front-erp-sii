@@ -63,8 +63,8 @@
                     v-text="mission.Project.Customer.label"
                   ></p>
                 </v-col>
-                <v-col class="text-right" >
-                   <UpdateMissionForm
+                <v-col class="text-right">
+                  <UpdateMissionForm
                     justify="end"
                     :mission_id="mission.id"
                     :mission_tjm="mission.TJMs.map((tjm) => tjm.value)"
@@ -80,8 +80,18 @@
                   params: { id: mission.Project.Customer.id },
                 }"
               >
-                <p v-text="'Depuis le ' + formatDate(mission.date_range_mission[0].value)"></p>
-                <p v-text="'Se termine le ' + formatDate(mission.date_range_mission[1].value)"></p>
+                <p
+                  v-text="
+                    'Depuis le ' +
+                    formatDate(mission.date_range_mission[0].value)
+                  "
+                ></p>
+                <p
+                  v-text="
+                    'Se termine le ' +
+                    formatDate(mission.date_range_mission[1].value)
+                  "
+                ></p>
                 <p
                   v-text="mission.Project.label + ' / ' + mission.Project.adv"
                 ></p>
@@ -104,9 +114,7 @@
         <v-col cols="12" lg="6" md="6" sm="12">
           <h5 class="pt-3 sub-title">Manager</h5>
           <v-row>
-            <div
-              class="col-2 manager rounded-3 m-2 pt-2 shadow-sm"
-            >
+            <div class="col-2 manager rounded-3 m-2 pt-2 shadow-sm">
               <v-row>
                 <v-col cols="3" class="mt-1 ml-2">
                   <v-avatar>
@@ -118,10 +126,7 @@
                   </v-avatar>
                 </v-col>
                 <v-col cols="2">
-                  <p
-                    class=""
-                    v-text="this.manager"
-                  ></p>
+                  <p class="" v-text="this.manager"></p>
                 </v-col>
               </v-row>
             </div>
@@ -146,27 +151,48 @@
         <v-col lg="6" v-if="MissionsFutur.length > 0">
           <h5 class="pt-3 sub-title">Prochaines missions</h5>
           <v-row>
-            <router-link
+            <div
               class="col-2 client-futur rounded-3 m-2 p-2 shadow-sm"
               v-for="mission in MissionsFutur"
-              :key="mission.id"
-              refresh
-              :to="{
-                name: 'FicheClientView',
-                params: { label: mission.Project.Customer.id },
-              }"
+              :key="mission.reference"
             >
-              <p
-                class="text-h5 name"
-                v-text="mission.Project.Customer.label"
-              ></p>
-              <p v-text="'Commence le ' + formatDate(mission.date_range_mission[0].value)"></p> 
-              <p
-                v-text="mission.Project.label + ' / ' + mission.Project.adv"
-              ></p>
-              <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
-              <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
-            </router-link>
+              <v-row>
+                <v-col>
+                  <p
+                    class="text-h5 mt-2 name"
+                    v-text="mission.Project.Customer.label"
+                  ></p>
+                </v-col>
+                <v-col class="text-right">
+                  <UpdateMissionForm
+                    justify="end"
+                    :mission_id="mission.id"
+                    :mission_tjm="mission.TJMs.map((tjm) => tjm.value)"
+                    :mission_start_date="mission.date_range_mission[0].value"
+                    :mission_end_date="mission.date_range_mission[1].value"
+                  />
+                </v-col>
+              </v-row>
+              <router-link
+                class="client-futur"
+                :to="{
+                  name: 'FicheClientView',
+                  params: { label: mission.Project.Customer.id },
+                }"
+              >
+                <p
+                  v-text="
+                    'Commence le ' +
+                    formatDate(mission.date_range_mission[0].value)
+                  "
+                ></p>
+                <p
+                  v-text="mission.Project.label + ' / ' + mission.Project.adv"
+                ></p>
+                <p v-text="'TJM : ' + mission.TJMs.map((tjm) => tjm.value)"></p>
+                <p v-if="mission.end" v-text="formatDate(mission.end)"></p>
+              </router-link>
+            </div>
           </v-row>
         </v-col>
 
@@ -193,7 +219,12 @@
                   params: { id: mission.Project.Customer.id },
                 }"
               >
-                <p v-text="'Terminée le ' + formatDate(mission.date_range_mission[1].value)"></p>
+                <p
+                  v-text="
+                    'Terminée le ' +
+                    formatDate(mission.date_range_mission[1].value)
+                  "
+                ></p>
                 <p
                   v-text="mission.Project.label + ' / ' + mission.Project.adv"
                 ></p>
@@ -217,7 +248,10 @@
         </div>
       </v-col>
       <v-col cols="6" lg="3" md="4" sm="6">
-        <div class="shadow rounded-5 mt-5 p-4 bg-white" v-if="associate.start_date">
+        <div
+          class="shadow rounded-5 mt-5 p-4 bg-white"
+          v-if="associate.start_date"
+        >
           <p class="etiquette mb-2">Date d'embauche</p>
           <v-row justify="end">
             <p class="data m-2" v-text="formatDate(associate.start_date)"></p>
@@ -225,7 +259,10 @@
         </div>
       </v-col>
       <v-col cols="6" lg="3" md="4" sm="6">
-        <div class="shadow rounded-5 mt-5 p-4 bg-white" v-if="associate.birthdate">
+        <div
+          class="shadow rounded-5 mt-5 p-4 bg-white"
+          v-if="associate.birthdate"
+        >
           <p class="etiquette mb-2">Age</p>
           <v-row justify="end">
             <p class="data m-2" v-text="calculateAge(associate.birthdate)"></p>
@@ -233,7 +270,10 @@
         </div>
       </v-col>
       <v-col cols="6" lg="3" md="4" sm="6">
-        <div class="shadow rounded-5 mt-5 p-4 bg-white" v-if="associate.Graduation">
+        <div
+          class="shadow rounded-5 mt-5 p-4 bg-white"
+          v-if="associate.Graduation"
+        >
           <p class="etiquette mb-2">Diplôme</p>
           <v-row justify="end">
             <p class="data m-2" v-text="associate.Graduation.label"></p>
@@ -376,8 +416,6 @@ export default {
       let today = new Date();
       let formattedDate = format(today, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
       for (let manager of this.associate.managers) {
-        console.log(manager.Associate_Manager.start_date)
-        console.log(formattedDate)
         if (
           manager.Associate_Manager.end_date > formattedDate &&
           manager.Associate_Manager.start_date <= formattedDate
@@ -387,6 +425,8 @@ export default {
         }
       }
     },
+    
+
   },
   created() {
     Axios.get("/projects").then((res) => {
@@ -394,19 +434,21 @@ export default {
     });
 
     this.associate = this.$route.params.collab;
-    console.log(this.$route.params.collab);
     this.todayDate = this.formatDate(new Date());
     this.pruActuel();
     this.jobActuel();
     this.managerActuel();
   },
-   computed: {
+  computed: {
     MissionsFinis() {
       if (this.associate.Missions == "") {
         return false;
       }
       return this.associate.Missions.filter((mission) => {
-        return this.missionFini(mission.date_range_mission[0].value, mission.date_range_mission[1].value);
+        return this.missionFini(
+          mission.date_range_mission[0].value,
+          mission.date_range_mission[1].value
+        );
       });
     },
     MissionsEnCours() {
@@ -414,17 +456,24 @@ export default {
         return false;
       }
       return this.associate.Missions.filter((mission) => {
-        return this.missionEnCours(mission.date_range_mission[0].value, mission.date_range_mission[1].value);
+        return this.missionEnCours(
+          mission.date_range_mission[0].value,
+          mission.date_range_mission[1].value
+        );
       });
-    },  
+    },
     MissionsFutur() {
       if (this.associate.Missions == "") {
         return false;
       }
       return this.associate.Missions.filter((mission) => {
-        return this.missionFutur(mission.date_range_mission[0].value, mission.date_range_mission[1].value);
+        return this.missionFutur(
+          mission.date_range_mission[0].value,
+          mission.date_range_mission[1].value
+        );
       });
-    },
+    }
+    
   },
 };
 </script>
@@ -437,7 +486,7 @@ export default {
 }
 
 .etiquette {
-  color: #a9a9a9
+  color: #a9a9a9;
 }
 
 .data {

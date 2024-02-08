@@ -7,7 +7,7 @@
           color="deep-purple-darken-1"
           v-bind="props"
         >
-          Ajouter un client
+          client
         </v-btn>
       </template>
       <v-card class="gradient">
@@ -25,7 +25,6 @@
                     label="Libelle d'entreprise*"
                     v-model="form.label"
                     variant="solo"
-                    :rules="labelRules"
                     required
                   ></v-text-field>
                   <v-alert
@@ -88,12 +87,6 @@ export default {
       form: {
         label: "",
       },
-      labelRules: [
-        (value) => {
-          if (value?.length > 2) return true;
-          return "Le nom du client doit avoir plus de 2 caractères.";
-        },
-      ],
       dialog: false,
       error: "",
       SuccessState: false,
@@ -110,6 +103,7 @@ export default {
     },
 
     formAddCustomer() {
+      if(this.form.label.length > 2) {
       Axios.post("/customer", {
         label: this.form.label,
       }).then(
@@ -124,6 +118,9 @@ export default {
         }).catch((err) => {
           this.error = err.response.data.error
         })
+      } else {
+        this.error = "Le libelle du client doit faire plus de 2 caractères."
+      }
     },
   },
 };

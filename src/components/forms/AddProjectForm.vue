@@ -102,7 +102,7 @@ export default {
       form: {
         label: "",
         adv: null,
-        customer: this.customer_id
+        customer: this.customer_id,
       },
       dialog: false,
       error: "",
@@ -120,28 +120,27 @@ export default {
       if (
         this.form.label !== "" &&
         this.form.adv !== "" &&
-        this.form.customer !== ""
+        this.form.customer !== "" &&
+        this.form.label !== null &&
+        this.form.adv !== null &&
+        this.form.customer !== null 
       ) {
         Axios.post("/project", {
           label: this.form.label,
           adv: this.form.adv,
-          customer_id: this.form.customer
-        }).then(
-          (response) => {
+          customer_id: this.form.customer,
+        })
+          .then((response) => {
             this.dialog = false;
             this.CreateState = false;
             this.SuccessState = true;
             this.success = "Nouveau projet créé";
             this.error = "";
-            this.refresh();
-          },
-          (response) => {
+          })
+          .catch((err) => {
+            this.error = err.response.data.error;
             this.SuccessState = false;
-            console.log(response);
-            this.error = response.data;
-            console.log("erreur : " + this.error);
-          }
-        );
+          });
       } else {
         this.error = "Veuillez remplir tous les champs.";
       }

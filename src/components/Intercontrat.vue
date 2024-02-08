@@ -11,16 +11,16 @@
         >
       </v-col>
     </v-row>
-    <v-row class="mt-3">
+    <v-row class="">
       <v-col lg="6">
-        <h1 class="pt-3 pb-3 title">Intercontrat</h1>
+        <h1 class="title">Intercontrat</h1>
       </v-col>
     </v-row>
 
     <v-row>
       <v-col cols="4">
-        <div class="bg-white shadow rounded-5 p-4">
-          <p class="mb-2 etiquette">Perte quotidienne</p>
+        <div class="bg-white shadow rounded-5 mt-3 p-4">
+          <p class="mb-2 etiquette">Perte quotitdienne</p>
           <v-row justify="end">
             <v-icon
               class="title"
@@ -132,12 +132,16 @@ export default {
   created() {
     Axios.get("/associates/all").then((res) => {
       res.data?.associate.forEach((associate) => {
+        // on vérifie que l'associé est bien dans l'entreprise
         if (associate.start_date < this.todayDate()) {
+          // Si le collaborateurs à encore eu 0 mission
           if (associate.Missions.length == 0) {
             let add = 0;
             associate.Jobs.forEach((job) => {
               if (add == 0) {
+                // On regarde si il es manager 
                 if (job.label != "Manager") {
+                  // Si il n'est pas manager, alors on il est en intercontrat
                   add = 1;
                   this.intercontrats.push(associate);
                 }
@@ -146,24 +150,21 @@ export default {
           } else {
             var enMission = false;
             associate.Missions.forEach((mission) => {
-              if (associate.start_date < this.todayDate()) {
-                if (
-                  mission.start_date <= this.todayDate() &&
-                  mission.end_date >= this.todayDate()
-                ) {
-                  enMission = true;
-                  return;
-                }
+              if (
+                mission.date_range_mission[0].value <= this.todayDate() &&
+                mission.date_range_mission[1].value >= this.todayDate()
+              ) {
+                enMission = true;
+                return;
               }
             });
             if (enMission == false) {
               this.intercontrats.push(associate);
             }
           }
-        } else {
-          enMission = true;
         }
       });
+      this.intercontrats.nbCollab = this.intercontrats.length;
     });
   },
 };

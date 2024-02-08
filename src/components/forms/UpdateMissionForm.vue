@@ -16,7 +16,7 @@
             <v-card-text>
               <v-container>
                 <v-row>
-                  <v-col cols="12">
+                  <v-col cols="12" sm="6">
                     <v-text-field
                       label="TJM*"
                       variant="solo"
@@ -25,8 +25,24 @@
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6">
+                    <label>Date de mise à jour du TJM</label>
+                    <v-radio-group v-model="radioTjm" inline>
+                      <v-radio label="Aujourd'hui" value="1"></v-radio>
+                      <v-radio label="Une date précise" value="2"></v-radio>
+                    </v-radio-group>
+                  </v-col>
+                  <v-col v-if="radioTjm == 2" cols="12">
                     <v-text-field
-                      label="Date de début*"
+                      label="Date de début du nouveau TJM*"
+                      variant="solo"
+                      type="date"
+                      v-model="form.tjm_start_date"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="6">
+                    <v-text-field
+                      label="Date de début de mission*"
                       variant="solo"
                       type="date"
                       v-model="form.start_date"
@@ -101,6 +117,7 @@ export default {
       associate: this.associate_id,
       form: {
         tjm: this.mission_tjm,
+        tjm_start_date: this.tjm_start_date,
         start_date: this.mission_start_date,
         end_date: this.mission_end_date,
       },
@@ -109,6 +126,7 @@ export default {
       success: "",
       SuccessState: false,
       snackbar: false,
+      radioTjm: "1",
     };
   },
   methods: {
@@ -116,21 +134,23 @@ export default {
       return (date = format(new Date(date), "PP", { locale: fr }));
     },
     formAddMission() {
-      console.log(this.form.tjm);
-      console.log(this.mission_tjm);
       if (
-        this.form.start_date !== null &&
-        this.form.end_date !== null &&
-        this.form.tjm !== null
+        this.form.start_date != null &&
+        this.form.end_date != null &&
+        this.form.tjm != null &&
+         this.form.start_date != "" &&
+        this.form.end_date != "" &&
+        this.form.tjm != "" 
       ) {
         if (this.form.start_date < this.form.end_date) {
           Axios.post("/mission/update/" + this.mission_id, {
-            old_tjm: this.mission_tjm,
             tjm: this.form.tjm,
+            tjm_start_date: this.form.tjm_start_date,
             start_date: this.form.start_date,
             end_date: this.form.end_date,
           })
             .then((response) => {
+              this.form.tjm_start_date = null;
               this.dialog = false;
               this.CreateState = false;
               this.SuccessState = true;
@@ -145,7 +165,7 @@ export default {
           this.error = "La date début doit être inférieur à la date de fin !";
         }
       } else {
-        this.error = "Aucun changement effectué";
+        this.error = "Remplissez tous les champs.";
       }
     },
     todayDate() {

@@ -6,12 +6,11 @@
       </v-col>
       <v-row justify="end">
         <v-col lg="6">
-          <AddClientForm :onSuccess="refresh" />
+          <AddClientForm />
         </v-col>
       </v-row>
     </v-row>
-    <p v-if="isLoadingCustomers">Loading customers...</p>
-    <div v-else class="row">
+    <div class="row">
       <router-link
         class="col-2 client rounded-3 m-2 pt-3 shadow-sm"
         v-for="customer in customers"
@@ -42,16 +41,8 @@
 <script>
 import Axios from "@/_services/caller.service";
 import AddClientForm from "@/components/forms/AddClientForm.vue";
-import { mapGetters } from "vuex";
 import {
-  startOfMonth,
-  endOfMonth,
-  eachMonthOfInterval,
   format,
-  getYear,
-  getMonth,
-  eachDayOfInterval,
-  isWeekend,
 } from "date-fns";
 
 export default {
@@ -92,7 +83,9 @@ export default {
 
       customer.Projects.forEach((project) => {
         project.Missions.forEach((mission) => {
-          associateIds.add(mission.associate_id);
+          if(mission.date_range_mission[0].value <= this.todayDate() && mission.date_range_mission[1].value >= this.todayDate()) {
+            associateIds.add(mission.associate_id);
+          }
         });
       });
 
@@ -105,14 +98,19 @@ export default {
       this.customers = res.data?.caOfActualMonthCustomer
       console.log(this.customers)
     })
+    // lister les intercontrats
     Axios.get("/associates/all").then((res) => {
       res.data?.associate.forEach((associate) => {
+        // on vérifie que l'associé est bien dans l'entreprise
         if (associate.start_date < this.todayDate()) {
+          // Si le collaborateurs à encore eu 0 mission
           if (associate.Missions.length == 0) {
             let add = 0;
             associate.Jobs.forEach((job) => {
               if (add == 0) {
+                // On regarde si il es manager 
                 if (job.label != "Manager") {
+                  // Si il n'est pas manager, alors on il est en intercontrat
                   add = 1;
                   this.intercontrats.push(associate);
                 }
@@ -122,8 +120,8 @@ export default {
             var enMission = false;
             associate.Missions.forEach((mission) => {
               if (
-                mission.start_date <= this.todayDate() &&
-                mission.end_date >= this.todayDate()
+                mission.date_range_mission[0].value <= this.todayDate() &&
+                mission.date_range_mission[1].value >= this.todayDate()
               ) {
                 enMission = true;
                 return;
@@ -137,10 +135,6 @@ export default {
       });
       this.intercontrats.nbCollab = this.intercontrats.length;
     });
-  },
-  computed: {
-    ...mapGetters(["getToken"]),
-
   },
 };
 </script>

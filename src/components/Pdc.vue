@@ -4,13 +4,16 @@
     <div>
       <v-row>
         <v-col cols="6" lg="2" md="2">
-          <v-text-field
+          <v-autocomplete
             v-model="researchCollab"
             variant="solo"
             label="Collaborateur"
             bg-color="deep-purple-darken-3"
+            :items="associates"
+            item-title="full_name"
+            item-value="full_name"
           >
-          </v-text-field>
+          </v-autocomplete>
         </v-col>
 
         <v-col cols="6" lg="2" md="2">
@@ -183,6 +186,7 @@ export default {
       selectedCustomer: null,
       selectedProject: null,
       pdcCalculated: [],
+      associates: [],
     };
   },
 
@@ -196,7 +200,7 @@ export default {
       this.selectedCustomer = null;
       this.selectedProject = null;
       this.selectedManager = null;
-      this.searchTerm = null;
+      this.researchCollab = null;
       Axios.get("pdc", {
         params: {
           year: this.selectedYear,
@@ -225,7 +229,7 @@ export default {
   },
   created() {
     this.loading = true;
-    Axios.get("http://localhost:8080/api/pdc/year")
+    Axios.get("/pdc/year")
       .then((res) => {
         this.selectedYear = res.data?.pdc.actual_year;
       })
@@ -242,6 +246,13 @@ export default {
           // console.log(this.pdcCalculated);
         });
       });
+
+    Axios.get("/associates").then((res) => {
+      res.data?.associate.forEach((associate) => {
+        associate.full_name = associate.first_name + " " + associate.name;
+        this.associates.push(associate);
+      });
+    });
   },
 
   computed: {

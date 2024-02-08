@@ -123,7 +123,7 @@ export default {
           })
           .then(
             (response) => {
-              console.log(response);
+              this.form.label = null;
               this.dialog = false;
               this.errorState = false;
               this.SuccessState = true;
