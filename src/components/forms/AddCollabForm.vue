@@ -218,6 +218,18 @@ export default {
             .then((response) => {
               console.log(response);
 
+              // Mise à jour de la propriété associates avec l'appel API à "/associates"
+              Axios.get("/associates")
+                .then((associatesResponse) => {
+                  this.$store.commit("setAssociates", associatesResponse.data);
+                })
+                .catch((associatesError) => {
+                  console.error(
+                    "Erreur lors de la mise à jour des associés :",
+                    associatesError
+                  );
+                });
+
               this.dialog = false;
               this.CreateState = false;
               this.SuccessState = true;
@@ -240,13 +252,20 @@ export default {
   computed: {
     computedMail() {
       let first_name = this.form.first_name.toLowerCase();
-      first_name = first_name.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      first_name = first_name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s/g, "");
 
       let name = this.form.name.toLowerCase();
-      name = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      name = name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s/g, "");
 
       return first_name + "." + name + "@sii.fr";
     },
+
     jobs() {
       return this.$store.getters.getJobs;
     },

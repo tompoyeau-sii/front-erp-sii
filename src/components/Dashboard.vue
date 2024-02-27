@@ -6,8 +6,7 @@
       </v-col>
     </v-row>
 
-    <p v-if="isLoadingCustomers">Chargement des données...</p>
-    <div v-else>
+    <div>
       <v-row>
         <v-col cols="12" lg="4" md="6" sm="6">
           <div class="bg-white shadow rounded-5 p-4">
@@ -68,7 +67,7 @@
           </div>
         </v-col>
 
-        <v-col cols="12" lg="8" class="shadow rounded-5 p-5 mt-5 gradient">
+        <v-col cols="12" lg="8" class="shadow rounded-5 mt-3 p-5 gradient">
           <p class="pb-5">CA par client depuis le début de l'exercice</p>
           <v-row>
             <v-col

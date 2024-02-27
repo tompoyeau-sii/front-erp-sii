@@ -269,6 +269,7 @@ export default {
   },
 
   methods: {
+    // Récupère les données des collaborateurs depuis le serveur
     async fetchData(page) {
       const response = await Axios.get(
         `/associates?page=${page || this.currentPage}`
@@ -278,9 +279,11 @@ export default {
       this.globalPages = response.data.totalPages;
       this.calculateAssociate();
     },
+     // Retourne la date du jour au format YYYY-MM-DD
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
     },
+    // Calcule les données des collaborateurs à afficher en fonction des filtres appliqués
     calculateAssociate() {
       if (this.filtered) {
         (this.calculatedAssociates = []),
@@ -314,9 +317,7 @@ export default {
           });
       }
     },
-    todayDate() {
-      return format(new Date(), "yyyy-MM-dd");
-    },
+    // Récupère les projets en cours pour un collaborateur spécifique
     projetEnCours(associate_id) {
       var missionOfCollab = [];
       this.allAssociates.forEach((associate) => {
@@ -334,6 +335,7 @@ export default {
       });
       return missionOfCollab;
     },
+    // Récupère les managers actuels pour un collaborateur spécifique
     managerEnCours(associate_id) {
       var missionOfCollab = [];
       this.allAssociates.forEach((associate) => {
@@ -345,6 +347,7 @@ export default {
       });
       return missionOfCollab;
     },
+    // Récupère les clients pour lesquels un collaborateur travaille actuellement
     clientEnCours(associate_id) {
       var missionOfCollab = [];
       this.allAssociates.forEach((associate) => {
@@ -362,6 +365,7 @@ export default {
       });
       return missionOfCollab;
     },
+    // Récupère les postes actuels pour un collaborateur spécifique
     posteEnCours(associate_id) {
       var missionOfCollab = [];
       let today = new Date();
@@ -381,6 +385,7 @@ export default {
       });
       return missionOfCollab;
     },
+     // Filtre les collaborateurs en fonction des critères sélectionnés
     filterAssociates() {
       this.calculateAssociate();
       if (

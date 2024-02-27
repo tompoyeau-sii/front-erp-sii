@@ -8,7 +8,7 @@ function todayDate() {
 export default createStore({
   state: {
     connected: false,
-    token: '',
+    token: null,
     associates: '',
     customers: '',
     projects: '',
@@ -20,7 +20,7 @@ export default createStore({
   },
   getters: {
     getToken(state) {
-      return state.test
+      return state.token
     },
     getCustomers(state) {
       return state.customers;
@@ -49,7 +49,7 @@ export default createStore({
   },
   mutations: {
     isLog(state) {
-      state.connected = state.connected; // Il semble y avoir une erreur ici, vous pouvez simplement utiliser : state.connected = true
+      state.connected = state.connected;
     },
     setCustomers(state, data) {
       state.customers = data;
@@ -74,12 +74,15 @@ export default createStore({
     },
     setLoading(state, isLoading) {
       state.isLoading = isLoading;
-    }
+    },
+    setToken(state, token) {
+      state.token = token;
+    },
   },
   actions: {
     async initApp({ commit }) {
       try {
-        commit('setLoading', true); // Définir isLoadingCustomers sur true au début du chargement
+        commit('setLoading', true);
 
         // Chargement de tous les clients
         const customers = await Axios.get("/customers");
@@ -90,7 +93,7 @@ export default createStore({
         commit('setProjects', projects.data?.project);
 
         // Chargement de tous les collaborateurs
-        const allAssociates = await Axios.get("/associates/all");
+        const allAssociates = await Axios.get("/associates");
         commit('setAssociates', allAssociates.data?.associate);
 
         //Chargement de tous les managers
@@ -124,7 +127,7 @@ export default createStore({
       } finally {
         commit('setLoading', false); // Définir isLoadingCustomers sur false une fois le chargement terminé
       }
-    }
+    },
   },
   modules: {
   }

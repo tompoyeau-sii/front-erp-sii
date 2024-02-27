@@ -21,7 +21,7 @@
           class="title"
           v-text="associate.first_name + ' ' + associate.name"
         ></h1>
-        <p v-text="job"></p>
+        <p>{{ job }} | {{ associate.mail }}</p>
       </v-col>
       <v-row justify="end">
         <v-col lg="6">

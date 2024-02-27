@@ -79,7 +79,7 @@ export default {
       }
     },
     filterAssociate(customer) {
-      const associateIds = new Set();
+      const associateIds = Set();
 
       customer.Projects.forEach((project) => {
         project.Missions.forEach((mission) => {

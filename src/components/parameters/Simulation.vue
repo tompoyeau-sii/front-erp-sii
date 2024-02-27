@@ -50,7 +50,7 @@ export default {
   methods: {
     ...mapMutations(['setSimulationMode']),
     toggleSimulationMode() {
-      const newMode = this.simulationMode === 'true' ? 'false' : 'true';
+      const newMode = this.simulationMode === true ? false : true;
       this.setSimulationMode(newMode);
     },
     refreshData() {

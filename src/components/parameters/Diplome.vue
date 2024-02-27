@@ -143,7 +143,7 @@ export default {
       }
     },
     fetchGraduations: function () {
-      Axios.get("http://localhost:8080/api/graduations").then((res) => {
+      Axios.get("/graduations").then((res) => {
         this.graduations = res.data?.graduation;
       });
     },

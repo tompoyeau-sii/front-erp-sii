@@ -67,17 +67,17 @@ export default {
         accountService
           .login(this.login)
           .then((res) => {
-            console.log(res.data);
             accountService.saveToken(res.data.token);
-            console.log(this.$store.state.connected);
             router.push("/dashboard");
           })
           .catch((err) => {
-            console.log(err), (this.error = err.response.data.error);
+            this.ErrorState = true;
+            this.error = "Erreur serveur : " + err.response.data.error;
+            console.log(err)
           });
       } else {
-        (this.ErrorState = true),
-          (this.error = "Veuillez remplir tous les champs");
+        this.ErrorState = true,
+          this.error = "Veuillez remplir tous les champs";
         console.log(this.error);
       }
     },

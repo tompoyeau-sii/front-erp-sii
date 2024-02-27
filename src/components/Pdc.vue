@@ -229,6 +229,24 @@ export default {
   },
   created() {
     this.loading = true;
+
+    Axios.get("/customers").then((res) => {
+      this.customers = res.data?.customer;
+    });
+
+    Axios.get("/projects").then((res) => {
+      this.projects = res.data?.project;
+      if (this.customer_id) {
+        this.projects.forEach((project) => {
+          if (project.customer_id == this.customer_id) {
+            // Ajoute le projet correspondant à l'ID spécifié au tableau filtré
+            project.label_adv = project.label + " - " + project.adv;
+            this.projectsFiletred.push(project);
+          }
+        });
+      }
+    });
+
     Axios.get("/pdc/year")
       .then((res) => {
         this.selectedYear = res.data?.pdc.actual_year;
@@ -256,12 +274,7 @@ export default {
   },
 
   computed: {
-    customers() {
-      return this.$store.getters.getCustomers;
-    },
-    projects() {
-      return this.$store.getters.getProjects;
-    },
+    
     managers() {
       return this.$store.getters.getManagers;
     },

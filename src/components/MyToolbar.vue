@@ -3,11 +3,7 @@
     v-if="isLog()"
     v-model="drawer"
     class="toolBar"
-    style="
-      background: linear-gradient(180deg,rgba(117, 81, 155, 1) 0%,rgba(232, 70, 84, 1) 100%) !important;
-    "
-    mobile-breakpoint="960"
-  >
+    style="background: linear-gradient(180deg,rgba(117, 81, 155, 1) 0%,rgba(232, 70, 84, 1) 100%) !important;">
     <!-- <v-img aspect-ratio class="sii" load src="../assets/SIIlogo.svg"></v-img> -->
     <v-img
       style="text-align: center"
@@ -63,13 +59,14 @@
     </v-list>
     <template v-slot:append>
       <v-list-item>
-        <v-btn 
-    v-if="simulationMode === 'true'"
-    prepend-icon="mdi-alert"
-    color="warning"
-    @click="toggleSimulationMode">
-    Mode simulation
-  </v-btn>
+        <v-btn
+          v-if="simulationMode"
+          prepend-icon="mdi-alert"
+          color="warning"
+          @click="toggleSimulationMode"
+        >
+          Mode simulation
+        </v-btn>
       </v-list-item>
       <router-link to="/">
         <v-list-item
@@ -111,7 +108,7 @@ export default {
         // Modifier la variable "drawer" à false
         this.drawer = false;
       } else {
-        // Modifier la variable "drawer" à true (ou à la valeur souhaitée)
+        // Modifier la variable "drawer" à true
         this.drawer = true;
       }
     },
@@ -123,15 +120,15 @@ export default {
       return accountService.isLogged();
     },
     toggleSimulationMode() {
-      const newMode = this.simulationMode === 'true' ? 'false' : 'true';
+      const newMode = this.simulationMode === true ? false : true;
       this.setSimulationMode(newMode);
-    }
+    },
   },
   computed: {
-    ...mapGetters(['getSimulationMode']),
+    ...mapGetters(["getSimulationMode"]),
     simulationMode() {
       return this.getSimulationMode;
-    }
+    },
   },
 };
 </script>
