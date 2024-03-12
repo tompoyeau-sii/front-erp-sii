@@ -1,7 +1,7 @@
 <template>
   <div class="row">
     <div class="col-4">
-      <div class="card p-3">
+      <div class="card shadow border-0 p-3">
         <h5 class="name">Postes</h5>
         <div class="table-responsive">
           <table class="table rounded-3">
@@ -30,6 +30,7 @@
               <v-btn
                 icon="mdi-plus"
                 color="deep-purple-darken-1"
+                variant="text"
                 v-bind="props"
               >
               </v-btn>
@@ -104,6 +105,7 @@
 
 <script>
 import Axios from "@/_services/caller.service";
+import { mapActions } from "vuex";
 export default {
   name: "Job",
   data() {
@@ -112,7 +114,6 @@ export default {
         label: "",
       },
       dialog: false,
-      jobs: [],
       error: "",
       errorState: false,
       SuccessState: false,
@@ -120,9 +121,10 @@ export default {
     };
   },
   methods: {
-    formAddJob: function () {
+    ...mapActions(["refreshJobs"]),
+    formAddJob() {
       if (this.form.label !== "") {
-        Axios.post("http://localhost:8080/api/job", {
+        Axios.post("job", {
           label: this.form.label,
         }).then(
           (response) => {
@@ -131,7 +133,7 @@ export default {
             this.errorState = false;
             this.SuccessState = true;
             this.success = "Nouveau métier créé";
-            this.fetchGenders();
+            this.refreshJobs();
           },
           (response) => {
             console.log(response.headers);
@@ -144,15 +146,12 @@ export default {
         this.error = "Veuillez ajouter un libelle.";
       }
     },
-    fetchGenders: function () {
-      Axios.get("http://localhost:8080/api/jobs").then((res) => {
-        this.jobs = res.data?.job;
-      });
+  },
+  computed: {
+    jobs() {
+      return this.$store.getters.getJobs;
     },
-  },
-  created() {
-    this.fetchGenders();
-  },
+  }
 };
 </script>
 

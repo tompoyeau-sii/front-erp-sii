@@ -108,13 +108,13 @@ export default {
       evolCa: 0,
       selectedYear: null,
       month: null,
-      customers: []
+      customers: [],
     };
   },
   async created() {
     Axios.get("/statistiques/customer/actualMonth").then((res) => {
-      this.customers = res.data?.caOfActualMonthCustomer
-    })
+      this.customers = res.data?.caOfActualMonthCustomer;
+    });
     Axios.get("/associates/all").then((res) => {
       this.associates = res.data?.associate;
       console.log(this.associates);
@@ -152,10 +152,8 @@ export default {
     //   }
     // },
     getEvolutionCA(todayCA, lastYearCA) {
-      ca = todayCA - lastYearCA;
-      ca = ca / Math.abs(lastYearCA);
-      ca = ca * 100;
-      return ca.toFixed(0) + "%";
+      this.evolCa = ((todayCA - lastYearCA) / Math.abs(lastYearCA)) * 100;
+      return this.evolCa.toFixed(0) + "%";
     },
     calculateAge(dateOfBirth) {
       const today = new Date();

@@ -1,6 +1,6 @@
 import { authGuard } from '@/_helpers/auth-guard'
 import Axios from '@/_services/caller.service'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 
 // localStorage.setItem('token', 'token')
@@ -101,7 +101,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes
 })
 

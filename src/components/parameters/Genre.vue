@@ -1,7 +1,7 @@
 <template>
   <div class="row">
     <div class="col-4">
-      <div class="card p-3">
+      <div class="card shadow border-0 p-3">
         <h5 class="name">Genres</h5>
         <div class="table-responsive">
           <table class="table rounded-3">
@@ -12,7 +12,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="genre in genres" :key="genre.id">
+              <tr v-for="genre in genders" :key="genre.id">
                 <td style="display: flex; align-content: center">
                   <p class="mt-auto mb-auto ml-2" v-text="genre.id"></p>
                 </td>
@@ -27,7 +27,13 @@
         <v-row justify="center">
           <v-dialog v-model="dialog" width="750px">
             <template v-slot:activator="{ props }">
-              <v-btn icon="mdi-plus" color="deep-purple-darken-1" v-bind="props"> </v-btn>
+              <v-btn
+                icon="mdi-plus"
+                variant="text"
+                color="deep-purple-darken-1"
+                v-bind="props"
+              >
+              </v-btn>
             </template>
 
             <v-card class="gradient">
@@ -99,6 +105,7 @@
 
 <script>
 import Axios from "@/_services/caller.service";
+import { mapActions } from "vuex";
 export default {
   name: "Genre",
   data() {
@@ -107,7 +114,6 @@ export default {
         label: "",
       },
       dialog: false,
-      genres: [],
       error: "",
       errorState: false,
       SuccessState: false,
@@ -115,40 +121,36 @@ export default {
     };
   },
   methods: {
+    ...mapActions(["refreshGenders"]),
     formAddGenre: function () {
       if (this.form.label !== "") {
-        Axios
-          .post("http://localhost:8080/api/gender", {
-            label: this.form.label,
-          })
-          .then(
-            (response) => {
-              this.form.label = null;
-              this.dialog = false;
-              this.errorState = false;
-              this.SuccessState = true;
-              this.success = "Nouveau genre ajouté";
-              this.fetchGenders();
-            },
-            (response) => {
-              console.log(response.headers);
-              this.errorState = true;
-              this.error = response.headers;
-            }
-          );
+        Axios.post("gender", {
+          label: this.form.label,
+        }).then(
+          (response) => {
+            this.form.label = null;
+            this.dialog = false;
+            this.errorState = false;
+            this.SuccessState = true;
+            this.success = "Nouveau genre ajouté";
+            this.refreshGenders();
+          },
+          (response) => {
+            console.log(response.headers);
+            this.errorState = true;
+            this.error = response.headers;
+          }
+        );
       } else {
         this.errorState = true;
         this.error = "Veuillez ajouter un libelle.";
       }
     },
-    fetchGenders: function () {
-      Axios.get("http://localhost:8080/api/genders").then((res) => {
-        this.genres = res.data?.gender;
-      });
-    },
   },
-  created() {
-    this.fetchGenders();
+  computed: {
+    genders() {
+      return this.$store.getters.getGenders;
+    },
   },
 };
 </script>

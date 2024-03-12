@@ -77,11 +77,9 @@
 
 <script>
 import Axios from "@/_services/caller.service";
+import { mapActions } from 'vuex';
 export default {
   name: "AddClientForm",
-  props: {
-    onSuccess: Function, // Prop pour recevoir la fonction onSuccess du parent
-  },
   data() {
     return {
       form: {
@@ -95,12 +93,7 @@ export default {
     };
   },
   methods: {
-    refresh() {
-      this.customers = [];
-      Axios.get("/customers").then((res) => {
-        this.customers = res.data?.customer;
-      });
-    },
+     ...mapActions(['refreshCustomers']),
 
     formAddCustomer() {
       if(this.form.label.length > 2) {
@@ -109,12 +102,10 @@ export default {
       }).then(
         (response) => {
           this.dialog = false;
-          this.CreateState = false;
           this.SuccessState = true;
           this.success = "Nouveau client créé";
-          this.refresh();
+           this.refreshCustomers();
           this.error = "";
-          this.onSuccess();
         }).catch((err) => {
           this.error = err.response.data.error
         })

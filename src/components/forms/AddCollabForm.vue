@@ -230,6 +230,7 @@ export default {
                   );
                 });
 
+                this.$emit('associateAdded');
               this.dialog = false;
               this.CreateState = false;
               this.SuccessState = true;
