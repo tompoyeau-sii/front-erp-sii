@@ -11,7 +11,7 @@
         >
       </v-col>
     </v-row>
-    <v-row class="">
+    <v-row>
       <v-col lg="6">
         <h1 class="title">Intercontrat</h1>
       </v-col>
@@ -21,7 +21,7 @@
       <v-col cols="4">
         <div class="bg-white shadow rounded-5 mt-3 p-4">
           <p class="mb-2 etiquette">Perte quotitdienne</p>
-          <v-row justify="end">
+          <v-row justify="end" align="center">
             <v-icon
               class="title"
               icon="mdi-currency-eur"

@@ -8,6 +8,9 @@ export function authGuard(to) {
         return true
     }
     // return false
-    
+    localStorage.clear("token")
+    localStorage.clear("userId")
+    localStorage.clear("userName")
+    localStorage.clear("isSimulation")
     router.push('/')
 }   

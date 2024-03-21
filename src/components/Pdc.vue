@@ -20,6 +20,8 @@
           <v-select
             label="Année"
             :items="years"
+            item-title="label"
+            item-value="value"
             variant="solo"
             bg-color="red-accent-2"
             v-model="selectedYear"
@@ -181,7 +183,14 @@ export default {
       globalPage: 0,
       loading: true,
       selectedYear: null,
-      years: [2020, 2021, 2022, 2023, 2024, 2025],
+      years: [
+        { label: "2021 - 2022", value: 2021 },
+        { label: "2022 - 2023", valeur: 2022 },
+        { label: "2023 - 2024", valeur: 2023},
+        { label: "2024 - 2025", valeur: 2024 },
+        { label: "2025 - 2026", valeur: 2025 },
+        { label: "2026 - 2027", valeur: 2026 },
+      ],
       selectedManager: null,
       selectedCustomer: null,
       selectedProject: null,
@@ -274,7 +283,6 @@ export default {
   },
 
   computed: {
-    
     managers() {
       return this.$store.getters.getManagers;
     },

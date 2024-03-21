@@ -8,11 +8,16 @@ let login = (login) => {
 
 let logout = () => {
     localStorage.clear("token")
+    localStorage.clear("userId")
+    localStorage.clear("username")
+    localStorage.clear("isSimulation")    
     router.push('/');
 }
 
-let saveToken = (token) => {
+let saveToken = (token, userId, userName) => {
     localStorage.setItem('token', token);
+    localStorage.setItem('userId', userId)
+    localStorage.setItem('userName', userName)
     localStorage.setItem('connected', true);
     setAuthHeader(token);
 }

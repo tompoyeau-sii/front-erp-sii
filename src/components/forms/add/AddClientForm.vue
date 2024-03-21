@@ -77,11 +77,9 @@
 
 <script>
 import Axios from "@/_services/caller.service";
+import { mapActions } from "vuex";
 export default {
   name: "AddClientForm",
-  props: {
-    onSuccess: Function, // Prop pour recevoir la fonction onSuccess du parent
-  },
   data() {
     return {
       form: {
@@ -91,35 +89,28 @@ export default {
       error: "",
       SuccessState: false,
       snackbar: false,
-      
     };
   },
   methods: {
-    refresh() {
-      this.customers = [];
-      Axios.get("/customers").then((res) => {
-        this.customers = res.data?.customer;
-      });
-    },
+    ...mapActions(["refreshCustomers"]),
 
     formAddCustomer() {
-      if(this.form.label.length > 2) {
-      Axios.post("/customer", {
-        label: this.form.label,
-      }).then(
-        (response) => {
-          this.dialog = false;
-          this.CreateState = false;
-          this.SuccessState = true;
-          this.success = "Nouveau client créé";
-          this.refresh();
-          this.error = "";
-          this.onSuccess();
-        }).catch((err) => {
-          this.error = err.response.data.error
+      if (this.form.label.length > 2) {
+        Axios.post("/customer", {
+          label: this.form.label,
         })
+          .then((response) => {
+            this.dialog = false;
+            this.SuccessState = true;
+            this.success = "Nouveau client créé";
+            this.refreshCustomers();
+            this.error = "";
+          })
+          .catch((err) => {
+            this.error = err.response.data.error;
+          });
       } else {
-        this.error = "Le libelle du client doit faire plus de 2 caractères."
+        this.error = "Le libelle du client doit faire plus de 2 caractères.";
       }
     },
   },

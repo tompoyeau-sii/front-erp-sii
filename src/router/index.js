@@ -1,6 +1,6 @@
 import { authGuard } from '@/_helpers/auth-guard'
 import Axios from '@/_services/caller.service'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 
 // localStorage.setItem('token', 'token')
@@ -93,15 +93,15 @@ const routes = [
     component: () => import(/* webpackChunkName: "new" */ '../views/IntercontratView.vue')
   },
   {
-    path: '/test',
-    name: 'TestView',
+    path: '/simulation',
+    name: 'SimulationView',
     beforeEnter: authGuard,
-    component: () => import(/* webpackChunkName: "new" */ '../views/TestView.vue')
+    component: () => import(/* webpackChunkName: "new" */ '../views/SimulationView.vue')
   },
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes
 })
 

@@ -56,14 +56,20 @@
           value="parametres"
         ></v-list-item>
       </router-link>
+      <router-link to="/simulation">
+        <v-list-item
+          prepend-icon="mdi-chart-timeline-variant-shimmer"
+          title="Mode simulation"
+          value="simulation"
+        ></v-list-item>
+      </router-link>
     </v-list>
     <template v-slot:append>
       <v-list-item>
         <v-btn
-          v-if="simulationMode"
+          v-if="simulationMode() == true"
           prepend-icon="mdi-alert"
           color="warning"
-          @click="toggleSimulationMode"
         >
           Mode simulation
         </v-btn>
@@ -72,7 +78,7 @@
         <v-list-item
           v-on:click="disconnect"
           prepend-icon="mdi-logout"
-          title="Se déconnecter"
+          :title="userName"
           value="logout"
         ></v-list-item>
       </router-link>
@@ -94,6 +100,7 @@ export default {
   data() {
     return {
       drawer: null,
+      userName: localStorage.getItem("userName")
     };
   },
   methods: {
@@ -119,16 +126,16 @@ export default {
     isLog: function () {
       return accountService.isLogged();
     },
-    toggleSimulationMode() {
-      const newMode = this.simulationMode === true ? false : true;
-      this.setSimulationMode(newMode);
+    simulationMode() {
+      if(this.getSimulationMode == "true" || localStorage.getItem("isSimulation") == "true") {
+        return true;
+      }
+      return false;
     },
   },
   computed: {
     ...mapGetters(["getSimulationMode"]),
-    simulationMode() {
-      return this.getSimulationMode;
-    },
+
   },
 };
 </script>

@@ -119,9 +119,9 @@
 </template>
 
 <script>
-import AddProjectForm from "@/components/forms/AddProjectForm.vue";
-import AddMissionForm from "@/components/forms/AddMissionForm.vue";
-import UpdateClientForm from "@/components/forms/UpdateClientForm.vue";
+import AddProjectForm from "@/components/forms/add/AddProjectForm.vue";
+import AddMissionForm from "@/components/forms/add/AddMissionForm.vue";
+import UpdateClientForm from "@/components/forms/update/UpdateClientForm.vue";
 import { format } from "date-fns";
 export default {
   name: "FicheClient",

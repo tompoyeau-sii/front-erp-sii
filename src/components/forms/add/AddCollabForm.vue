@@ -2,14 +2,19 @@
   <v-row justify="end" class="m-3">
     <v-dialog v-model="dialog" width="750px">
       <template v-slot:activator="{ props }">
-        <v-btn icon="mdi-pencil" color="deep-purple-darken-1" v-bind="props">
+        <v-btn
+          prepend-icon="mdi-plus"
+          color="deep-purple-darken-1"
+          v-bind="props"
+        >
+          Collaborateur
         </v-btn>
       </template>
       <v-card>
-        <v-form v-on:submit.prevent="formUpdateCollab">
+        <v-form v-on:submit.prevent="formAddCollab">
           <v-card-title>
             <v-row justify="center" class="mt-3">
-              <h1 class="form-title">Modifier le collaborateur</h1>
+              <h1 class="form-title">Ajouter un nouveau collaborateur</h1>
             </v-row>
           </v-card-title>
           <v-card-text>
@@ -32,13 +37,14 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-radio-group inline label="Genre" v-model="form.gender">
+                  <v-radio-group inline label="Genre" v-model="form.sexe">
                     <v-radio label="Homme" :value="1"></v-radio>
                     <v-radio label="Femme" :value="2"></v-radio>
                   </v-radio-group>
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-autocomplete
+                    transition="scroll-x-reverse-transition"
                     v-model="form.graduation"
                     :items="graduations"
                     item-title="label"
@@ -98,6 +104,7 @@
                     :items="managers"
                     item-title="full_name"
                     item-value="id"
+                    clearable
                     label="Manager"
                     variant="solo"
                   ></v-autocomplete>
@@ -122,93 +129,61 @@
             <v-btn color="white" variant="text" @click="dialog = false">
               Annuler
             </v-btn>
-            <v-btn color="white" variant="text" type="submit"> Modifier </v-btn>
+            <v-btn
+              color="white"
+              variant="text"
+              type="submit"
+              @click="snackbar = true"
+            >
+              Bienvenue !
+            </v-btn>
           </v-card-actions>
         </v-form>
       </v-card>
     </v-dialog>
+    <v-snackbar
+      v-if="SuccessState == true"
+      v-model="snackbar"
+      w-auto
+      color="green"
+      timeout="3000"
+    >
+      <v-icon start icon="mdi-checkbox-marked-circle"></v-icon>
+      {{ success }}
+    </v-snackbar>
   </v-row>
-  <v-snackbar
-    v-if="SuccessState == true"
-    v-model="snackbar"
-    w-auto
-    color="green"
-    timeout="3000"
-  >
-    <v-icon start icon="mdi-checkbox-marked-circle"></v-icon>
-    {{ success }}
-  </v-snackbar>
 </template>
 
 <script>
 import Axios from "@/_services/caller.service";
 import { format } from "date-fns";
 export default {
-  name: "UpdateCollabForm",
-  props: [
-    "associate_id",
-    "associate_name",
-    "associate_first_name",
-    "associate_birthdate",
-    "associate_mail",
-    "associate_start_date",
-    "associate_pru",
-    "associate_graduation",
-    "associate_job",
-    "associate_job_id",
-    "associate_gender",
-    "associate_manager",
-    "associate_manager_id",
-  ],
+  name: "AddCollabForm",
   data() {
     return {
-      associate: [],
       form: {
-        name: this.associate_name,
-        first_name: this.associate_first_name,
-        birthdate: this.associate_birthdate,
-        gender: this.associate_gender,
-        graduation: this.associate_graduation,
-        job: this.associate_job_id,
-        start_date: this.associate_start_date,
-        pru: this.associate_pru,
-        mail: this.associate_mail,
-        manager: this.associate_manager_id,
+        name: "",
+        first_name: "",
+        sexe: "",
+        graduation: null,
+        birthdate: "",
+        job: null,
+        start_date: "",
+        pru: "",
+        manager: null,
       },
       dialog: false,
       success: "",
-      error: "",
       SuccessState: false,
-      snackbar: false,
+      error: "",
     };
-  },
-
-  computed: {
-    computedMail() {
-      let first_name = this.form.first_name.toLowerCase();
-      first_name = first_name.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-      let name = this.form.name.toLowerCase();
-      name = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-      return first_name + "." + name + "@sii.fr";
-    },
-    jobs() {
-      return this.$store.getters.getJobs;
-    },
-    graduations() {
-      return this.$store.getters.getGraduations;
-    },
-    managers() {
-      return this.$store.getters.getManagers;
-    },
   },
 
   methods: {
     todayDate() {
-      return format(new Date(), "yyyy/MM/dd");
+      return format(new Date(), "yyyy-MM-dd");
     },
-    formUpdateCollab() {
+    formAddCollab() {
       if (
         this.form.first_name != "" &&
         this.form.name != "" &&
@@ -220,41 +195,92 @@ export default {
         this.form.start_date != "" &&
         this.form.pru != ""
       ) {
-        if((this.form.manager == null && this.form.job == 1) || (this.form.manager != null)) {
-        Axios.post("/associate/update/" + this.associate_id, {
-          name: this.form.name,
-          first_name: this.form.first_name,
-          gender: this.form.sexe,
-          graduation_id: this.form.graduation,
-          job_id: this.form.job,
-          birthdate: this.form.birthdate,
-          start_date: this.form.start_date,
-          mail: this.form.mail,
-          pru: this.form.pru,
-          manager_id: this.form.manager,
-        })
-          .then((response) => {
-            console.log(response);
-            this.dialog = false;
-            this.SuccessState = true;
-            this.error = "";
-            this.success = "Collaborateur modifié.";
-            this.snackbar = true;
+        if (this.form.manager == null && this.form.job != 1) {
+          this.error = "Veuillez sélectioner un manager.";
+        } else if (this.form.manager != null && this.form.job == 1) {
+          this.error = "Un manager ne peux pas avoir de manager.";
+        } else if (
+          (this.form.manager == null && this.form.job == 1) ||
+          (this.form.manager != null && this.form.job != 1)
+        ) {
+          Axios.post("/associate", {
+            name: this.form.name,
+            first_name: this.form.first_name,
+            gender: this.form.sexe,
+            graduation_id: this.form.graduation,
+            job_id: this.form.job,
+            birthdate: this.form.birthdate,
+            start_date: this.form.start_date,
+            mail: this.computedMail,
+            pru: this.form.pru,
+            manager_id: this.form.manager,
           })
-          .catch((err) => {
-            console.log(err);
-            this.error = err.response.data.error;
-          });
+            .then((response) => {
+              console.log(response);
+
+              // Mise à jour de la propriété associates avec l'appel API à "/associates"
+              Axios.get("/associates")
+                .then((associatesResponse) => {
+                  this.$store.commit("setAssociates", associatesResponse.data);
+                })
+                .catch((associatesError) => {
+                  console.error(
+                    "Erreur lors de la mise à jour des associés :",
+                    associatesError
+                  );
+                });
+
+                this.$emit('associateAdded');
+              this.dialog = false;
+              this.CreateState = false;
+              this.SuccessState = true;
+              this.success = "Nouveau collaborateur ajouté.";
+              this.error = "";
+            })
+            .catch((err) => {
+              console.log(err);
+              this.error = err.response.data.error;
+            });
+        } else {
+          this.error = "Veuillez sélectioner un manager.";
         }
       } else {
         this.error = "Tous les champs sont obligatoires.";
       }
     },
   },
+
+  computed: {
+    computedMail() {
+      let first_name = this.form.first_name.toLowerCase();
+      first_name = first_name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s/g, "");
+
+      let name = this.form.name.toLowerCase();
+      name = name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s/g, "");
+
+      return first_name + "." + name + "@sii.fr";
+    },
+
+    jobs() {
+      return this.$store.getters.getJobs;
+    },
+    graduations() {
+      return this.$store.getters.getGraduations;
+    },
+    managers() {
+      return this.$store.getters.getManagers;
+    },
+  },
 };
 </script>
 
-<style>
+<style typ>
 td {
   margin-top: auto;
   margin-bottom: auto;

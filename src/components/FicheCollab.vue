@@ -286,9 +286,9 @@
 
 <script>
 import Axios from "@/_services/caller.service";
-import AddMissionForm from "@/components/forms/AddMissionForm.vue";
-import UpdateCollabForm from "@/components/forms/UpdateCollabForm.vue";
-import UpdateMissionForm from "@/components/forms/UpdateMissionForm.vue";
+import AddMissionForm from "@/components/forms/add/AddMissionForm.vue";
+import UpdateCollabForm from "@/components/forms/update/UpdateCollabForm.vue";
+import UpdateMissionForm from "@/components/forms/update/UpdateMissionForm.vue";
 import {
   format,
   isBefore,

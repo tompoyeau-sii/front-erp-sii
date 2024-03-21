@@ -2,9 +2,11 @@
   <div class="row">
     <v-col>
       <v-select
-        label="Année de référence du plan de charge"
+        label="Année de référence de l'application"
         v-model="selectedYear"
         :items="years"
+        item-title="label"
+        item-value="value"
         variant="solo"
       ></v-select>
     </v-col>
@@ -35,7 +37,14 @@ export default {
   name: "PdcYear",
   data() {
     return {
-      years: [2020, 2021, 2022, 2023, 2024, 2025, 2026],
+      years: [
+        { label: "2021 - 2022", value: 2021 },
+        { label: "2022 - 2023", valeur: 2022 },
+        { label: "2023 - 2024", valeur: 2023},
+        { label: "2024 - 2025", valeur: 2024 },
+        { label: "2025 - 2026", valeur: 2025 },
+        { label: "2026 - 2027", valeur: 2026 },
+      ],
       selectedYear: null,
       dialog: false,
       error: "",
@@ -46,13 +55,13 @@ export default {
     };
   },
   methods: {
-    fetchPdc: function () {
-      Axios.get("http://localhost:8080/api/pdc/year").then((res) => {
+    fetchPdc() {
+      Axios.get("pdc/year").then((res) => {
         this.selectedYear = res.data?.pdc.actual_year;
       });
     },
-    updatePdc: function () {
-      Axios.post("http://localhost:8080/api/pdc/year", {
+    updatePdc() {
+      Axios.put("pdc/year", {
         year: this.selectedYear,
       }).then((response) => {
         console.log(response.data.message);
@@ -63,7 +72,6 @@ export default {
     },
   },
   created() {
-    // Appeler la méthode pour récupérer la liste des diplômes au chargement initial
     this.fetchPdc();
   },
 };

@@ -93,7 +93,7 @@ export default {
     formUpdateCustomer() {
       if (this.form.label !== "" || this.form.label !== null) {
         console.log(this.form.label)
-        Axios.post("/customer/update/" + this.customer_id, {
+        Axios.put("/customer/update/" + this.customer_id, {
           label: this.form.label,
         })
           .then((response) => {

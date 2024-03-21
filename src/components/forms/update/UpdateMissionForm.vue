@@ -143,7 +143,7 @@ export default {
         this.form.tjm != "" 
       ) {
         if (this.form.start_date < this.form.end_date) {
-          Axios.post("/mission/update/" + this.mission_id, {
+          Axios.put("/mission/update/" + this.mission_id, {
             tjm: this.form.tjm,
             tjm_start_date: this.form.tjm_start_date,
             start_date: this.form.start_date,

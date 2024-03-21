@@ -40,10 +40,8 @@
 
 <script>
 import Axios from "@/_services/caller.service";
-import AddClientForm from "@/components/forms/AddClientForm.vue";
-import {
-  format,
-} from "date-fns";
+import AddClientForm from "@/components/forms/add/AddClientForm.vue";
+import { format } from "date-fns";
 
 export default {
   name: "Client",
@@ -57,33 +55,33 @@ export default {
       SuccessState: false,
       snackbar: false,
       nbCollab: [],
-      customers: []
     };
   },
-  created() {
-    
-  },
+ 
   methods: {
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
     },
     formatK(number) {
       if (number >= 1000) {
-        let res = number / 1000
-        return res.toFixed(0) + "K"
+        let res = number / 1000;
+        return res.toFixed(0) + "K";
       } else if (number < -1000) {
-        let res = number / 1000
-        return res.toFixed(0) + "K"
+        let res = number / 1000;
+        return res.toFixed(0) + "K";
       } else {
         return number;
       }
     },
     filterAssociate(customer) {
-      const associateIds = Set();
+      const associateIds = new Set();
 
       customer.Projects.forEach((project) => {
         project.Missions.forEach((mission) => {
-          if(mission.date_range_mission[0].value <= this.todayDate() && mission.date_range_mission[1].value >= this.todayDate()) {
+          if (
+            mission.date_range_mission[0].value <= this.todayDate() &&
+            mission.date_range_mission[1].value >= this.todayDate()
+          ) {
             associateIds.add(mission.associate_id);
           }
         });
@@ -93,49 +91,51 @@ export default {
       return nbCollab;
     },
   },
-  created() {
-    Axios.get("/statistiques/customer/actualMonth").then((res) => {
-      this.customers = res.data?.caOfActualMonthCustomer
-      console.log(this.customers)
-    })
-    // lister les intercontrats
-    Axios.get("/associates/all").then((res) => {
-      res.data?.associate.forEach((associate) => {
-        // on vérifie que l'associé est bien dans l'entreprise
-        if (associate.start_date < this.todayDate()) {
-          // Si le collaborateurs à encore eu 0 mission
-          if (associate.Missions.length == 0) {
-            let add = 0;
-            associate.Jobs.forEach((job) => {
-              if (add == 0) {
-                // On regarde si il es manager 
-                if (job.label != "Manager") {
-                  // Si il n'est pas manager, alors on il est en intercontrat
-                  add = 1;
-                  this.intercontrats.push(associate);
+  computed: {
+    customers() {
+      return this.$store.getters.getCustomers;
+    },
+  },
+ created() {
+      Axios.get("/associates/all").then((res) => {
+        res.data?.associate.forEach((associate) => {
+          // on vérifie que l'associé est bien dans l'entreprise
+          if (associate.start_date < this.todayDate()) {
+            // Si le collaborateurs à encore eu 0 mission
+            if (associate.Missions.length == 0) {
+              let add = 0;
+              associate.Jobs.forEach((job) => {
+                if (add == 0) {
+                  // On regarde si il es manager
+                  if (job.label != "Manager") {
+                    // Si il n'est pas manager, alors on il est en intercontrat
+                    add = 1;
+                    this.intercontrats.push(associate);
+                  }
                 }
+              });
+            } else {
+              var enMission = false;
+              associate.Missions.forEach((mission) => {
+                if (
+                  mission.date_range_mission[0].value <= this.todayDate() &&
+                  mission.date_range_mission[1].value >= this.todayDate()
+                ) {
+                  enMission = true;
+                  return;
+                }
+              });
+              if (enMission == false) {
+                this.intercontrats.push(associate);
               }
-            });
-          } else {
-            var enMission = false;
-            associate.Missions.forEach((mission) => {
-              if (
-                mission.date_range_mission[0].value <= this.todayDate() &&
-                mission.date_range_mission[1].value >= this.todayDate()
-              ) {
-                enMission = true;
-                return;
-              }
-            });
-            if (enMission == false) {
-              this.intercontrats.push(associate);
             }
           }
-        }
+        });
+        this.intercontrats.nbCollab = this.intercontrats.length;
+        console.log(this.customers)
       });
-      this.intercontrats.nbCollab = this.intercontrats.length;
-    });
   },
+  
 };
 </script>
 

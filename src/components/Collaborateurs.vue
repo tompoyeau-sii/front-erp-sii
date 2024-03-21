@@ -6,7 +6,7 @@
       </v-col>
       <v-row justify="end">
         <v-col lg="6">
-          <AddCollabForm />
+          <AddCollabForm @associateAdded="handleAssociateAdded" />
         </v-col>
       </v-row>
     </v-row>
@@ -201,7 +201,7 @@
 
 <script>
 import Axios from "@/_services/caller.service";
-import AddCollabForm from "@/components/forms/AddCollabForm.vue";
+import AddCollabForm from "@/components/forms/add/AddCollabForm.vue";
 import { format } from "date-fns";
 
 export default {
@@ -231,25 +231,9 @@ export default {
   },
   mounted() {
     this.fetchData();
+    console.log(this.asso)
   },
-  created() {
-    Axios.get("/associates/all").then((res) => {
-      this.allAssociates = res.data?.associate;
-      this.allAssociates.forEach((associate) => {
-        const associates = {
-          id: associate.id,
-          fullName: associate.first_name + " " + associate.name,
-          first_name: associate.first_name,
-          name: associate.name,
-          project: this.projetEnCours(associate.id),
-          customer: this.clientEnCours(associate.id),
-          managers: this.managerEnCours(associate.id),
-          Jobs: this.posteEnCours(associate.id),
-        };
-        this.allAssociatesCalculated.push(associates);
-      });
-    });
-  },
+
   watch: {
     currentPage(newPage) {
       this.fetchData(newPage);
@@ -275,11 +259,16 @@ export default {
         `/associates?page=${page || this.currentPage}`
       );
       this.associates = response.data.associate;
+      console.log(this.associates)
       this.totalPages = response.data.totalPages;
       this.globalPages = response.data.totalPages;
       this.calculateAssociate();
     },
-     // Retourne la date du jour au format YYYY-MM-DD
+    handleAssociateAdded() {
+      // Actualiser la liste des collaborateurs en récupérant les données depuis le serveur
+      this.fetchData();
+    },
+    // Retourne la date du jour au format YYYY-MM-DD
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
     },
@@ -385,7 +374,7 @@ export default {
       });
       return missionOfCollab;
     },
-     // Filtre les collaborateurs en fonction des critères sélectionnés
+    // Filtre les collaborateurs en fonction des critères sélectionnés
     filterAssociates() {
       this.calculateAssociate();
       if (
@@ -498,6 +487,25 @@ export default {
     managers() {
       return this.$store.getters.getManagers;
     },
+  },
+  created() {
+    Axios.get("/associates/all").then((res) => {
+      this.allAssociates = res.data?.associate;
+
+      this.allAssociates.forEach((associate) => {
+        const associates = {
+          id: associate.id,
+          fullName: associate.first_name + " " + associate.name,
+          first_name: associate.first_name,
+          name: associate.name,
+          project: this.projetEnCours(associate.id),
+          customer: this.clientEnCours(associate.id),
+          managers: this.managerEnCours(associate.id),
+          Jobs: this.posteEnCours(associate.id),
+        };
+        this.allAssociatesCalculated.push(associates);
+      });
+    });
   },
 };
 </script>

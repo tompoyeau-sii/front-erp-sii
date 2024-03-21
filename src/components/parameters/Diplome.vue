@@ -1,7 +1,7 @@
 <template>
   <div class="row">
     <div class="col-4">
-      <div class="card p-3">
+      <div class="card shadow border-0 p-3">
         <h5 class="name">Diplômes</h5>
         <div class="table-responsive">
           <table class="table rounded-3">
@@ -27,7 +27,7 @@
         <v-row justify="center">
           <v-dialog v-model="dialog" width="750px">
             <template v-slot:activator="{ props }">
-              <v-btn icon="mdi-plus" color="deep-purple-darken-1" v-bind="props"> </v-btn>
+              <v-btn icon="mdi-plus" variant="text" color="deep-purple-darken-1" v-bind="props"> </v-btn>
             </template>
 
             <v-card class="gradient">
@@ -99,7 +99,7 @@
 
 <script>
 import Axios from "@/_services/caller.service";
-
+import { mapActions } from "vuex";
 export default {
   name: "Diplome",
   data() {
@@ -108,7 +108,6 @@ export default {
         label: "",
       },
       dialog: false,
-      graduations: [],
       error: "",
       errorState: false,
       SuccessState: false,
@@ -116,9 +115,10 @@ export default {
     };
   },
   methods: {
+    ...mapActions(["refreshGraduations"]),
     formAddGraduation: function () {
       if (this.form.label !== "") {
-        Axios.post("http://localhost:8080/api/graduation", {
+        Axios.post("graduation", {
           label: this.form.label,
         }).then(
           (response) => {
@@ -129,7 +129,7 @@ export default {
             this.success = "Nouveau diplôme créé";
 
             // Ajouter la requête pour récupérer la liste mise à jour
-            this.fetchGraduations();
+            this.refreshGraduations();
           },
           (response) => {
             console.log(response.headers);
@@ -142,16 +142,12 @@ export default {
         this.error = "Veuillez ajouter un libelle.";
       }
     },
-    fetchGraduations: function () {
-      Axios.get("/graduations").then((res) => {
-        this.graduations = res.data?.graduation;
-      });
+  },
+  computed: {
+    graduations() {
+      return this.$store.getters.getGraduations;
     },
-  },
-  created() {
-    // Appeler la méthode pour récupérer la liste des diplômes au chargement initial
-    this.fetchGraduations();
-  },
+  }
 };
 </script>
 

@@ -1,7 +1,7 @@
 <template>
   <v-container>
-
     <h1 class="title pt-3">Ajouter des attributs</h1>
+    <AddAccountForm />
     <div class="row">
       <v-col cols="12" lg="3" md="4" sm="6">
         <Diplome />
@@ -15,32 +15,26 @@
     </div>
 
     <PdcYear />
-
-    <h1 class="title pt-3">Mode simulation</h1>
-
-    <Simulation /> 
   </v-container>
 </template>
 
 <script>
 // Components
-import Parametre from "@/components/parameters/Parametre.vue";
 import Diplome from "@/components/parameters/Diplome.vue";
 import Jobs from "@/components/parameters/Jobs.vue";
 import Genres from "@/components/parameters/Genre.vue";
-import Simulation from "@/components/parameters/Simulation.vue";
 import PdcYear from "@/components/parameters/PdcYear.vue";
+import AddAccountForm from "@/components/forms/add/AddAccountForm.vue";
 export default {
   name: "ParametreView",
 
   components: {
-    Parametre,
     Diplome,
     Jobs,
     Genres,
-    Simulation,
-    PdcYear
-},
+    PdcYear,
+    AddAccountForm,
+  },
 };
 </script>
 

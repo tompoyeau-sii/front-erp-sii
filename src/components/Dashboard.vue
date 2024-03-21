@@ -45,8 +45,16 @@
             <p class="etiquette mb-2">Évolution du chiffre d'affaires</p>
             <v-row justify="end" align="center">
               <v-icon class="title" icon="mdi-finance" size="x-large"></v-icon>
-              <p class="data text-green m-2">
-                {{ getEvolutionCA(getCaOfAgence(), getCaLastYearOfAgence()) }}
+              <p
+                v-if="
+                  getEvolutionCA(getCaOfAgence(), getCaLastYearOfAgence()) > 0
+                "
+                class="data text-green m-2"
+              >
+                {{ getEvolutionCA(getCaOfAgence(), getCaLastYearOfAgence()) }}%
+              </p>
+              <p v-else class="data text-red m-2">
+                {{ getEvolutionCA(getCaOfAgence(), getCaLastYearOfAgence()) }}%
               </p>
             </v-row>
           </div>
@@ -108,21 +116,28 @@ export default {
       evolCa: 0,
       selectedYear: null,
       month: null,
-      customers: []
+      customers: [],
     };
   },
   async created() {
-    Axios.get("/statistiques/customer/actualMonth").then((res) => {
-      this.customers = res.data?.caOfActualMonthCustomer
-    })
-    Axios.get("/associates/all").then((res) => {
-      this.associates = res.data?.associate;
-      console.log(this.associates);
-      let moy = 0;
-      this.associates.forEach((associate) => {
-        moy += this.calculateAge(associate.birthdate);
+    Axios.get("pdc/year").then((res) => {
+      this.selectedYear = res.data?.pdc.actual_year;
+      Axios.get("/statistiques/customer/actualMonth", {
+        params: {
+          year: this.selectedYear,
+        },
+      }).then((res) => {
+        this.customers = res.data?.caOfActualMonthCustomer;
       });
-      this.ageMoy = (moy / this.associates.length).toFixed(0);
+      Axios.get("/associates/all").then((res) => {
+        this.associates = res.data?.associate;
+        console.log(this.associates);
+        let moy = 0;
+        this.associates.forEach((associate) => {
+          moy += this.calculateAge(associate.birthdate);
+        });
+        this.ageMoy = (moy / this.associates.length).toFixed(0);
+      });
     });
   },
 
@@ -155,7 +170,7 @@ export default {
       ca = todayCA - lastYearCA;
       ca = ca / Math.abs(lastYearCA);
       ca = ca * 100;
-      return ca.toFixed(0) + "%";
+      return ca.toFixed(0);
     },
     calculateAge(dateOfBirth) {
       const today = new Date();
@@ -173,9 +188,9 @@ export default {
       }
     },
     getCaOfAgence() {
-      Axios.get("/pdc/year").then((res) => {
+      let today = this.todayDate();
+      Axios.get("pdc/year").then((res) => {
         this.selectedYear = res.data?.pdc.actual_year;
-        let today = this.todayDate();
         Axios.get("/statistiques/agence", {
           params: {
             year: this.selectedYear,
@@ -191,9 +206,9 @@ export default {
       return this.agenceCa;
     },
     getCaLastYearOfAgence() {
-      Axios.get("/pdc/year").then((res) => {
+      let today = this.todayDate();
+      Axios.get("pdc/year").then((res) => {
         this.selectedYear = res.data?.pdc.actual_year;
-        let today = this.todayDate();
         Axios.get("/statistiques/agence", {
           params: {
             year: this.selectedYear,

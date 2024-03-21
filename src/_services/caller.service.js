@@ -1,15 +1,30 @@
 import axios from "axios";
 import { accountService } from "./account.service";
 
+let url = getUrl();
+
+function getUrl() {
+    let nom = null;
+    if (localStorage.getItem("userName")) {
+        const username = localStorage.getItem("userName");
+        const mots = username.split(" ");
+        nom = mots[1].toLowerCase();
+    }
+
+    return localStorage.getItem("isSimulation") === "true"
+        ? "http://localhost:8080/api/" + nom
+        : "http://localhost:8080/api/production";
+}
+
 const Axios = axios.create({
-    baseURL: 'http://localhost:8080/api/'
+    baseURL: url
 })
 
 Axios.interceptors.request.use(request => {
     let token = accountService.getToken()
 
     if(token) {
-        request.headers.Authorization = token
+        request.headers.Authorization = "Bearer " + token
     }
     return request
 })

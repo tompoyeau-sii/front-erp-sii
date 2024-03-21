@@ -67,12 +67,12 @@ export default {
         accountService
           .login(this.login)
           .then((res) => {
-            accountService.saveToken(res.data.token);
+            accountService.saveToken(res.data.token, res.data.accountId, res.data.accountName);
             router.push("/dashboard");
           })
           .catch((err) => {
             this.ErrorState = true;
-            this.error = "Erreur serveur : " + err.response.data.error;
+            this.error = err.response.data.error;
             console.log(err)
           });
       } else {

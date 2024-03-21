@@ -1,9 +1,18 @@
 <template>
   <v-container>
     <v-tabs v-model="tab" color="deep-purple-darken-3" align-tabs="center">
-      <v-tab value="1">Managers</v-tab>
-      <v-tab value="2">Agence</v-tab>
-      <v-tab value="3">Clients</v-tab>
+      <v-tab value="1">
+        <v-icon icon="mdi-account-tie-outline" size="x-large"></v-icon>
+        Managers
+      </v-tab>
+      <v-tab value="2">
+        <v-icon icon="mdi-domain" size="x-large"></v-icon>
+        Agence
+      </v-tab>
+      <v-tab value="3">
+        <v-icon icon="mdi-office-building" size="x-large"></v-icon>
+        Clients
+      </v-tab>
     </v-tabs>
     <v-window v-model="tab">
       <v-window-item value="1">
@@ -24,8 +33,8 @@
                 v-model="yearSelected"
                 label="Année"
                 :items="years"
-                item-title="full_name"
-                item-value="id"
+                item-title="label"
+                item-value="value"
                 variant="solo"
               ></v-select>
             </v-col>
@@ -41,6 +50,7 @@
               />
             </v-col>
           </v-row>
+
           <v-row>
             <v-col cols="12" lg="12">
               <GChart
@@ -52,6 +62,25 @@
               />
             </v-col>
           </v-row>
+          <v-col
+            v-if="isSimulationActive && dataLoadedManager"
+            cols="12"
+            lg="4"
+            md="6"
+            sm="6"
+          >
+            <div class="bg-white shadow rounded-5 p-4">
+              <p class="etiquette mb-2">Delta de fin d'année</p>
+              <v-row justify="end" align="center">
+                <v-icon
+                  class="title"
+                  icon="mdi-account-group"
+                  size="x-large"
+                ></v-icon>
+                <p class="data m-2">{{ managerDelta }}%</p>
+              </v-row>
+            </div>
+          </v-col>
         </v-container>
       </v-window-item>
       <v-window-item value="2">
@@ -62,8 +91,8 @@
                 v-model="yearSelected"
                 label="Année"
                 :items="years"
-                item-title="full_name"
-                item-value="id"
+                item-title="label"
+                item-value="value"
                 variant="solo"
               ></v-select>
             </v-col>
@@ -77,6 +106,19 @@
               />
             </v-col>
           </v-row>
+          <v-col cols="12" lg="4" md="6" sm="6">
+            <div class="bg-white shadow rounded-5 p-4">
+              <p class="etiquette mb-2">Delta de fin d'année</p>
+              <v-row justify="end" align="center">
+                <v-icon
+                  class="title"
+                  icon="mdi-account-group"
+                  size="x-large"
+                ></v-icon>
+                <p class="data m-2">{{ delta }}%</p>
+              </v-row>
+            </div>
+          </v-col>
         </v-container>
       </v-window-item>
       <v-window-item value="3">
@@ -119,17 +161,8 @@
 <script>
 import Axios from "@/_services/caller.service";
 import { GChart } from "vue-google-charts";
-import {
-  startOfMonth,
-  endOfMonth,
-  eachMonthOfInterval,
-  format,
-  getYear,
-  getMonth,
-  eachDayOfInterval,
-  isWeekend,
-} from "date-fns";
-import { fr } from "date-fns/locale";
+import { format } from "date-fns";
+import { mapGetters } from "vuex";
 export default {
   name: "Statistiques",
   components: { GChart },
@@ -144,15 +177,26 @@ export default {
       projects: [],
       customers: [],
       caForMonths: [],
+      caForMonthsSimulation: [],
       caOfCustomer: [],
+      caOfCustomerSimulation: [],
       filteredCustomers: [],
       nbHommes: 0,
       nbFemmes: 0,
       intercontrats: [],
       tab: null,
       associates: [],
+      deltaManager: null,
+      delta: null,
       missions: [],
-      years: [2020, 2021, 2022, 2023, 2024, 2025],
+      years: [
+        { label: "2021 - 2022", value: 2021 },
+        { label: "2022 - 2023", valeur: 2022 },
+        { label: "2023 - 2024", valeur: 2023 },
+        { label: "2024 - 2025", valeur: 2024 },
+        { label: "2025 - 2026", valeur: 2025 },
+        { label: "2026 - 2027", valeur: 2026 },
+      ],
       projectsOfManager: [],
 
       //Data loarder
@@ -188,129 +232,370 @@ export default {
     };
   },
   created() {
-    Axios.get("/statistiques/agence", {
-      params: {
-        year: this.yearSelected,
-      },
-    }).then((res) => {
-      this.caForMonths = res.data?.caForMonths;
-      this.chart.caData = [
-        ["Mois", "CA"],
-        ...this.caForMonths.map(({ month, value }) => [month, value]),
-      ];
-      this.chart.caOptions = {
-        title: "Chiffre d'affaire de l'agence",
-        colors: ["#4527A0"],
-      };
-      this.dataLoadedAgence = true;
-    });
-    Axios.get("/customers").then((res) => {
-      this.customers = res.data?.customer;
-      this.filteredCustomers = this.filterAssociate(this.customers);
-      this.chart.customerData = [
-        ["Client", "Collab"],
-        ...this.filteredCustomers.map(({ label, nbCollab }) => [
-          label,
-          nbCollab,
-        ]),
-      ];
-      this.chart.customerOptions = {
-        title: "Nombre de collaborateurs par clients",
-        colors: ["#4527A0"],
-      };
-    });
+    Axios.get("/pdc/year")
+      .then((res) => {
+        this.yearSelected = res.data?.pdc.actual_year;
+      })
+      .then((res) => {
+        Axios.get("http://localhost:8080/api/production/statistiques/agence", {
+          params: {
+            year: this.yearSelected,
+          },
+        }).then((prod) => {
+          if (
+            this.getSimulationMode == "true" ||
+            localStorage.getItem("isSimulation") == "true"
+          ) {
+            Axios.get("/statistiques/agence", {
+              params: {
+                year: this.yearSelected,
+              },
+            }).then((simu) => {
+              this.caForMonths = prod.data?.caForMonths;
+              this.caForMonthsSimulation = simu.data?.caForMonths; // Nouvelle série de données
+              this.deltaData = this.caForMonths.map((monthData, index) => ({
+                month: monthData.month,
+                delta:
+                  this.caForMonthsSimulation[index].value - monthData.value,
+              }));
+              this.chart.caData = [
+                ["Mois", "CA", "CA Simulation"], // Ajout de la deuxième série
+                ...this.caForMonths.map(({ month, value }, index) => [
+                  month,
+                  value,
+                  this.caForMonthsSimulation[index].value,
+                ]), // Même index est utilisé pour correspondre aux valeurs de la première série avec la deuxième
+              ];
+              this.chart.caOptions = {
+                title: "Chiffre d'affaire de l'agence",
+                colors: ["#4527A0", "#e84653", "#fb8c00"],
+              };
+              this.dataLoadedAgence = true;
+              const percentageData = this.caForMonths.map(
+                (monthData, index) => {
+                  const actualValue = monthData.value;
+                  const simulatedValue =
+                    this.caForMonthsSimulation[index].value;
+                  const percentageDifference =
+                    ((actualValue - simulatedValue) / simulatedValue) * 100;
+                  return {
+                    month: monthData.month,
+                    percentageDifference: percentageDifference.toFixed(2), // Arrondi à deux décimales
+                  };
+                }
+              );
+
+              this.delta =
+                percentageData[percentageData.length - 1].percentageDifference;
+            });
+          } else {
+            this.caForMonths = prod.data?.caForMonths;
+            this.chart.caData = [
+              ["Mois", "CA Prod"], // Ajout de la deuxième série
+              ...this.caForMonths.map(({ month, value }) => [month, value]), // Même index est utilisé pour correspondre aux valeurs de la première série avec la deuxième
+            ];
+            this.chart.caOptions = {
+              title: "Chiffre d'affaire de l'agence",
+              colors: ["#4527A0"],
+            };
+            this.dataLoadedAgence = true;
+          }
+        });
+
+        //Calcul collaborteurs chez le client
+        Axios.get("http://localhost:8080/api/production/customers").then(
+          (prod) => {
+            this.customers = prod.data?.customer;
+            this.filteredCustomers = this.filterAssociate(this.customers);
+            if (
+              this.getSimulationMode == "true" ||
+              localStorage.getItem("isSimulation") == "true"
+            ) {
+              Axios.get("/customers").then((simu) => {
+                let filteredCustomersSimulation = this.filterAssociate(
+                  simu.data?.customer
+                );
+                this.chart.customerData = [
+                  ["Client", "Collab", "Collab Simulation"],
+                  ...this.filteredCustomers.map(
+                    ({ label, nbCollab }, index) => [
+                      label,
+                      nbCollab,
+                      filteredCustomersSimulation[index].nbCollab,
+                    ]
+                  ),
+                ];
+                this.chart.customerOptions = {
+                  title: "Nombre de collaborateurs par clients",
+                  colors: ["#4527A0", "#e84653"],
+                };
+              });
+            } else {
+              this.chart.customerData = [
+                ["Client", "Collab"],
+                ...this.filteredCustomers.map(({ label, nbCollab }) => [
+                  label,
+                  nbCollab,
+                ]),
+              ];
+              this.chart.customerOptions = {
+                title: "Nombre de collaborateurs par clients",
+                colors: ["#4527A0"],
+              };
+            }
+          }
+        );
+      });
   },
 
   watch: {
     managerSelected(newManager) {
-      Axios.get("/statistiques/manager", {
+      Axios.get("http://localhost:8080/api/production/statistiques/manager", {
         params: {
           year: this.yearSelected,
           manager: newManager,
         },
-      }).then((res) => {
-        console.log(res.data?.ca)
-        this.ca = res.data?.ca;
-        (this.chart.managerData = [
-          ["Mois", "CA"],
-          ...this.ca.map(({ month, value }) => [month, value]),
-        ]),
-          (this.chart.managerOptions = {
-            title: "Chiffre d'affaire du manager",
-            colors: ["#4527A0"],
-          });
+      }).then((prod) => {
+        if (this.isSimulationActive) {
+          Axios.get("/statistiques/manager", {
+            params: {
+              year: this.yearSelected,
+              manager: newManager,
+            },
+          }).then((simu) => {
+            var ca = prod.data?.ca;
+            var caSimulation = simu.data?.ca;
 
-        (this.chart.managerMargeData = [
-          ["Mois", "Marge"],
-          ...this.ca.map(({ month, marge }) => [month, marge]),
-        ]),
-          (this.chart.managerMargeOptions = {
-            title: "Marge du manager",
-            colors: ["#4527A0"],
+            this.deltaData = ca.map((monthData, index) => ({
+              month: monthData.month,
+              delta: caSimulation[index].value - monthData.value,
+            }));
+
+            (this.chart.managerData = [
+              ["Mois", "CA", "CA Simulation"],
+              ...ca.map(({ month, value }, index) => [
+                month,
+                value,
+                caSimulation[index].value,
+              ]),
+            ]),
+              (this.chart.managerOptions = {
+                title: "Chiffre d'affaire du manager",
+                colors: ["#4527A0", "#e84653"],
+              });
+            (this.chart.managerMargeData = [
+              ["Mois", "Marge", "Marge simulation"],
+              ...ca.map(({ month, marge }, index) => [
+                month,
+                marge,
+                caSimulation[index].marge,
+              ]),
+            ]),
+              (this.chart.managerMargeOptions = {
+                title: "Marge du manager",
+                colors: ["#4527A0", "#e84653"],
+              });
+
+            const percentageData = ca.map((monthData, index) => {
+              const actualValue = monthData.value;
+              const simulatedValue = caSimulation[index].value;
+              const percentageDifference =
+                ((actualValue - simulatedValue) / simulatedValue) * 100;
+              return {
+                month: monthData.month,
+                percentageDifference: percentageDifference.toFixed(2), // Arrondi à deux décimales
+              };
+            });
+            this.managerDelta =
+              percentageData[percentageData.length - 1].percentageDifference;
+            this.dataLoadedManager = true;
           });
-        this.dataLoadedManager = true;
-      });
-    },
-    yearSelected(newYear) {
-      //Si un manager est séléctionné, alors on recalcul son chiffre
-      if (this.managerSelected) {
-        Axios.get("/statistiques/manager", {
-          params: {
-            year: newYear,
-            manager: this.managerSelected,
-          },
-        }).then((res) => {
-          this.ca = res.data?.ca;
+        } else {
+          var ca = prod.data?.ca;
           (this.chart.managerData = [
             ["Mois", "CA"],
-            ...this.ca.map(({ month, value }) => [month, value]),
+            ...ca.map(({ month, value }) => [month, value]),
           ]),
             (this.chart.managerOptions = {
               title: "Chiffre d'affaire du manager",
               colors: ["#4527A0"],
             });
-
           (this.chart.managerMargeData = [
             ["Mois", "Marge"],
-            ...this.ca.map(({ month, marge }) => [month, marge]),
+            ...ca.map(({ month, marge }) => [month, marge]),
           ]),
             (this.chart.managerMargeOptions = {
               title: "Marge du manager",
               colors: ["#4527A0"],
             });
-
           this.dataLoadedManager = true;
+        }
+      });
+    },
+    yearSelected(newYear) {
+      //Si un manager est séléctionné, alors on recalcul son chiffre
+      if (this.managerSelected) {
+        Axios.get("http://localhost:8080/api/production/statistiques/manager", {
+          params: {
+            year: this.yearSelected,
+            manager: this.managerSelected,
+          },
+        }).then((prod) => {
+          if (this.isSimulationActive) {
+            Axios.get("/statistiques/manager", {
+              params: {
+                year: this.yearSelected,
+                manager: this.managerSelected,
+              },
+            }).then((simu) => {
+              var ca = prod.data?.ca;
+              var caSimulation = simu.data?.ca;
+              var deltaData = ca.map((monthData, index) => ({
+                month: monthData.month,
+                delta: monthData.value - caSimulation[index].value,
+              }));
+              (this.chart.managerData = [
+                ["Mois", "CA", "CA Simulation", "Delta"],
+                ...ca.map(({ month, value }, index) => [
+                  month,
+                  value,
+                  caSimulation[index].value,
+                  deltaData[index].delta,
+                ]),
+              ]),
+                (this.chart.managerOptions = {
+                  title: "Chiffre d'affaire du manager",
+                  colors: ["#4527A0", "#e84653", "#fb8c00"],
+                });
+              (this.chart.managerMargeData = [
+                ["Mois", "Marge", "Marge simulation"],
+                ...ca.map(({ month, marge }, index) => [
+                  month,
+                  marge,
+                  caSimulation[index].marge,
+                ]),
+              ]),
+                (this.chart.managerMargeOptions = {
+                  title: "Marge du manager",
+                  colors: ["#4527A0", "#e84653"],
+                });
+              this.dataLoadedManager = true;
+            });
+          } else {
+            var ca = prod.data?.ca;
+            (this.chart.managerData = [
+              ["Mois", "CA"],
+              ...ca.map(({ month, value }) => [month, value]),
+            ]),
+              (this.chart.managerOptions = {
+                title: "Chiffre d'affaire du manager",
+                colors: ["#4527A0"],
+              });
+            (this.chart.managerMargeData = [
+              ["Mois", "Marge"],
+              ...ca.map(({ month, marge }) => [month, marge]),
+            ]),
+              (this.chart.managerMargeOptions = {
+                title: "Marge du manager",
+                colors: ["#4527A0"],
+              });
+            this.dataLoadedManager = true;
+          }
         });
       }
       //Calcul du CA global de l'agence
-      Axios.get("/statistiques/agence", {
+      Axios.get("http://localhost:8080/api/production/statistiques/agence", {
         params: {
           year: newYear,
         },
-      }).then((res) => {
-        this.caForMonths = res.data?.caForMonths;
-        this.chart.caData = [
-          ["Mois", "CA"],
-          ...this.caForMonths.map(({ month, value }) => [month, value]),
-        ];
+      }).then((prod) => {
+        if (
+          this.getSimulationMode == "true" ||
+          localStorage.getItem("isSimulation") == "true"
+        ) {
+          Axios.get("/statistiques/agence", {
+            params: {
+              year: newYear,
+            },
+          }).then((simu) => {
+            this.caForMonths = prod.data?.caForMonths;
+            this.caForMonthsSimulation = simu.data?.caForMonths; // Nouvelle série de données
+            this.deltaData = this.caForMonths.map((monthData, index) => ({
+              month: monthData.month,
+              delta: monthData.value - this.caForMonthsSimulation[index].value,
+            }));
+            this.chart.caData = [
+              ["Mois", "CA", "CA Simulation", "Delta"], // Ajout de la deuxième série
+              ...this.caForMonths.map(({ month, value }, index) => [
+                month,
+                value,
+                this.caForMonthsSimulation[index].value,
+                this.deltaData[index].delta,
+              ]), // Même index est utilisé pour correspondre aux valeurs de la première série avec la deuxième
+            ];
+            this.chart.caOptions = {
+              title: "Chiffre d'affaire de l'agence",
+              colors: ["#4527A0", "#e84653", "#fb8c00"],
+            };
+            this.dataLoadedAgence = true;
+          });
+        } else {
+          this.caForMonths = prod.data?.caForMonths;
+          this.chart.caData = [
+            ["Mois", "CA Prod"], // Ajout de la deuxième série
+            ...this.caForMonths.map(({ month, value }) => [month, value]), // Même index est utilisé pour correspondre aux valeurs de la première série avec la deuxième
+          ];
+          this.chart.caOptions = {
+            title: "Chiffre d'affaire de l'agence",
+            colors: ["#4527A0"],
+          };
+          this.dataLoadedAgence = true;
+        }
       });
     },
     customerSelected(newCustomer) {
-      Axios.get("/statistiques/customer", {
+      Axios.get("http://localhost:8080/api/production/statistiques/customer", {
         params: {
           customer: this.customerSelected,
+          year: this.refYear,
         },
-      }).then((res) => {
-        this.caOfCustomer = res.data?.caOfCustomer;
-        (this.chart.customerCaData = [
-          ["Mois", "CA"],
-          ...this.caOfCustomer.map(({ month, value }) => [month, value]),
-        ]),
-          (this.chart.customerCaOptions = {
-            title: "Chiffre d'affaire du client",
-            colors: ["#4527A0"],
+      }).then((prod) => {
+        if (this.isSimulationActive) {
+          Axios.get("/statistiques/customer", {
+            params: {
+              customer: this.customerSelected,
+              year: this.refYear,
+            },
+          }).then((simu) => {
+            let caOfCustomer = prod.data?.caOfCustomer;
+            let caOfCustomerSimulation = simu.data?.caOfCustomer;
+
+            (this.chart.customerCaData = [
+              ["Mois", "CA", "CA simulation"],
+              ...caOfCustomer.map(({ month, value }, index) => [
+                month,
+                value,
+                caOfCustomerSimulation[index].value,
+              ]),
+            ]),
+              (this.chart.customerCaOptions = {
+                title: "Chiffre d'affaire du client",
+                colors: ["#4527A0", "#e84653"],
+              });
+            this.dataLoadedCustomer = true;
           });
-        this.dataLoadedCustomer = true;
+        } else {
+          let caOfCustomer = prod.data?.caOfCustomer;
+          (this.chart.customerCaData = [
+            ["Mois", "CA"],
+            ...caOfCustomer.map(({ month, value }, index) => [month, value]),
+          ]),
+            (this.chart.customerCaOptions = {
+              title: "Chiffre d'affaire du client",
+              colors: ["#4527A0"],
+            });
+          this.dataLoadedCustomer = true;
+        }
       });
     },
   },
@@ -319,9 +604,19 @@ export default {
     managers() {
       return this.$store.getters.getManagers;
     },
+    isSimulationActive() {
+      return (
+        this.simulationMode === "true" ||
+        localStorage.getItem("isSimulation") === "true"
+      );
+    },
+    refYear() {
+      return this.$store.getters.getRefYear;
+    },
   },
 
   methods: {
+    ...mapGetters(["getSimulationMode"]),
     //Méthode afin de récupérer la date du jour
     todayDate() {
       return format(new Date(), "yyyy/MM/dd");
@@ -350,51 +645,18 @@ export default {
 
       return result;
     },
-    getWorkingDaysInMonth(year, month) {
-      // Attendre que getOffDays ait fini son traitement avant de continuer
-
-      let startDate = new Date(year, month, 1);
-      let endDate = new Date(year, month + 1, 0);
-
-      const allDays = eachDayOfInterval({ start: startDate, end: endDate });
-      const workingDays = allDays.filter((day) => !isWeekend(day));
-
-      let nbJours = workingDays.length;
-
-      return nbJours;
-    },
-    //Génére la liste des mois de l'année passée en paramètre allant de S14 à S13
-    generateMonthList(year) {
-      const list_start = startOfMonth(new Date(year, 3, 1));
-      const list_end = startOfMonth(new Date(year + 1, 2, 1));
-      const monthsList = eachMonthOfInterval({
-        start: list_start,
-        end: list_end,
-        monthStartsOn: 1,
-      });
-
-      const allMonths = monthsList.map((date) => {
-        const month = format(date, "MMMM", { locale: fr });
-        const startDateOfMonth = startOfMonth(date, { weekStartsOn: 1 });
-        const endDateOfMonth = endOfMonth(date, { weekEndsOn: 1 });
-
-        let nbDay = this.getWorkingDaysInMonth(
-          getYear(startDateOfMonth),
-          getMonth(startDateOfMonth)
-        );
-
-        // console.log(format(startDateOfMonth, "yyyy-MM-dd") + ' : ' + nbDay)
-
-        return {
-          monthNumber: month,
-          start_date: format(startDateOfMonth, "yyyy-MM-dd"),
-          end_date: format(endDateOfMonth, "yyyy-MM-dd"),
-          nb_day: nbDay,
-        };
-      });
-      // console.log(allMonths)
-      return allMonths;
-    },
   },
 };
 </script>
+<style scoped>
+.etiquette {
+  color: #a9a9a9;
+}
+
+.data {
+  font-style: normal;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 130%;
+}
+</style>
