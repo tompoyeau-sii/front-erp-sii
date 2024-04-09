@@ -231,6 +231,7 @@ export default {
   },
   mounted() {
     this.fetchData();
+    console.log(this.asso)
   },
 
   watch: {
@@ -258,6 +259,7 @@ export default {
         `/associates?page=${page || this.currentPage}`
       );
       this.associates = response.data.associate;
+      console.log(this.associates)
       this.totalPages = response.data.totalPages;
       this.globalPages = response.data.totalPages;
       this.calculateAssociate();

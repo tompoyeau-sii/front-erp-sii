@@ -116,6 +116,7 @@ export default {
       selectedYear: null,
       month: null,
       customers: [],
+      customers: [],
     };
   },
   async created() {

@@ -13,11 +13,13 @@ export default createStore({
     userId: '',
     token: null,
     allAssociates: '',
+    allAssociates: '',
     customers: '',
     projects: '',
     managers: '',
     graduations: '',
     jobs: '',
+    genders: '',
     genders: '',
     simulationMode: false,
     isLoading: false // Nouvel état pour gérer le chargement des clients
@@ -32,6 +34,8 @@ export default createStore({
     getCustomers(state) {
       return state.customers;
     },
+    getAllAssociates(state) {
+      return state.allAssociates;
     getAllAssociates(state) {
       return state.allAssociates;
     },
@@ -50,11 +54,20 @@ export default createStore({
     getGenders(state) {
       return state.genders;
     },
+    getGenders(state) {
+      return state.genders;
+    },
     getSimulationMode(state) {
       return state.simulationMode;
     },
     isLoading(state) {
       return state.isLoading;
+    },
+    getUserName(state) {
+      return state.userName;
+    },
+    getUserId(state) {
+      return state.userId;
     },
     getUserName(state) {
       return state.userName;
@@ -75,6 +88,8 @@ export default createStore({
     },
     setAllAssociates(state, data) {
       state.allAssociates = data;
+    setAllAssociates(state, data) {
+      state.allAssociates = data;
     },
     setProjects(state, data) {
       state.projects = data;
@@ -91,6 +106,9 @@ export default createStore({
     setGenders(state, data) {
       state.genders = data;
     },
+    setGenders(state, data) {
+      state.genders = data;
+    },
     setSimulationMode(state, data) {
       state.simulationMode = data;
     },
@@ -99,6 +117,12 @@ export default createStore({
     },
     setToken(state, token) {
       state.token = token;
+    },
+    setUserName(state, userName) {
+      state.userName = userName;
+    },
+    setUserId(state, userId) {
+      state.userId = userId;
     },
     setUserName(state, userName) {
       state.userName = userName;
@@ -131,16 +155,18 @@ export default createStore({
         // Chargement de tous les collaborateurs
         const allAssociates = await Axios.get("/associates/all");
         commit('setAllAssociates', allAssociates.data?.associate);
+        const allAssociates = await Axios.get("/associates/all");
+        commit('setAllAssociates', allAssociates.data?.associate);
 
         //Chargement de tous les managers
-        let managers= []
+        let managers = []
         await Axios.get("/associates/managers").then((res) => {
           res.data?.manager.forEach((job) => {
             job.Associates.forEach((manager) => {
               if (
                 manager.Associate_Job.start_date < todayDate() &&
                 manager.Associate_Job.end_date > todayDate()
-                ) {
+              ) {
                 manager.full_name = manager.first_name + " " + manager.name;
                 managers.push(manager);
               }
@@ -152,6 +178,10 @@ export default createStore({
         // Chargement de tous les jobs
         const jobs = await Axios.get("/jobs")
         commit('setJobs', jobs.data?.job);
+
+        // Chargement de tous les Genres
+        const genders = await Axios.get("/genders")
+        commit('setGenders', genders.data?.gender);
 
         // Chargement de tous les Genres
         const genders = await Axios.get("/genders")
