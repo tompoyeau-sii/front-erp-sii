@@ -18,7 +18,7 @@
       </v-avatar>
       <v-col>
         <h1
-          class="title"
+          class="title d-inline-block"
           v-text="associate.first_name + ' ' + associate.name"
         ></h1>
         <p>{{ job }} | {{ associate.mail }}</p>
@@ -49,7 +49,7 @@
       <!--Client part-->
       <v-row v-if="this.MissionsEnCours">
         <v-col cols="12" lg="6" md="6 " sm="12">
-          <h5 class="pt-3 sub-title">Travail actuellement pour</h5>
+          <h5 class="pt-3 d-inline-block sub-title">Travail actuellement pour</h5>
           <v-row>
             <div
               class="client-en-cours rounded-3 m-2 p-2"
@@ -112,7 +112,7 @@
 
         <!-- Manager part -->
         <v-col cols="12" lg="6" md="6" sm="12">
-          <h5 class="pt-3 sub-title">Manager</h5>
+          <h5 class="pt-3 sub-title d-inline-block">Manager</h5>
           <v-row>
             <div class="col-2 manager rounded-3 m-2 pt-2 shadow-sm">
               <v-row>
@@ -137,7 +137,7 @@
       <!-- Si en intercontrat -->
       <v-row v-else>
         <v-col cols="6">
-          <h5 class="pt-3 sub-title">Ce collaborateur est en intercontrat.</h5>
+          <h5 class="pt-3 sub-title d-inline-block">Ce collaborateur est en intercontrat.</h5>
           <AddMissionForm
             :associate_id="associate.id"
             :associate="associate.name"
@@ -149,7 +149,7 @@
 
       <v-row>
         <v-col lg="6" v-if="MissionsFutur.length > 0">
-          <h5 class="pt-3 sub-title">Prochaines missions</h5>
+          <h5 class="pt-3 sub-title d-inline-block">Prochaines missions</h5>
           <v-row>
             <div
               class="col-2 client-futur rounded-3 m-2 p-2 shadow-sm"
@@ -197,7 +197,7 @@
         </v-col>
 
         <v-col v-if="MissionsFinis.length > 0" lg="6">
-          <h5 class="pt-3 sub-title">Mission terminées</h5>
+          <h5 class="pt-3 sub-title d-inline-block">Mission terminées</h5>
           <v-row>
             <div
               class="client-fini rounded-3 m-2 p-2"

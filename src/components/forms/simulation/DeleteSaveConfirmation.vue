@@ -2,31 +2,25 @@
   <v-dialog v-model="dialog" width="750px">
     <template v-slot:activator="{ props }">
       <v-btn
-        prepend-icon="mdi-cached"
-        color="deep-purple-darken-1"
-        variant="flat"
-        class="text-none mb-4 mr-3"
+        class="text-none mr-3"
+        color="red-accent-2"
+        variant="text"
+        icon="mdi-delete"
         v-bind="props"
-      >
-        Réinitialiser les données de ma simulation
-      </v-btn>
+      ></v-btn>
     </template>
     <v-card class="gradient">
-      <v-form fast-fail @submit.prevent v-on:submit.prevent="formProdToSimu">
+      <v-form fast-fail @submit.prevent v-on:submit.prevent="deleteSave">
         <v-card-title>
           <v-row justify="center" class="mt-3">
-            <h1 class="form-title">Attention !</h1>
+            <h1 class="form-title">Supprimer une version</h1>
           </v-row>
         </v-card-title>
         <v-card-text>
           <v-container>
             <v-row>
               <v-col cols="12">
-                <p style="font-weight: bold">
-                  Actualiser les données supprimera les données non
-                  sauvegardées. Sauvegardez les avant si vous souhaitez revenir
-                  dessus plus tard.
-                </p>
+                Voulez-vous supprimer le version suivante : <strong> {{ filename }} </strong>
               </v-col>
             </v-row>
           </v-container>
@@ -47,7 +41,7 @@
             :loading="loading"
             @click="snackbar = true"
           >
-            Actualiser
+            Supprimer
           </v-btn>
         </v-card-actions>
       </v-form>
@@ -68,7 +62,8 @@
 <script>
 import Axios from "@/_services/caller.service";
 export default {
-  name: "ProdToSimuForm",
+  name: "DeleteSaveConfirmation",
+  props: ["filename"],
   data() {
     return {
       dialog: false,
@@ -79,24 +74,24 @@ export default {
     };
   },
   methods: {
-    formProdToSimu() {
-      this.loading = true;
-      Axios.post("http://localhost:8080/api/production/simulation/ProdToSimu", {
+    deleteSave() {
+      this.loading = true
+      Axios.post("http://localhost:8080/api/production/simulation/DeleteSave", {
         userId: localStorage.getItem("userId"),
+        fileName: this.filename,
       })
         .then((response) => {
-          this.SuccessState = true;
           this.dialog = false;
-          this.snackbar = true;
-          this.refresh = false;
           this.loading = false;
-          this.success = response.data?.message;
+          this.CreateState = false;
+          this.SuccessState = true;
+          this.success = response.data.message;
           this.error = "";
         })
         .catch((err) => {
-          console.log(err);
-          this.loading = false;
           this.error = err.response.data.error;
+          this.loading = false;
+          this.SuccessState = false;
         });
     },
   },

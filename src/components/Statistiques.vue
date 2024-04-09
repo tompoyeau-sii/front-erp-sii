@@ -97,16 +97,16 @@
               ></v-select>
             </v-col>
             <v-col cols="12">
-              <GChart
-                v-if="dataLoadedAgence"
-                type="LineChart"
-                class="shadow"
-                :options="chart.caOptions"
-                :data="chart.caData"
-              />
+                <GChart
+                  v-if="dataLoadedAgence"
+                  type="LineChart"
+                  class="shadow rounded-3"
+                  :options="chart.caOptions"
+                  :data="chart.caData"
+                />
             </v-col>
           </v-row>
-          <v-col cols="12" lg="4" md="6" sm="6">
+          <v-col v-if="isSimulationActive" cols="12" lg="4" md="6" sm="6">
             <div class="bg-white shadow rounded-5 p-4">
               <p class="etiquette mb-2">Delta de fin d'année</p>
               <v-row justify="end" align="center">
@@ -268,6 +268,7 @@ export default {
               ];
               this.chart.caOptions = {
                 title: "Chiffre d'affaire de l'agence",
+                
                 colors: ["#4527A0", "#e84653", "#fb8c00"],
               };
               this.dataLoadedAgence = true;
@@ -651,6 +652,10 @@ export default {
 <style scoped>
 .etiquette {
   color: #a9a9a9;
+}
+
+svg {
+  border-radius: 8px !important;
 }
 
 .data {

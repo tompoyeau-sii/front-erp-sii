@@ -1,7 +1,16 @@
 <template>
   <v-container>
-    <h1 class="title pt-3">Ajouter des attributs</h1>
-    <AddAccountForm />
+    <v-row class="p-3">
+      <v-col lg="6">
+        <h1 class="title d-inline-block">Ajouter des attributs</h1>
+      </v-col>
+      <v-row justify="end">
+        <v-col lg="6">
+          <AddAccountForm />
+        </v-col>
+      </v-row>
+    </v-row>
+
     <div class="row">
       <v-col cols="12" lg="3" md="4" sm="6">
         <Diplome />
@@ -13,7 +22,6 @@
         <Genres />
       </v-col>
     </div>
-
     <PdcYear />
   </v-container>
 </template>

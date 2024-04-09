@@ -49,6 +49,7 @@
 <script>
 import router from "@/router";
 import { accountService } from "@/_services";
+import getUrl from "@/_services/caller.service";
 export default {
   name: "connexion",
   data() {
@@ -60,6 +61,13 @@ export default {
       ErrorState: false,
       error: "",
     };
+  },
+  created() {
+    getUrl()
+    localStorage.clear("token")
+    localStorage.clear("userId")
+    localStorage.clear("username")
+    localStorage.clear("isSimulation")    
   },
   methods: {
     formConnect() {

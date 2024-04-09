@@ -2,10 +2,9 @@
   <v-container>
     <v-row class="p-3">
       <v-col lg="6">
-        <h1 class="title mt-3 mb-5">Tableau de bord</h1>
+        <h1 class="title d-inline-block">Tableau de bord</h1>
       </v-col>
     </v-row>
-
     <div>
       <v-row>
         <v-col cols="12" lg="4" md="6" sm="6">

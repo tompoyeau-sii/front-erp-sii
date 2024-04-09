@@ -2,31 +2,28 @@
   <v-dialog v-model="dialog" width="750px">
     <template v-slot:activator="{ props }">
       <v-btn
-        prepend-icon="mdi-cached"
+        class="text-none mr-3"
         color="deep-purple-darken-1"
-        variant="flat"
-        class="text-none mb-4 mr-3"
+        variant="text"
+        icon="mdi-reload"
         v-bind="props"
       >
-        Réinitialiser les données de ma simulation
       </v-btn>
     </template>
     <v-card class="gradient">
-      <v-form fast-fail @submit.prevent v-on:submit.prevent="formProdToSimu">
+      <v-form fast-fail @submit.prevent v-on:submit.prevent="LoadSave">
         <v-card-title>
           <v-row justify="center" class="mt-3">
-            <h1 class="form-title">Attention !</h1>
+            <h1 class="form-title">Charger une version</h1>
           </v-row>
         </v-card-title>
         <v-card-text>
           <v-container>
             <v-row>
               <v-col cols="12">
-                <p style="font-weight: bold">
-                  Actualiser les données supprimera les données non
-                  sauvegardées. Sauvegardez les avant si vous souhaitez revenir
-                  dessus plus tard.
-                </p>
+                Attention ! Charger cette version supprimera les données non
+                sauvegardées. Sauvegardez les avant si vous souhaitez revenir
+                dessus plus tard.
               </v-col>
             </v-row>
           </v-container>
@@ -41,13 +38,13 @@
             Annuler
           </v-btn>
           <v-btn
-            prepend-icon="mdi-check-bold"
+            prepend-icon="mdi-reload"
             color="white"
             type="submit"
             :loading="loading"
             @click="snackbar = true"
           >
-            Actualiser
+            Charger
           </v-btn>
         </v-card-actions>
       </v-form>
@@ -68,7 +65,8 @@
 <script>
 import Axios from "@/_services/caller.service";
 export default {
-  name: "ProdToSimuForm",
+  name: "LoadSaveConfirmation",
+  props: ["filename"],
   data() {
     return {
       dialog: false,
@@ -79,24 +77,24 @@ export default {
     };
   },
   methods: {
-    formProdToSimu() {
+    LoadSave() {
       this.loading = true;
-      Axios.post("http://localhost:8080/api/production/simulation/ProdToSimu", {
+      Axios.put("http://localhost:8080/api/production/simulation/LoadSave/", {
         userId: localStorage.getItem("userId"),
+        fileName: this.filename,
       })
         .then((response) => {
-          this.SuccessState = true;
           this.dialog = false;
-          this.snackbar = true;
-          this.refresh = false;
-          this.loading = false;
-          this.success = response.data?.message;
+           this.loading = false;
+          this.CreateState = false;
+          this.SuccessState = true;
+          this.success = response.data.message;
           this.error = "";
         })
         .catch((err) => {
-          console.log(err);
-          this.loading = false;
+           this.loading = false;
           this.error = err.response.data.error;
+          this.SuccessState = false;
         });
     },
   },
@@ -108,19 +106,6 @@ td {
   margin-top: auto;
   margin-bottom: auto;
   vertical-align: middle;
-}
-.gradient {
-  background: linear-gradient(135deg, #75519b 0%, #e84654 100%);
-  color: white;
-}
-
-.client {
-  background: linear-gradient(135deg, #7117ea 0%, #ea6060 100%);
-  /* background: linear-gradient(135deg, #0FF0B3 0%, #036ED9 100%);
-  background: linear-gradient(135deg, #65799B 0%, #5E2563 100%); */
-  color: white;
-  width: 20vh;
-  min-width: 200px;
 }
 
 .name {

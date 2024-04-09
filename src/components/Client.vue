@@ -1,12 +1,12 @@
 <template>
   <v-container>
-    <v-row class="mt-3">
+    <v-row class="p-3">
       <v-col lg="6">
-        <h1 class="pt-3 pb-3 title">Clients SII Le Mans</h1>
+       <h1 class="title d-inline-block">Clients SII Le Mans</h1>
       </v-col>
       <v-row justify="end">
         <v-col lg="6">
-          <AddClientForm />
+         <AddClientForm />
         </v-col>
       </v-row>
     </v-row>

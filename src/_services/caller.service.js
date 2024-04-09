@@ -1,9 +1,9 @@
 import axios from "axios";
 import { accountService } from "./account.service";
 
-let url = getUrl();
-
-function getUrl() {
+let url;
+getUrl();
+export function getUrl() {
     let nom = null;
     if (localStorage.getItem("userName")) {
         const username = localStorage.getItem("userName");
@@ -12,8 +12,8 @@ function getUrl() {
     }
 
     return localStorage.getItem("isSimulation") === "true"
-        ? "http://localhost:8080/api/" + nom
-        : "http://localhost:8080/api/production";
+        ? url = "http://localhost:8080/api/" + nom
+        : url = "http://localhost:8080/api/production";
 }
 
 const Axios = axios.create({

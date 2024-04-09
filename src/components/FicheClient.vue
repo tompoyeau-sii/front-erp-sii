@@ -14,7 +14,7 @@
 
     <v-row class="mt-3">
       <v-col lg="6">
-        <h5 class="title mt-5">{{ $route.params.client.label }}</h5>
+        <h5 class="title mt-5 d-inline-block">{{ $route.params.client.label }}</h5>
       </v-col>
       <v-row justify="end">
         <v-col lg="6">
@@ -25,45 +25,9 @@
         </v-col>
       </v-row>
     </v-row>
-<!-- 
-    <v-row>
-      <v-col v-if="projects.length != 0" lg="2" md="6" sm="6">
-        <h5 class="pt-3 title">Manager</h5>
-      </v-col>
-    </v-row> -->
-    <!-- Affichage du/des manager du client -->
-    <!-- <div class="row">
-      <router-link
-        class="col-2 manager rounded-3 m-2 pt-3 shadow-sm"
-        v-for="project in projects"
-        :key="project.id"
-        :to="{
-          name: 'FicheCollabView',
-          params: { id: project.Associate.id },
-        }"
-      >
-        <div class="row">
-          <div class="col-3">
-            <v-avatar>
-              <v-img
-                src="../assets/img/collab/generic.png"
-                style="width: 100%"
-              ></v-img>
-            </v-avatar>
-          </div>
-          <div class="col-2">
-            <p
-              v-text="
-                project.Associate.first_name + ' ' + project.Associate.name
-              "
-            ></p>
-          </div>
-        </div>
-      </router-link>
-    </div> -->
     <v-row class="mt-3">
       <v-col lg="6">
-        <h5 class="title" v-if="projects.length !== 0">Projets</h5>
+        <h5 class="title d-inline-block" v-if="projects.length !== 0">Projets</h5>
       </v-col>
       <v-row justify="end">
         <v-col lg="6">

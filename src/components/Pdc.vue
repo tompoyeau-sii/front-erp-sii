@@ -1,6 +1,10 @@
 <template>
   <v-container>
-    <h1 class="title">Plan de charge</h1>
+    <v-row class="p-3">
+      <v-col lg="6">
+        <h1 class="title d-inline-block">Plan de charge</h1>
+      </v-col>
+    </v-row>
     <div>
       <v-row>
         <v-col cols="6" lg="2" md="2">
@@ -15,7 +19,6 @@
           >
           </v-autocomplete>
         </v-col>
-
         <v-col cols="6" lg="2" md="2">
           <v-select
             label="Année"
@@ -77,8 +80,17 @@
             size="large"
             rounded="2"
             icon="mdi-close"
+            class="mr-3"
             color="deep-purple-lighten-4"
             @click="stopResearch()"
+          >
+          </v-btn>
+          <v-btn
+            size="large"
+            rounded="2"
+            icon="mdi-file-excel-outline"
+            color="deep-purple-lighten-4"
+            @click="exportToExcel()"
           >
           </v-btn>
         </v-col>
@@ -171,6 +183,8 @@
 
 <script>
 import Axios from "@/_services/caller.service";
+import * as XLSX from "xlsx"; // Importez la bibliothèque XLSX de cette manière
+
 export default {
   name: "Pdc",
   data() {
@@ -186,7 +200,7 @@ export default {
       years: [
         { label: "2021 - 2022", value: 2021 },
         { label: "2022 - 2023", valeur: 2022 },
-        { label: "2023 - 2024", valeur: 2023},
+        { label: "2023 - 2024", valeur: 2023 },
         { label: "2024 - 2025", valeur: 2024 },
         { label: "2025 - 2026", valeur: 2025 },
         { label: "2026 - 2027", valeur: 2026 },
@@ -234,6 +248,80 @@ export default {
         this.outWeeks = res.data?.outWeeks;
         this.loading = false;
       });
+    },
+    jsonToSheet() {
+      const pdcData = this.pdc; // Récupérer les données PDC
+      const sheet = {}; // Initialiser la feuille Excel
+
+      // Boucler sur les données PDC
+      pdcData.forEach((collaborator) => {
+        const collaboratorName = collaborator.full_name; // Nom du collaborateur
+        const weeksData = collaborator.weeks; // Données des semaines pour le collaborateur
+
+        // Ajouter les données du collaborateur à la feuille Excel
+        weeksData.forEach((week) => {
+          const weekNumber = week.weekNumber; // Numéro de la semaine
+          const state = week.state; // État de la semaine
+
+          // Si la semaine n'existe pas encore dans la feuille Excel, l'ajouter
+          if (!sheet[weekNumber]) {
+            sheet[weekNumber] = {};
+          }
+
+          // Ajouter l'état du collaborateur pour cette semaine
+          sheet[weekNumber][collaboratorName] = state;
+        });
+      });
+
+      return sheet;
+    },
+
+    exportToExcel() {
+      const sheetData = this.jsonToSheet(); // Convertir les données PDC en format Excel
+      const sheetArray = this.createSheetArray(sheetData); // Convertir la feuille de données en format compatible XLSX
+      const sheet = XLSX.utils.aoa_to_sheet(sheetArray); // Convertir la feuille de données en format compatible XLSX
+
+      // Appliquer les styles de couleur en parcourant les données
+      const range = XLSX.utils.decode_range(sheet["!ref"]);
+      for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+        for (let C = range.s.c + 1; C <= range.e.c; ++C) {
+          const cell_address = { c: C, r: R };
+          const cell = sheet[XLSX.utils.encode_cell(cell_address)];
+          if (cell && (cell.v === 1 || cell.v === 2)) {
+            const color = cell.v === 1 ? "4527a0" : "d1c4e9";
+            cell.s = { fill: { fgColor: { rgb: color } } };
+          }
+        }
+      }
+
+      const workbook = XLSX.utils.book_new(); // Créer un nouveau classeur
+      XLSX.utils.book_append_sheet(workbook, sheet, "Plan de charge"); // Ajouter la feuille de données au classeur
+      XLSX.writeFile(workbook, "pdc.xlsx"); // Télécharger le fichier Excel
+    },
+    createSheetArray(sheetData) {
+      const sheetArray = [];
+
+      // Ajouter les noms des collaborateurs comme en-tête de colonne
+      const headerRow = Object.keys(sheetData).reduce((acc, weekNumber) => {
+        acc.push(weekNumber);
+        return acc;
+      }, []);
+      sheetArray.push(["", ...headerRow]); // Première colonne vide pour les noms des collaborateurs
+
+      // Ajouter les données des collaborateurs pour chaque semaine
+      const collaboratorNames = Object.keys(
+        sheetData[Object.keys(sheetData)[0]]
+      );
+      collaboratorNames.forEach((collaboratorName) => {
+        const row = [collaboratorName];
+        Object.keys(sheetData).forEach((weekNumber) => {
+          const state = sheetData[weekNumber][collaboratorName] || "";
+          row.push(state);
+        });
+        sheetArray.push(row);
+      });
+
+      return sheetArray;
     },
   },
   created() {
