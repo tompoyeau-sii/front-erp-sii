@@ -231,7 +231,6 @@ export default {
   },
   mounted() {
     this.fetchData();
-    console.log(this.asso)
   },
 
   watch: {

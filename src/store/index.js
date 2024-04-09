@@ -36,8 +36,6 @@ export default createStore({
     },
     getAllAssociates(state) {
       return state.allAssociates;
-    getAllAssociates(state) {
-      return state.allAssociates;
     },
     getProjects(state) {
       return state.projects;
@@ -86,8 +84,6 @@ export default createStore({
     setCustomers(state, data) {
       state.customers = data;
     },
-    setAllAssociates(state, data) {
-      state.allAssociates = data;
     setAllAssociates(state, data) {
       state.allAssociates = data;
     },
@@ -155,9 +151,6 @@ export default createStore({
         // Chargement de tous les collaborateurs
         const allAssociates = await Axios.get("/associates/all");
         commit('setAllAssociates', allAssociates.data?.associate);
-        const allAssociates = await Axios.get("/associates/all");
-        commit('setAllAssociates', allAssociates.data?.associate);
-
         //Chargement de tous les managers
         let managers = []
         await Axios.get("/associates/managers").then((res) => {
@@ -178,10 +171,6 @@ export default createStore({
         // Chargement de tous les jobs
         const jobs = await Axios.get("/jobs")
         commit('setJobs', jobs.data?.job);
-
-        // Chargement de tous les Genres
-        const genders = await Axios.get("/genders")
-        commit('setGenders', genders.data?.gender);
 
         // Chargement de tous les Genres
         const genders = await Axios.get("/genders")
