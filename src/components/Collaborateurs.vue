@@ -22,7 +22,7 @@
         </v-text-field>
       </v-col>
       <v-col cols="6" lg="2" md="2">
-        <v-select
+        <v-autocomplete
           v-model="selectedManager"
           bg-color="red-accent-2"
           :items="managers"
@@ -31,10 +31,10 @@
           item-value="full_name"
           label="Manager"
           variant="solo"
-        ></v-select>
+        ></v-autocomplete>
       </v-col>
       <v-col cols="6" lg="2" md="2">
-        <v-select
+        <v-autocomplete
           v-model="selectedCustomer"
           variant="solo"
           clearable
@@ -43,10 +43,10 @@
           :items="customers"
           item-title="label"
           item-value="label"
-        ></v-select>
+        ></v-autocomplete>
       </v-col>
       <v-col cols="6" lg="2" md="2">
-        <v-select
+        <v-autocomplete
           v-model="selectedProject"
           variant="solo"
           label="Projet"
@@ -55,7 +55,7 @@
           :items="projects"
           item-title="label"
           item-value="label"
-        ></v-select>
+        ></v-autocomplete>
       </v-col>
     </v-row>
     <div class="table-responsive p-3">

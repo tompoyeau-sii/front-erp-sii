@@ -113,6 +113,7 @@ export default {
       form: {
         label: "",
       },
+      jobs:[],
       dialog: false,
       error: "",
       errorState: false,
@@ -133,7 +134,7 @@ export default {
             this.errorState = false;
             this.SuccessState = true;
             this.success = "Nouveau métier créé";
-            this.refreshJobs();
+            this.fetchData();
           },
           (response) => {
             console.log(response.headers);
@@ -146,12 +147,18 @@ export default {
         this.error = "Veuillez ajouter un libelle.";
       }
     },
-  },
-  computed: {
-    jobs() {
-      return this.$store.getters.getJobs;
+    fetchData() {
+      Axios.get("/jobs/limit").then((res) => {
+      this.jobs = res.data?.job;
+    })
+      this.refreshJobs();
     },
-  }
+  },
+  created() {
+     Axios.get("/jobs/limit").then((res) => {
+      this.jobs = res.data?.job;
+    })
+  },
 };
 </script>
 

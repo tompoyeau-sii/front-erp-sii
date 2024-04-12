@@ -19,14 +19,14 @@
         <v-container>
           <v-row>
             <v-col cols="12" lg="6">
-              <v-select
+              <v-autocomplete
                 v-model="managerSelected"
                 label="Manager"
                 :items="managers"
                 item-title="full_name"
                 item-value="id"
                 variant="solo"
-              ></v-select>
+              ></v-autocomplete>
             </v-col>
             <v-col cols="12" lg="6">
               <v-select
@@ -136,14 +136,14 @@
           :data="chart.pariteData"
         /> -->
         <v-col cols="12">
-          <v-select
+          <v-autocomplete
             v-model="customerSelected"
             label="Client"
             :items="customers"
             item-title="label"
             item-value="id"
             variant="solo"
-          ></v-select>
+          ></v-autocomplete>
 
           <GChart
             v-if="dataLoadedCustomer"

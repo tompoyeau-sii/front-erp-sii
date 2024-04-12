@@ -56,13 +56,13 @@
           value="parametres"
         ></v-list-item>
       </router-link>
-      <router-link to="/simulation">
+      <!-- <router-link to="/simulation">
         <v-list-item
           prepend-icon="mdi-chart-timeline-variant-shimmer"
           title="Mode simulation"
           value="simulation"
         ></v-list-item>
-      </router-link>
+      </router-link> -->
     </v-list>
     <template v-slot:append>
       <v-list-item>
