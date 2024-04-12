@@ -2,49 +2,49 @@
   <v-dialog v-model="dialog" width="750px">
     <template v-slot:activator="{ props }">
       <v-btn
-        prepend-icon="mdi-plus"
+        variant="text"
+        icon="mdi-pencil"
         color="deep-purple-darken-1"
         v-bind="props"
-      >
-        Créer un nouveau projet
-      </v-btn>
+      />
     </template>
     <v-card class="gradient">
-      <v-form v-on:submit.prevent="formAddProject">
+      <v-form fast-fail @submit.prevent v-on:submit.prevent="formPRUForm">
         <v-card-title>
           <v-row justify="center" class="mt-3">
-            <h1 class="form-title">Créer un nouveau projet</h1>
+            <h1 class="form-title">Modifier un PRU</h1>
           </v-row>
         </v-card-title>
         <v-card-text>
           <v-container>
             <v-row>
-              <v-col cols="12" sm="6">
+              <v-col cols="12">
                 <v-text-field
-                  label="Libelle du projet*"
-                  v-model="form.label"
+                  label="Valeur*"
+                  v-model="form.value"
                   variant="solo"
                   required
                 ></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
                 <v-text-field
-                  label="ADV*"
-                  v-model="form.adv"
                   variant="solo"
-                  required
-                ></v-text-field>
+                  label="Date de début*"
+                  type="date"
+                  v-model="form.start_date"
+                >
+                </v-text-field>
               </v-col>
-              <v-col v-if="customer_id == null" cols="12">
-                <v-autocomplete
-                  v-model="form.customer"
-                  :items="customers"
-                  item-title="label"
-                  item-value="id"
-                  label="Client*"
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  label="Date de fin*"
                   variant="solo"
-                ></v-autocomplete>
+                  type="date"
+                  v-model="pru.end_date"
+                >
+                </v-text-field>
               </v-col>
+
               <v-alert
                 v-if="error != ''"
                 class="mb-5 vibrate"
@@ -63,7 +63,7 @@
           <v-btn
             prepend-icon="mdi-window-close"
             color="white"
-            @click="dialog = false"
+            @click="(dialog = false), (error = '')"
           >
             Annuler
           </v-btn>
@@ -73,7 +73,7 @@
             type="submit"
             @click="snackbar = true"
           >
-            Créer
+            Modifier
           </v-btn>
         </v-card-actions>
       </v-form>
@@ -93,66 +93,71 @@
 
 <script>
 import Axios from "@/_services/caller.service";
-import { format } from "date-fns";
 export default {
-  name: "AddProjectForm",
-  props: ["customer_id"],
+  name: "UpdateClientForm",
+  props: ["pru"],
   data() {
     return {
       form: {
-        label: "",
-        adv: null,
-        customer: this.customer_id,
+        value: this.pru.value,
+        start_date: this.pru.start_date,
+        end_date: this.pru.end_date,
       },
       dialog: false,
       error: "",
       SuccessState: false,
       snackbar: false,
-      associates: [],
-      customers: [],
     };
   },
   methods: {
-    todayDate() {
-      return format(new Date(), "yyyy/MM/dd");
-    },
-    formAddProject() {
+    formPRUForm() {
       if (
-        this.form.label !== "" &&
-        this.form.adv !== "" &&
-        this.form.customer !== "" &&
-        this.form.label !== null &&
-        this.form.adv !== null &&
-        this.form.customer !== null 
+        this.form.value !== "" ||
+        this.form.value !== null ||
+        this.form.start_date !== "" ||
+        this.form.start_date !== null ||
+        this.form.end_date !== "" ||
+        this.form.end_date !== null
       ) {
-        Axios.post("/project", {
-          label: this.form.label,
-          adv: this.form.adv,
-          customer_id: this.form.customer,
+        Axios.put("/pru/update/" + this.pru.id, {
+          value: this.form.value,
+          start_date: this.form.start_date,
+          end_date: this.form.end_date,
         })
           .then((response) => {
+            console.log(response)
             this.dialog = false;
             this.CreateState = false;
             this.SuccessState = true;
-            this.success = "Nouveau projet créé";
+            this.success = "PRU modifié";
+            this.$emit("pruUpdated");
             this.error = "";
-            this.$emit("customerUpdated");
           })
           .catch((err) => {
+            console.log(err);
             this.error = err.response.data.error;
             this.SuccessState = false;
           });
       } else {
-        this.error = "Veuillez remplir tous les champs.";
+        this.error = "Veuillez ajouter un libelle.";
       }
     },
   },
 };
 </script>
 
-<style>
+<style scoped>
+td {
+  margin-top: auto;
+  margin-bottom: auto;
+  vertical-align: middle;
+}
 .gradient {
   background: linear-gradient(135deg, #75519b 0%, #e84654 100%);
   color: white;
+}
+
+.name {
+  font-weight: 600;
 }
 </style>

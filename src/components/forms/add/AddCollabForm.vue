@@ -157,6 +157,7 @@
 <script>
 import Axios from "@/_services/caller.service";
 import { format } from "date-fns";
+import { mapActions } from "vuex";
 export default {
   name: "AddCollabForm",
   data() {
@@ -180,6 +181,7 @@ export default {
   },
 
   methods: {
+    ...mapActions("initApp"),
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
     },
@@ -230,7 +232,8 @@ export default {
                   );
                 });
 
-                this.$emit('associateAdded');
+              this.$emit("associateAdded");
+              this.initApp();
               this.dialog = false;
               this.CreateState = false;
               this.SuccessState = true;

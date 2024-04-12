@@ -155,6 +155,7 @@ export default {
               this.CreateState = false;
               this.SuccessState = true;
               this.success = "Mission mise à jour";
+              this.$emit("associateUpdated");
               this.snackbar = true;
               this.error = "";
             })
@@ -174,3 +175,10 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.gradient {
+  background: linear-gradient(135deg, #75519b 0%, #e84654 100%);
+  color: white;
+}
+</style>

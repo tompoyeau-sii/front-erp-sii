@@ -101,9 +101,11 @@ export default {
             this.CreateState = false;
             this.SuccessState = true;
             this.success = "Client modifié";
+            this.$emit("customerUpdated");
             this.error = "";
           })
           .catch((err) => {
+            console.log(err)
             this.error = err.response.data.error;
             this.SuccessState = false;
           });
@@ -120,6 +122,11 @@ td {
   margin-top: auto;
   margin-bottom: auto;
   vertical-align: middle;
+}
+
+.gradient {
+  background: linear-gradient(135deg, #75519b 0%, #e84654 100%);
+  color: white;
 }
 
 .name {

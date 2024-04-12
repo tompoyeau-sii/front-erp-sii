@@ -211,6 +211,8 @@ export default {
               this.success = "Nouvelle mission créée";
               this.snackbar = true;
               this.error = "";
+              this.$emit("associateUpdated");
+              this.$emit("customerUpdated");
               console.log(response)
             })
             .catch((err) => {

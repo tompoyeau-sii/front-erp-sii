@@ -93,6 +93,9 @@ export default {
   },
   methods: {
     ...mapActions(["refreshCustomers"]),
+    ...mapActions([
+      "initApp",
+    ]),
 
     formAddCustomer() {
       if (this.form.label.length > 2) {
@@ -103,7 +106,7 @@ export default {
             this.dialog = false;
             this.SuccessState = true;
             this.success = "Nouveau client créé";
-            this.refreshCustomers();
+            this.initApp();
             this.error = "";
           })
           .catch((err) => {

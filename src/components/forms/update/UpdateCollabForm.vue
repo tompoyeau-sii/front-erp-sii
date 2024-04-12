@@ -220,31 +220,35 @@ export default {
         this.form.start_date != "" &&
         this.form.pru != ""
       ) {
-        if((this.form.manager == null && this.form.job == 1) || (this.form.manager != null)) {
-        Axios.put("/associate/update/" + this.associate_id, {
-          name: this.form.name,
-          first_name: this.form.first_name,
-          gender: this.form.sexe,
-          graduation_id: this.form.graduation,
-          job_id: this.form.job,
-          birthdate: this.form.birthdate,
-          start_date: this.form.start_date,
-          mail: this.form.mail,
-          pru: this.form.pru,
-          manager_id: this.form.manager,
-        })
-          .then((response) => {
-            console.log(response);
-            this.dialog = false;
-            this.SuccessState = true;
-            this.error = "";
-            this.success = "Collaborateur modifié.";
-            this.snackbar = true;
+        if (
+          (this.form.manager == null && this.form.job == 1) ||
+          this.form.manager != null
+        ) {
+          Axios.put("/associate/update/" + this.associate_id, {
+            name: this.form.name,
+            first_name: this.form.first_name,
+            gender: this.form.sexe,
+            graduation_id: this.form.graduation,
+            job_id: this.form.job,
+            birthdate: this.form.birthdate,
+            start_date: this.form.start_date,
+            mail: this.form.mail,
+            pru: this.form.pru,
+            manager_id: this.form.manager,
           })
-          .catch((err) => {
-            console.log(err);
-            this.error = err.response.data.error;
-          });
+            .then((response) => {
+              console.log(response);
+              this.dialog = false;
+              this.SuccessState = true;
+              this.error = "";
+              this.success = "Collaborateur modifié.";
+              this.$emit("associateUpdated");
+              this.snackbar = true;
+            })
+            .catch((err) => {
+              console.log(err);
+              this.error = err.response.data.error;
+            });
         }
       } else {
         this.error = "Tous les champs sont obligatoires.";
@@ -260,6 +264,11 @@ td {
   margin-bottom: auto;
   vertical-align: middle;
   border-style: none;
+}
+
+.gradient {
+  background: linear-gradient(135deg, #75519b 0%, #e84654 100%);
+  color: white;
 }
 
 .v-card {

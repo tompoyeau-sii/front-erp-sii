@@ -11,7 +11,7 @@
         >
       </v-col>
     </v-row>
-
+    Simu
     <v-row>
       <v-avatar size="70" class="mt-3">
         <v-img src="../assets/img/collab/generic.png" alt="John"></v-img>
@@ -315,7 +315,7 @@ import {
 } from "date-fns";
 import { fr } from "date-fns/locale";
 export default {
-  name: "FicheCollab",
+  name: "FicheCollabSimu",
   components: {
     AddMissionForm,
     UpdateCollabForm,

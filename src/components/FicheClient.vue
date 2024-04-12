@@ -14,13 +14,14 @@
 
     <v-row class="mt-3">
       <v-col lg="6">
-        <h5 class="title mt-5 d-inline-block">{{ $route.params.client.label }}</h5>
+        <h5 class="title mt-5 d-inline-block">{{ customer.label }}</h5>
       </v-col>
       <v-row justify="end">
         <v-col lg="6">
           <UpdateClientForm
-            :customer_id="$route.params.client.id"
-            :customer="$route.params.client.label"
+            :customer_id="customer.id"
+            :customer="customer.label"
+            @customerUpdated="handleCustomerUpdate"
           />
         </v-col>
       </v-row>
@@ -31,7 +32,7 @@
       </v-col>
       <v-row justify="end">
         <v-col lg="6">
-          <AddProjectForm :customer_id="$route.params.client.id" />
+          <AddProjectForm :customer_id="customer.id" @customerUpdated="handleCustomerUpdate"/>
         </v-col>
       </v-row>
     </v-row>
@@ -76,13 +77,14 @@
         </table>
       </div>
       <v-row v-if="projects.length !== 0" justify="center">
-        <AddMissionForm :customer_id="$route.params.client.id" />
+        <AddMissionForm :customer_id="customer.id" @customerUpdated="handleCustomerUpdate"/>
       </v-row>
     </div>
   </v-container>
 </template>
 
 <script>
+import Axios from "@/_services/caller.service";
 import AddProjectForm from "@/components/forms/add/AddProjectForm.vue";
 import AddMissionForm from "@/components/forms/add/AddMissionForm.vue";
 import UpdateClientForm from "@/components/forms/update/UpdateClientForm.vue";
@@ -98,17 +100,16 @@ export default {
     return {
       SupprDialog: false,
       managers: [],
-      customers: [],
+      customer: [],
       dialog: false,
-      isEditMode: false,
       projects: [],
       SuccessState: false,
       error: "",
     };
   },
   created() {
+    this.customer = this.$route.params.client;
     this.projects = this.$route.params.client.Projects;
-    console.log(this.projects);
   },
   methods: {
     retourPagePrecedente() {
@@ -117,6 +118,19 @@ export default {
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
     },
+    handleCustomerUpdate() {
+      this.fetchData()
+    },
+    fetchData() {
+       Axios.get(`/customer/${this.customer.id}`)
+      .then(response => {
+        this.customer = response.data
+        this.projects = response.data.Projects
+      })
+      .catch(error => {
+        console.error(error)
+      })
+    }
   },
 };
 </script>

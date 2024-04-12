@@ -6,7 +6,7 @@
 // Components
 import FicheCollab from "@/components/FicheCollab.vue";
 export default {
-  name: "FicheCollabView",
+  name: "FicheCollabSimuView",
 
   components: {
     FicheCollab,
