@@ -52,6 +52,9 @@
               >
                 {{ getEvolutionCA(getCaOfAgence(), getCaLastYearOfAgence()) }}%
               </p>
+              <p v-else-if="getEvolutionCA(getCaOfAgence(), getCaLastYearOfAgence()) == 0" class="data text-red m-2">
+                {{ getEvolutionCA(getCaOfAgence(), getCaLastYearOfAgence()) }}%
+              </p>
               <p v-else class="data text-red m-2">
                 {{ getEvolutionCA(getCaOfAgence(), getCaLastYearOfAgence()) }}%
               </p>

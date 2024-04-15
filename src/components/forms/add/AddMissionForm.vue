@@ -78,7 +78,7 @@
               </v-col>
               <v-col cols="12" sm="6">
                 <v-text-field
-                  label="Date de fin de mission*"
+                  label="Date de fin de mission"
                   variant="solo"
                   v-model="form.end_date"
                   type="date"
@@ -100,11 +100,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            color="white"
-            variant="text"
-            type="submit"
-          >
+          <v-btn color="white" variant="text" type="submit">
             Enregistrer
           </v-btn>
         </v-card-actions>
@@ -126,7 +122,7 @@
 
 <script>
 import Axios from "@/_services/caller.service";
-import { format } from "date-fns";
+import { format, isAfter } from "date-fns";
 import { fr } from "date-fns/locale";
 export default {
   name: "AddMissionForm",
@@ -190,38 +186,38 @@ export default {
         this.form.associate !== null &&
         this.form.project !== null &&
         this.form.start_date !== null &&
-        this.form.end_date !== null &&
         this.form.tjm !== null
       ) {
-        if (this.form.start_date < this.form.end_date) {
-          var start_date = this.formatDateBDD(this.form.start_date)
-          var end_date = this.formatDateBDD(this.form.end_date)
-          Axios.post("/mission", {
-            label: this.form.label,
-            associate_id: this.form.associate,
-            project_id: this.form.project,
-            tjm: this.form.tjm,
-            start_date: start_date,
-            end_date: end_date,
-          })
-            .then((response) => {
-              this.dialog = false;
-              this.CreateState = false;
-              this.SuccessState = true;
-              this.success = "Nouvelle mission créée";
-              this.snackbar = true;
-              this.error = "";
-              this.$emit("associateUpdated");
-              this.$emit("customerUpdated");
-              console.log(response)
-            })
-            .catch((err) => {
-              this.error = err.response.data.error;
-              console.log(err)
-            });
-        } else {
-          this.error = "La date début doit être inférieur à la date de fin !";
+
+        if(this.form.end_date == null) {
+          this.form.end_date = "2099-12-30"
         }
+
+        var start_date = this.formatDateBDD(this.form.start_date);
+        var end_date = this.formatDateBDD(this.form.end_date);
+        Axios.post("/mission", {
+          label: this.form.label,
+          associate_id: this.form.associate,
+          project_id: this.form.project,
+          tjm: this.form.tjm,
+          start_date: start_date,
+          end_date: end_date,
+        })
+          .then((response) => {
+            this.dialog = false;
+            this.CreateState = false;
+            this.SuccessState = true;
+            this.success = "Nouvelle mission créée";
+            this.snackbar = true;
+            this.error = "";
+            this.$emit("associateUpdated");
+            this.$emit("customerUpdated");
+            console.log(response);
+          })
+          .catch((err) => {
+            this.error = err.response.data.error;
+            console.log(err);
+          });
       } else {
         this.error = "Veuillez compléter tous les champs.";
       }

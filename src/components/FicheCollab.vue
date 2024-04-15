@@ -99,6 +99,10 @@
                   "
                 ></p>
                 <p
+                  v-if="mission.date_range_mission[1].value == '2099-12-31'"
+                  v-text="'Date de fin non défini'"
+                ></p>
+                <p v-else
                   v-text="
                     'Se termine le ' +
                     formatDate(mission.date_range_mission[1].value)
@@ -351,7 +355,7 @@ export default {
       return differenceInYears(today, new Date(dateOfBirth));
     },
     handleAssociateUpdate() {
-      // Actualiser la liste des collaborateurs en récupérant les données depuis le serveur
+      console.log("ça passe")
       this.fetchData();
     },
     fetchData() {

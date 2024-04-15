@@ -157,7 +157,6 @@
 <script>
 import Axios from "@/_services/caller.service";
 import { format } from "date-fns";
-import { mapActions } from "vuex";
 export default {
   name: "AddCollabForm",
   data() {
@@ -181,7 +180,6 @@ export default {
   },
 
   methods: {
-    ...mapActions("initApp"),
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
     },
@@ -219,26 +217,13 @@ export default {
           })
             .then((response) => {
               console.log(response);
-
-              // Mise à jour de la propriété associates avec l'appel API à "/associates"
-              Axios.get("/associates")
-                .then((associatesResponse) => {
-                  this.$store.commit("setAssociates", associatesResponse.data);
-                })
-                .catch((associatesError) => {
-                  console.error(
-                    "Erreur lors de la mise à jour des associés :",
-                    associatesError
-                  );
-                });
-
-              this.$emit("associateAdded");
-              this.initApp();
               this.dialog = false;
               this.CreateState = false;
               this.SuccessState = true;
               this.success = "Nouveau collaborateur ajouté.";
+              this.$emit("associateAdded");
               this.error = "";
+              console.log("test");
             })
             .catch((err) => {
               console.log(err);
@@ -288,7 +273,8 @@ td {
   margin-top: auto;
   margin-bottom: auto;
   vertical-align: middle;
-  border-style: none;
+  border-style
+  : none;
 }
 
 .v-card {
