@@ -33,7 +33,7 @@
                 size="x-large"
               ></v-icon>
               <p class="data m-2">
-                {{ formatK(getCaOfAgence()) }}
+                {{ formatK(getCaOfAgence()) }} 
               </p>
             </v-row>
           </div>
@@ -50,6 +50,9 @@
                 "
                 class="data text-green m-2"
               >
+                {{ getEvolutionCA(getCaOfAgence(), getCaLastYearOfAgence()) }}%
+              </p>
+              <p v-else-if="getEvolutionCA(getCaOfAgence(), getCaLastYearOfAgence()) == 0" class="data text-red m-2">
                 {{ getEvolutionCA(getCaOfAgence(), getCaLastYearOfAgence()) }}%
               </p>
               <p v-else class="data text-red m-2">
@@ -145,27 +148,6 @@ export default {
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
     },
-    // async getOffDays(year) {
-    //   try {
-    //     const url1 = `https://calendrier.api.gouv.fr/jours-feries/metropole/${year}.json`;
-    //     const res1 = await axios.get(url1);
-    //     const offDaysActualYear = Object.keys(res1.data);
-
-    //     const url2 = `https://calendrier.api.gouv.fr/jours-feries/metropole/${
-    //       year + 1
-    //     }.json`;
-    //     const res2 = await axios.get(url2);
-    //     const offDaysNextYear = Object.keys(res2.data);
-
-    //     this.offDays = offDaysActualYear.concat(offDaysNextYear);
-    //   } catch (error) {
-    //     console.error(
-    //       "Une erreur est survenue lors de la récupération des jours fériés :",
-    //       error
-    //     );
-    //     throw error;
-    //   }
-    // },
     getEvolutionCA(todayCA, lastYearCA) {
       ca = todayCA - lastYearCA;
       ca = ca / Math.abs(lastYearCA);

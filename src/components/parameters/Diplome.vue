@@ -27,7 +27,13 @@
         <v-row justify="center">
           <v-dialog v-model="dialog" width="750px">
             <template v-slot:activator="{ props }">
-              <v-btn icon="mdi-plus" variant="text" color="deep-purple-darken-1" v-bind="props"> </v-btn>
+              <v-btn
+                icon="mdi-plus"
+                variant="text"
+                color="deep-purple-darken-1"
+                v-bind="props"
+              >
+              </v-btn>
             </template>
 
             <v-card class="gradient">
@@ -111,6 +117,7 @@ export default {
       error: "",
       errorState: false,
       SuccessState: false,
+      graduations: [],
       snackbar: false,
     };
   },
@@ -129,7 +136,7 @@ export default {
             this.success = "Nouveau diplôme créé";
 
             // Ajouter la requête pour récupérer la liste mise à jour
-            this.refreshGraduations();
+            this.fetchData();
           },
           (response) => {
             console.log(response.headers);
@@ -142,12 +149,18 @@ export default {
         this.error = "Veuillez ajouter un libelle.";
       }
     },
-  },
-  computed: {
-    graduations() {
-      return this.$store.getters.getGraduations;
+    fetchData() {
+      Axios.get("/graduations/limit").then((res) => {
+        this.graduations = res.data?.graduation;
+      });
+      this.refreshGraduations();
     },
-  }
+  },
+  created() {
+    Axios.get("/graduations/limit").then((res) => {
+      this.graduations = res.data?.graduation;
+    });
+  },
 };
 </script>
 
