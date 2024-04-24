@@ -26,24 +26,67 @@
         </v-col>
       </v-row>
     </v-row>
+
+    <v-row>
+      <v-col cols="12" lg="4" md="6" sm="6">
+        <div class="bg-white shadow rounded-5 p-4">
+          <p class="etiquette mb-2">TJM Moyen</p>
+          <v-row justify="end" align="center">
+             <v-icon
+              class="title"
+              icon="mdi-currency-eur"
+              size="x-large"
+            ></v-icon>
+            <p class="data m-2">{{ tjm_moyen }}</p>
+          </v-row>
+        </div>
+      </v-col>
+
+      <v-col cols="12" lg="4" md="6" sm="6">
+        <div class="bg-white shadow rounded-5 p-4">
+          <p class="etiquette mb-2">
+            PRU Moyen
+          </p>
+          <v-row justify="end" align="center">
+            <v-icon
+              class="title"
+              icon="mdi-currency-eur"
+              size="x-large"
+            ></v-icon>
+            <p class="data m-2">
+              {{ pru_moyen }}
+            </p>
+          </v-row>
+        </div>
+      </v-col>
+    </v-row>
     <v-row class="mt-3">
       <v-col lg="6">
-        <h5 class="title d-inline-block" v-if="projects.length !== 0">Projets</h5>
+        <h5 class="title d-inline-block" v-if="projects.length !== 0">
+          Projets
+        </h5>
       </v-col>
       <v-row justify="end">
         <v-col lg="6">
-          <AddProjectForm :customer_id="customer.id" @customerUpdated="handleCustomerUpdate"/>
+          <AddProjectForm
+            :customer_id="customer.id"
+            @customerUpdated="handleCustomerUpdate"
+          />
         </v-col>
       </v-row>
     </v-row>
     <!-- Affichage de la liste de projet avec chaque collab assigné -->
     <div class="row">
+      <div v-for="project in projects" :key="project.id"> 
+      
+      </div>
       <div
         class="table-responsive p-3 col-lg-6 col-md-12"
         v-for="project in projects"
+       
         :key="project.id"
       >
-        <table class="table rounded-3 shadow bg-white">
+        <table class="table rounded-3 shadow bg-white" >
           <v-row justify="center" class="m-2">
             <h5 class="title" v-text="project.label"></h5>
           </v-row>
@@ -66,18 +109,34 @@
                 <p
                   class="mt-auto mb-auto ml-2"
                   v-text="
-                    mission.Associate.first_name +
-                    ' ' +
-                    mission.Associate.name
+                    mission.Associate.first_name + ' ' + mission.Associate.name
                   "
                 ></p>
+              </td>
+              <td
+                v-if="
+                  mission.date_range_mission[0].value < todayDate() &&
+                  mission.date_range_mission[1].value > todayDate()
+                "
+              >
+                <router-link
+                  :to="{
+                    name: 'FicheCollabView',
+                    params: { id: mission.Associate.id },
+                  }"
+                >
+                  <v-icon start icon="mdi-open-in-new"></v-icon>
+                </router-link>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
       <v-row v-if="projects.length !== 0" justify="center">
-        <AddMissionForm :customer_id="customer.id" @customerUpdated="handleCustomerUpdate"/>
+        <AddMissionForm
+          :customer_id="customer.id"
+          @customerUpdated="handleCustomerUpdate"
+        />
       </v-row>
     </div>
   </v-container>
@@ -103,13 +162,18 @@ export default {
       customer: [],
       dialog: false,
       projects: [],
+      tjm_moyen:0,
+      pru_moyen:0,
       SuccessState: false,
       error: "",
     };
   },
   created() {
-    this.customer = this.$route.params.client;
-    this.projects = this.$route.params.client.Projects;
+    this.tjm_moyen = this.$route.params.client.total_tjm
+    this.pru_moyen = this.$route.params.client.total_pru
+    this.customer = this.$route.params.client.customer;
+    console.log(this.customer)
+    this.projects = this.$route.params.client.customer.Projects;
   },
   methods: {
     retourPagePrecedente() {
@@ -119,18 +183,18 @@ export default {
       return format(new Date(), "yyyy-MM-dd");
     },
     handleCustomerUpdate() {
-      this.fetchData()
+      this.fetchData();
     },
     fetchData() {
-       Axios.get(`/customer/${this.customer.id}`)
-      .then(response => {
-        this.customer = response.data
-        this.projects = response.data.Projects
-      })
-      .catch(error => {
-        console.error(error)
-      })
-    }
+      Axios.get(`/customer/${this.customer.id}`)
+        .then((response) => {
+          this.customer = response.data;
+          this.projects = response.data.Projects;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
   },
 };
 </script>
@@ -145,5 +209,15 @@ export default {
   color: white;
   width: 20vh;
   min-width: 200px;
+}
+.etiquette {
+  color: #a9a9a9;
+}
+
+.data {
+  font-style: normal;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 130%;
 }
 </style>

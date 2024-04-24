@@ -97,13 +97,13 @@
               ></v-select>
             </v-col>
             <v-col cols="12">
-                <GChart
-                  v-if="dataLoadedAgence"
-                  type="LineChart"
-                  class="shadow rounded-3"
-                  :options="chart.caOptions"
-                  :data="chart.caData"
-                />
+              <GChart
+                v-if="dataLoadedAgence"
+                type="LineChart"
+                class="shadow rounded-3"
+                :options="chart.caOptions"
+                :data="chart.caData"
+              />
             </v-col>
           </v-row>
           <v-col v-if="isSimulationActive" cols="12" lg="4" md="6" sm="6">
@@ -128,6 +128,14 @@
             class="shadow"
             :data="chart.customerData"
             :options="chart.customerOptions"
+          />
+        </v-col>
+        <v-col cols="12" sm="6">
+          <GChart
+            type="PieChart"
+            class="shadow"
+            :data="chart.customersCaData"
+            :options="chart.customersCaOptions"
           />
         </v-col>
         <!-- <GChart
@@ -191,11 +199,11 @@ export default {
       missions: [],
       years: [
         { label: "2021 - 2022", value: 2021 },
-        { label: "2022 - 2023", valeur: 2022 },
-        { label: "2023 - 2024", valeur: 2023 },
-        { label: "2024 - 2025", valeur: 2024 },
-        { label: "2025 - 2026", valeur: 2025 },
-        { label: "2026 - 2027", valeur: 2026 },
+        { label: "2022 - 2023", value: 2022 },
+        { label: "2023 - 2024", value: 2023 },
+        { label: "2024 - 2025", value: 2024 },
+        { label: "2025 - 2026", value: 2025 },
+        { label: "2026 - 2027", value: 2026 },
       ],
       projectsOfManager: [],
 
@@ -224,6 +232,10 @@ export default {
         //graphique ca par client
         customerCaData: [],
         customerCaOptions: [],
+
+        //graphique ca de tous les clients
+        customersCaData: [],
+        customersCaOptions: [],
 
         //ca global de l'agence
         caData: [],
@@ -268,7 +280,7 @@ export default {
               ];
               this.chart.caOptions = {
                 title: "Chiffre d'affaire de l'agence",
-                
+
                 colors: ["#4527A0", "#e84653", "#fb8c00"],
               };
               this.dataLoadedAgence = true;
@@ -308,10 +320,13 @@ export default {
           (prod) => {
             this.customers = prod.data?.customer;
             this.filteredCustomers = this.filterAssociate(this.customers);
+            console.log(this.customers);
+            // On vérifie si l'on est en mode simulation
             if (
               this.getSimulationMode == "true" ||
               localStorage.getItem("isSimulation") == "true"
             ) {
+              //Si oui alors on va chercher les données de la simulation
               Axios.get("/customers").then((simu) => {
                 let filteredCustomersSimulation = this.filterAssociate(
                   simu.data?.customer
@@ -332,6 +347,8 @@ export default {
                 };
               });
             } else {
+              //sinon on utilise simplement les données de la prod
+              console.log(this.filteredCustomers);
               this.chart.customerData = [
                 ["Client", "Collab"],
                 ...this.filteredCustomers.map(({ label, nbCollab }) => [
@@ -343,6 +360,25 @@ export default {
                 title: "Nombre de collaborateurs par clients",
                 colors: ["#4527A0"],
               };
+
+              Axios.get(
+                "http://localhost:8080/api/production/statistiques/customer/actualMonth",
+                {
+                  params: {
+                    year: this.yearSelected,
+                  },
+                }
+              ).then((res) => {
+                let customersForCa = res.data?.caOfActualMonthCustomer;
+                console.log(customersForCa);
+                this.chart.customersCaData = [
+                  ["Client", "CA"],
+                  ...customersForCa.map(({ label, value }) => [label, value]),
+                ];
+                this.chart.customersCaOptions = {
+                  title: "Répartition du CA",
+                };
+              });
             }
           }
         );
@@ -553,6 +589,26 @@ export default {
           this.dataLoadedAgence = true;
         }
       });
+
+      Axios.get(
+        "http://localhost:8080/api/production/statistiques/customer/actualMonth",
+        {
+          params: {
+            year: newYear,
+          },
+        }
+      ).then((res) => {
+        let customersForCa = res.data?.caOfActualMonthCustomer;
+        console.log(customersForCa);
+        this.chart.customersCaData = [
+          ["Client", "CA"],
+          ...customersForCa.map(({ label, value }) => [label, value]),
+        ];
+        this.chart.customersCaOptions = {
+          title: "Répartition du CA",
+          colors: ["#4527A0"],
+        };
+      });
     },
     customerSelected(newCustomer) {
       Axios.get("http://localhost:8080/api/production/statistiques/customer", {
@@ -622,10 +678,10 @@ export default {
     todayDate() {
       return format(new Date(), "yyyy/MM/dd");
     },
+
     //Permet de retourner le nombre de nb collaborateurs que possède un client sans doublon
     filterAssociate(customers) {
       const result = [];
-
       customers.forEach((customer) => {
         const associateIds = new Set();
 
@@ -654,7 +710,8 @@ export default {
   color: #a9a9a9;
 }
 
-svg {
+.shadow {
+  overflow: hidden;
   border-radius: 8px !important;
 }
 

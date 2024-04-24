@@ -1,8 +1,12 @@
 <template>
   <div class="fond">
-    <v-card class="p-4 rounded-3" max-width="800">
-      <v-row class="m-2" justify="center">
-        <div class="text-h3 form-title">SII LE MANS | PICSOU</div>
+    <v-card class="p-4 rounded-3" min-width="550" max-width="800">
+      <v-row class="m-5" justify="center">
+        <v-img
+      style="text-align: center"
+      class="sii"
+      src="../assets/img/Piscou-logo-primaire@2x.png"
+    ></v-img>
       </v-row>
       <v-col cols="12">
         <v-card-text>
@@ -135,6 +139,13 @@ label {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   font-weight: 700;
+}
+
+.sii {
+  display: block;
+  align-content: center;
+  align-self: center;
+  margin: auto;
 }
 
 .v-application {

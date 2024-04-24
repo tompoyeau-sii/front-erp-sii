@@ -39,11 +39,11 @@ export default {
     return {
       years: [
         { label: "2021 - 2022", value: 2021 },
-        { label: "2022 - 2023", valeur: 2022 },
-        { label: "2023 - 2024", valeur: 2023},
-        { label: "2024 - 2025", valeur: 2024 },
-        { label: "2025 - 2026", valeur: 2025 },
-        { label: "2026 - 2027", valeur: 2026 },
+        { label: "2022 - 2023", value: 2022 },
+        { label: "2023 - 2024", value: 2023},
+        { label: "2024 - 2025", value: 2024 },
+        { label: "2025 - 2026", value: 2025 },
+        { label: "2026 - 2027", value: 2026 },
       ],
       selectedYear: null,
       dialog: false,

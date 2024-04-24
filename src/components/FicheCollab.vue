@@ -21,7 +21,7 @@
           class="title d-inline-block"
           v-text="associate.first_name + ' ' + associate.name"
         ></h1>
-        <p>{{ job }} | {{ associate.mail }}</p>
+        <p>{{ job }} | {{ associate.mail }} <span class="text-red" v-if="associate.end_date"> | Départ le {{ formatDate(associate.end_date) }}</span></p>
         <router-link
           :to="{
             name: 'CollabGestionView',
@@ -50,8 +50,14 @@
             :associate_manager="manager"
             @associateUpdated="handleAssociateUpdate"
           />
+          <FireCollabForm
+            :associate_id="associate.id"
+          />
         </v-col>
       </v-row>
+    </v-row>
+    <v-row>
+      
     </v-row>
 
     <!--  Si la personne est en mission -->
@@ -310,6 +316,7 @@ import Axios from "@/_services/caller.service";
 import AddMissionForm from "@/components/forms/add/AddMissionForm.vue";
 import UpdateCollabForm from "@/components/forms/update/UpdateCollabForm.vue";
 import UpdateMissionForm from "@/components/forms/update/UpdateMissionForm.vue";
+import FireCollabForm from "@/components/forms/update/FireCollabForm.vue"
 import {
   format,
   isBefore,
@@ -324,6 +331,7 @@ export default {
     AddMissionForm,
     UpdateCollabForm,
     UpdateMissionForm,
+    FireCollabForm
   },
   data() {
     return {

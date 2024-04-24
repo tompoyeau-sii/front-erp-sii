@@ -46,7 +46,7 @@ const routes = [
         // Si la simulation est activée, redirige vers la vue de simulation
         authGuard(to, from, next); // Si authGuard est une fonction qui doit être appelée, assurez-vous de l'appeler ici.
         Axios.get(`/associate/${to.params.id}`)
-        .then(response => {
+          .then(response => {
             console.log("la")
             to.params.collab = response.data;
             next({ name: 'FicheCollabSimuView', params: { id: to.params.id } });
@@ -103,16 +103,24 @@ const routes = [
     beforeEnter: (to, from, next) => {
       authGuard,
         // Assuming you have an axios instance named `axios` for making API requests
-        Axios.get(`/customer/${to.params.id}`)
-          .then(response => {
-            // Pass the client data as a prop to the component
-            to.params.client = response.data
-            next()
-          })
-          .catch(error => {
-            console.error(error)
-            router.push({ path: '/clients' })
-          })
+        Axios.get("/pdc/year")
+          .then((res) => {
+            Axios.get(`/customer/${to.params.id}`,
+              {
+                params: {
+                  year: res.data?.pdc.actual_year,
+                },
+              })
+              .then(response => {
+                // Pass the client data as a prop to the component
+                to.params.client = response.data
+                next()
+              })
+              .catch(error => {
+                console.error(error)
+                router.push({ path: '/clients' })
+              })
+          });
     }
   },
   {
@@ -120,6 +128,12 @@ const routes = [
     name: 'PdcView',
     beforeEnter: authGuard,
     component: () => import(/* webpackChunkName: "new" */ '../views/PdcView.vue')
+  },
+  {
+    path: '/gestion-jours',
+    name: 'WorkedDaysView',
+    beforeEnter: authGuard,
+    component: () => import(/* webpackChunkName: "new" */ '../views/WorkedDaysView.vue')
   },
   {
     path: '/intercontrat',
@@ -139,7 +153,7 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes,
   scrollBehavior(to, from, savedPosition) {
-    return { top:0 }
+    return { top: 0 }
   }
 })
 

@@ -42,6 +42,13 @@
           value="pdc"
         ></v-list-item>
       </router-link>
+      <router-link to="/gestion-jours">
+        <v-list-item
+          prepend-icon="mdi-counter"
+          title="Gestion présence"
+          value="gestion-jours"
+        ></v-list-item>
+      </router-link>
       <router-link to="/statistiques">
         <v-list-item
           prepend-icon="mdi-chart-areaspline"

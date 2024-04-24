@@ -4,9 +4,14 @@
       <v-col lg="6">
         <h1 class="title d-inline-block">Plan de charge</h1>
       </v-col>
+      <v-row justify="end">
+        <v-col lg="6">
+        
+        </v-col>
+      </v-row>
     </v-row>
     <div>
-      <v-row>
+      <v-row class="m-1">
         <v-col cols="6" lg="2" md="2">
           <v-autocomplete
             v-model="researchCollab"
@@ -95,7 +100,7 @@
           </v-btn>
         </v-col>
       </v-row>
-      <v-row justify="end">
+      <v-row justify="end" class="m-1">
         <v-col>
           <v-btn class="mr-2" color="deep-purple-darken-3"> En mission </v-btn>
           <v-btn class="mr-2" color="deep-purple-lighten-4 ">
@@ -103,6 +108,15 @@
           </v-btn>
           <v-btn class="mr-2" color="grey-lighten-1 "> Hors SII </v-btn>
         </v-col>
+          <v-btn-toggle
+            v-model="type"
+            color="deep-purple-darken-3"
+            mandatory
+            shaped
+          >
+            <v-btn value="Mois"> Mois </v-btn>
+            <v-btn value="Semaine"> Semaine </v-btn>
+          </v-btn-toggle>
       </v-row>
       <v-row justify="center" v-if="loading">
         <v-progress-circular indeterminate color="purple"></v-progress-circular>
@@ -158,18 +172,17 @@
             <tr v-for="associate in pdc" :key="associate.full_name">
               <td id="facture" v-for="week in associate.weeks" :key="week">
                 <div style="display: flex">
-                  <v-btn
-                    color="deep-purple-darken-3"
-                    v-if="week.state == 1"
-                  ></v-btn>
+                  <v-btn color="deep-purple-darken-3" v-if="week.state == 1">{{
+                    week.nb_day
+                  }}</v-btn>
                   <v-btn
                     color="deep-purple-lighten-4"
                     v-else-if="week.state == 2"
-                  ></v-btn>
-                  <v-btn
-                    color="grey-lighten-1"
-                    v-else-if="week.state == 3"
-                  ></v-btn>
+                    >{{ week.nb_day }}</v-btn
+                  >
+                  <v-btn color="grey-lighten-1" v-else-if="week.state == 3">{{
+                    week.nb_day
+                  }}</v-btn>
                 </div>
               </td>
             </tr>
@@ -191,6 +204,7 @@ export default {
     return {
       value: "",
       filtered: false,
+      type: 'Mois',
       researchCollab: null,
       currentPage: 1,
       totalPages: 0,
@@ -199,16 +213,15 @@ export default {
       selectedYear: null,
       years: [
         { label: "2021 - 2022", value: 2021 },
-        { label: "2022 - 2023", valeur: 2022 },
-        { label: "2023 - 2024", valeur: 2023 },
-        { label: "2024 - 2025", valeur: 2024 },
-        { label: "2025 - 2026", valeur: 2025 },
-        { label: "2026 - 2027", valeur: 2026 },
+        { label: "2022 - 2023", value: 2022 },
+        { label: "2023 - 2024", value: 2023 },
+        { label: "2024 - 2025", value: 2024 },
+        { label: "2025 - 2026", value: 2025 },
+        { label: "2026 - 2027", value: 2026 },
       ],
       selectedManager: null,
       selectedCustomer: null,
       selectedProject: null,
-      pdcCalculated: [],
       associates: [],
     };
   },
@@ -224,7 +237,7 @@ export default {
       this.selectedProject = null;
       this.selectedManager = null;
       this.researchCollab = null;
-      Axios.get("pdc", {
+      Axios.get("pdc/months", {
         params: {
           year: this.selectedYear,
         },
@@ -235,19 +248,37 @@ export default {
     },
     filterAssociates() {
       this.loading = true;
-      Axios.get("pdc", {
-        params: {
-          year: this.selectedYear,
-          search: this.researchCollab,
-          manager: this.selectedManager,
-          customer: this.selectedCustomer,
-          project: this.selectedProject,
-        },
-      }).then((res) => {
-        this.pdc = res.data?.pdc;
-        this.outWeeks = res.data?.outWeeks;
-        this.loading = false;
-      });
+      if(this.type == "Mois") {
+        Axios.get("pdc/months", {
+          params: {
+            year: this.selectedYear,
+            search: this.researchCollab,
+            manager: this.selectedManager,
+            customer: this.selectedCustomer,
+            project: this.selectedProject,
+          },
+        }).then((res) => {
+          this.pdc = res.data?.pdc;
+          this.outWeeks = res.data?.outWeeks;
+          this.loading = false;
+        });
+        
+      } else {
+        Axios.get("pdc/weeks", {
+          params: {
+            year: this.selectedYear,
+            search: this.researchCollab,
+            manager: this.selectedManager,
+            customer: this.selectedCustomer,
+            project: this.selectedProject,
+          },
+        }).then((res) => {
+          this.pdc = res.data?.pdc;
+          this.outWeeks = res.data?.outWeeks;
+          this.loading = false;
+        });
+
+      }
     },
     jsonToSheet() {
       const pdcData = this.pdc; // Récupérer les données PDC
@@ -349,17 +380,7 @@ export default {
         this.selectedYear = res.data?.pdc.actual_year;
       })
       .then((year) => {
-        Axios.get("pdc", {
-          params: {
-            year: this.selectedYear,
-          },
-        }).then((res) => {
-          this.pdc = res.data?.pdc;
-          this.outWeeks = res.data?.outWeeks;
-          // this.pdcCalculated = this.uniqueAssociates();
-          this.loading = false;
-          // console.log(this.pdcCalculated);
-        });
+        this.filterAssociates()
       });
 
     Axios.get("/associates").then((res) => {
@@ -368,6 +389,12 @@ export default {
         this.associates.push(associate);
       });
     });
+  },
+
+  watch: {
+    type() {
+      this.filterAssociates()
+    }
   },
 
   computed: {
