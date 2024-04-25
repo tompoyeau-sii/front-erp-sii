@@ -11,6 +11,8 @@ export function getUrl() {
         nom = mots[1].toLowerCase();
     }
 
+    console.log("ici")
+
     return localStorage.getItem("isSimulation") === "true"
         ? url = "http://localhost:8080/api/" + nom
         : url = "http://localhost:8080/api/production";

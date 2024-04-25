@@ -331,6 +331,8 @@ export default {
                 let filteredCustomersSimulation = this.filterAssociate(
                   simu.data?.customer
                 );
+                console.log("la")
+                console.log(filteredCustomersSimulation)
                 this.chart.customerData = [
                   ["Client", "Collab", "Collab Simulation"],
                   ...this.filteredCustomers.map(

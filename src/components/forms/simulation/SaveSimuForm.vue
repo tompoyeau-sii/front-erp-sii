@@ -95,7 +95,7 @@ export default {
   methods: {
     formCreateSave() {
       this.loading = true;
-      Axios.post("http://localhost:8080/api/production//simulation/CreateSave", {
+      Axios.post("http://localhost:8080/api/production/simulation/CreateSave", {
         userId: localStorage.getItem("userId"),
         fileName: this.form.label,
       })
@@ -106,6 +106,7 @@ export default {
           this.form.label = null;
           this.success = response.data.message;
           this.loading = false;
+          this.$emit("saveCreated");
           this.error = "";
         })
         .catch((err) => {

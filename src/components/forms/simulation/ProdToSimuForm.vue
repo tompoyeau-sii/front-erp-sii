@@ -67,6 +67,7 @@
 
 <script>
 import Axios from "@/_services/caller.service";
+import { mapActions } from "vuex";
 export default {
   name: "ProdToSimuForm",
   data() {
@@ -79,6 +80,9 @@ export default {
     };
   },
   methods: {
+    ...mapActions([
+      "initApp",
+    ]),
     formProdToSimu() {
       this.loading = true;
       Axios.post("http://localhost:8080/api/production/simulation/ProdToSimu", {
@@ -92,6 +96,7 @@ export default {
           this.loading = false;
           this.success = response.data?.message;
           this.error = "";
+          this.initApp()
         })
         .catch((err) => {
           console.log(err);

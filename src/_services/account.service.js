@@ -11,6 +11,7 @@ let logout = () => {
     localStorage.clear("userId")
     localStorage.clear("username")
     localStorage.clear("isSimulation")    
+    Axios.defaults.baseURL = "http://localhost:8080/api/production";
     router.push('/');
 }
 

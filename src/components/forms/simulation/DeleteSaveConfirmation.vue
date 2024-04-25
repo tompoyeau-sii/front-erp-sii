@@ -86,9 +86,11 @@ export default {
           this.CreateState = false;
           this.SuccessState = true;
           this.success = response.data.message;
+          this.$emit("saveDeleted");
           this.error = "";
         })
         .catch((err) => {
+          console.log(err)
           this.error = err.response.data.error;
           this.loading = false;
           this.SuccessState = false;

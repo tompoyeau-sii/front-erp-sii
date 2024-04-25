@@ -54,6 +54,8 @@
 import router from "@/router";
 import { accountService } from "@/_services";
 import getUrl from "@/_services/caller.service";
+import Axios from "@/_services/caller.service";
+import { mapMutations } from "vuex";
 export default {
   name: "connexion",
   data() {
@@ -67,13 +69,15 @@ export default {
     };
   },
   created() {
-    getUrl()
+    this.setSimulationMode("false");
     localStorage.clear("token")
     localStorage.clear("userId")
     localStorage.clear("username")
     localStorage.clear("isSimulation")    
+    getUrl()
   },
   methods: {
+    ...mapMutations(["setSimulationMode"]),
     formConnect() {
       if (this.login.username !== "" || this.login.password !== "") {
         accountService

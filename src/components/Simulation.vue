@@ -44,10 +44,12 @@
               <td class="mt-auto mb-auto" v-text="file.created_at"></td>
               <td>
                 <LoadSaveConfirmation
-                :filename="file.name"
+                  :filename="file.name"
                 ></LoadSaveConfirmation>
-                <DeleteSaveConfirmation :filename="file.name"></DeleteSaveConfirmation>
-
+                <DeleteSaveConfirmation
+                  @saveDeleted="handleSave"
+                  :filename="file.name"
+                ></DeleteSaveConfirmation>
               </td>
             </tr>
           </tbody>
@@ -61,7 +63,7 @@
           color="deep-purple-darken-1"
         ></v-pagination>
       </div>
-      <SaveSimuForm />
+      <SaveSimuForm @saveCreated="handleSave" />
     </div>
     <div v-if="isSimulationActive">
       <h1 class="title d-inline-block">Versions des autres utilisateurs</h1>
@@ -162,20 +164,23 @@ export default {
     VersionInfo,
     LoadSaveConfirmation,
     DeleteSaveConfirmation,
-
   },
 
   created() {
     this.fetchFilesOfActualUser(1);
     Axios.get("http://localhost:8080/api/production/accounts").then((res) => {
       this.accounts = res.data.accounts;
+      const updatedAccounts = this.accounts.filter(
+        (account) => account.id !== this.userId
+      );
+      this.accounts = updatedAccounts;
     });
   },
   watch: {
     currentPage(newPage) {
       this.fetchFilesOfActualUser(newPage);
     },
-     userSelected() {
+    userSelected() {
       this.fetchFilesOfUsers();
     },
   },
@@ -239,6 +244,9 @@ export default {
         });
     },
 
+    handleSave() {
+      this.fetchFilesOfActualUser(1);
+    },
 
     toggleSimulationMode() {
       let nom = null;

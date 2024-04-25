@@ -18,9 +18,9 @@
       <v-col cols="12" lg="3" md="4" sm="6">
         <Jobs />
       </v-col>
-      <v-col cols="12" lg="3" md="4" sm="6">
+      <!-- <v-col cols="12" lg="3" md="4" sm="6">
         <Genres />
-      </v-col>
+      </v-col> -->
     </div>
     <PdcYear />
   </v-container>

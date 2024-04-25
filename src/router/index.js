@@ -41,33 +41,18 @@ const routes = [
     name: 'FicheCollabView',
     component: () => import(/* webpackChunkName: "new" */ '../views/FicheCollabView.vue'),
     beforeEnter: (to, from, next) => {
-      const isSimulation = localStorage.getItem('isSimulation') === 'true';
-      if (isSimulation) {
-        // Si la simulation est activée, redirige vers la vue de simulation
-        authGuard(to, from, next); // Si authGuard est une fonction qui doit être appelée, assurez-vous de l'appeler ici.
-        Axios.get(`/associate/${to.params.id}`)
-          .then(response => {
-            console.log("la")
-            to.params.collab = response.data;
-            next({ name: 'FicheCollabSimuView', params: { id: to.params.id } });
-          })
-          .catch(error => {
-            console.error(error);
-            router.push({ path: '/collaborateurs' });
-          });
-      } else {
-        // Si la simulation n'est pas activée, poursuivre le traitement existant
-        authGuard(to, from, next); // Si authGuard est une fonction qui doit être appelée, assurez-vous de l'appeler ici.
-        Axios.get(`/associate/${to.params.id}`)
-          .then(response => {
-            to.params.collab = response.data;
-            next();
-          })
-          .catch(error => {
-            console.error(error);
-            router.push({ path: '/collaborateurs' });
-          });
-      }
+      // Si la simulation n'est pas activée, poursuivre le traitement existant
+      authGuard(to, from, next); // Si authGuard est une fonction qui doit être appelée, assurez-vous de l'appeler ici.
+      Axios.get(`/associate/${to.params.id}`)
+        .then(response => {
+          to.params.collab = response.data;
+          next();
+        })
+        .catch(error => {
+          console.error(error);
+          router.push({ path: '/collaborateurs' });
+        });
+
     }
   },
   {

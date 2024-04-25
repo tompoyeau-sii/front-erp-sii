@@ -2,29 +2,8 @@
   <div class="row">
     <div class="col-4">
       <div class="card shadow border-0 p-3">
-        <h5 class="name">Postes</h5>
-        <div class="table-responsive">
-          <table class="table rounded-3">
-            <thead>
-              <tr>
-                <th>Id</th>
-                <th>Libelle</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="job in jobs" :key="job.id">
-                <td style="display: flex; align-content: center">
-                  <p class="mt-auto mb-auto ml-2" v-text="job.id"></p>
-                </td>
-                <td>
-                  <p class="mt-auto mb-auto" v-text="job.label"></p>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <v-row justify="center">
+        <h5 class="name">
+          Postes
           <v-dialog v-model="dialog" width="750px">
             <template v-slot:activator="{ props }">
               <v-btn
@@ -87,6 +66,33 @@
               </v-form>
             </v-card>
           </v-dialog>
+        </h5>
+        <div class="table-responsive">
+          <table class="table rounded-3">
+            <tbody v-if="showLess">
+              <tr v-for="job in jobs.slice(0, 5)" :key="job.id">
+                <td>
+                  <p class="mt-auto mb-auto" v-text="job.label"></p>
+                </td>
+              </tr>
+               <tr v-if="jobs.length > 5" align="center" class="text-grey">
+                <button @click="showLess = false">+ voir plus ({{ jobs.length - 5 }})</button>
+              </tr>
+            </tbody>
+            <tbody v-else>
+              <tr v-for="job in jobs" :key="job.id">
+                <td>
+                  <p class="mt-auto mb-auto" v-text="job.label"></p>
+                </td>
+              </tr>
+               <tr align="center" class="text-grey">
+                <button @click="showLess = true">- voir moins</button>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <v-row justify="center">
           <v-snackbar
             v-if="SuccessState == true"
             v-model="snackbar"
@@ -113,7 +119,8 @@ export default {
       form: {
         label: "",
       },
-      jobs:[],
+      jobs: [],
+      showLess: true,
       dialog: false,
       error: "",
       errorState: false,
@@ -148,16 +155,16 @@ export default {
       }
     },
     fetchData() {
-      Axios.get("/jobs/limit").then((res) => {
-      this.jobs = res.data?.job;
-    })
+      Axios.get("/jobs").then((res) => {
+        this.jobs = res.data?.job;
+      });
       this.refreshJobs();
     },
   },
   created() {
-     Axios.get("/jobs/limit").then((res) => {
+    Axios.get("/jobs").then((res) => {
       this.jobs = res.data?.job;
-    })
+    });
   },
 };
 </script>

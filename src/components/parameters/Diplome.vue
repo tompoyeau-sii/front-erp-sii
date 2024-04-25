@@ -2,29 +2,8 @@
   <div class="row">
     <div class="col-4">
       <div class="card shadow border-0 p-3">
-        <h5 class="name">Diplômes</h5>
-        <div class="table-responsive">
-          <table class="table rounded-3">
-            <thead>
-              <tr>
-                <th>Id</th>
-                <th>Libelle</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="graduation in graduations" :key="graduation.id">
-                <td style="display: flex; align-content: center">
-                  <p class="mt-auto mb-auto ml-2" v-text="graduation.id"></p>
-                </td>
-                <td>
-                  <p class="mt-auto mb-auto" v-text="graduation.label"></p>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <v-row justify="center">
+        <h5 class="name">
+          Diplômes
           <v-dialog v-model="dialog" width="750px">
             <template v-slot:activator="{ props }">
               <v-btn
@@ -87,6 +66,33 @@
               </v-form>
             </v-card>
           </v-dialog>
+        </h5>
+        <div class="table-responsive">
+          <table class="table rounded-3">
+            <tbody v-if="showLess">
+              <tr v-for="graduation in graduations.slice(0, 5)" :key="graduation.id">
+                <td>
+                  <p class="mt-auto mb-auto" v-text="graduation.label"></p>
+                </td>
+              </tr>
+              <tr v-if="graduations.length > 5" align="center" class="text-grey">
+                <button @click="showLess = false">+ voir plus ({{ graduations.length - 5 }})</button>
+              </tr>
+            </tbody>
+            <tbody v-else>
+              <tr v-for="graduation in graduations" :key="graduation.id">
+                <td>
+                  <p class="mt-auto mb-auto" v-text="graduation.label"></p>
+                </td>
+              </tr>
+              <tr align="center" class="text-grey">
+                <button @click="showLess = true">- voir moins</button>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <v-row justify="center">
           <v-snackbar
             v-if="SuccessState == true"
             v-model="snackbar"
@@ -117,6 +123,7 @@ export default {
       error: "",
       errorState: false,
       SuccessState: false,
+      showLess: true,
       graduations: [],
       snackbar: false,
     };
@@ -150,14 +157,14 @@ export default {
       }
     },
     fetchData() {
-      Axios.get("/graduations/limit").then((res) => {
+      Axios.get("/graduations").then((res) => {
         this.graduations = res.data?.graduation;
       });
       this.refreshGraduations();
     },
   },
   created() {
-    Axios.get("/graduations/limit").then((res) => {
+    Axios.get("/graduations").then((res) => {
       this.graduations = res.data?.graduation;
     });
   },

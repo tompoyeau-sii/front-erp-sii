@@ -64,6 +64,7 @@
 
 <script>
 import Axios from "@/_services/caller.service";
+import { mapActions } from "vuex"
 export default {
   name: "LoadSaveConfirmation",
   props: ["filename"],
@@ -77,9 +78,12 @@ export default {
     };
   },
   methods: {
+    ...mapActions([
+      "initApp",
+    ]),
     LoadSave() {
       this.loading = true;
-      Axios.put("http://localhost:8080/api/production/simulation/LoadSave/", {
+      Axios.post("http://localhost:8080/api/production/simulation/LoadSave/", {
         userId: localStorage.getItem("userId"),
         fileName: this.filename,
       })
@@ -90,6 +94,7 @@ export default {
           this.SuccessState = true;
           this.success = response.data.message;
           this.error = "";
+          this.initApp()
         })
         .catch((err) => {
            this.loading = false;

@@ -103,6 +103,7 @@
 <script>
 import Axios from "@/_services/caller.service";
 import { format, differenceInYears } from "date-fns";
+import { mapActions } from "vuex";
 import { ca } from "date-fns/locale";
 export default {
   name: "dashboard",
@@ -142,9 +143,13 @@ export default {
         this.ageMoy = (moy / this.associates.length).toFixed(0);
       });
     });
+    this.initApp();
   },
 
   methods: {
+    ...mapActions([
+      "initApp",
+    ]),
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
     },
