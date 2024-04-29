@@ -5,9 +5,7 @@
         <h1 class="title d-inline-block">Plan de charge</h1>
       </v-col>
       <v-row justify="end">
-        <v-col lg="6">
-        
-        </v-col>
+        <v-col lg="6"> </v-col>
       </v-row>
     </v-row>
     <div>
@@ -108,15 +106,15 @@
           </v-btn>
           <v-btn class="mr-2" color="grey-lighten-1 "> Hors SII </v-btn>
         </v-col>
-          <v-btn-toggle
-            v-model="type"
-            color="deep-purple-darken-3"
-            mandatory
-            shaped
-          >
-            <v-btn value="Mois"> Mois </v-btn>
-            <v-btn value="Semaine"> Semaine </v-btn>
-          </v-btn-toggle>
+        <v-btn-toggle
+          v-model="type"
+          color="deep-purple-darken-3"
+          mandatory
+          shaped
+        >
+          <v-btn value="Mois"> Mois </v-btn>
+          <v-btn value="Semaine"> Semaine </v-btn>
+        </v-btn-toggle>
       </v-row>
       <v-row justify="center" v-if="loading">
         <v-progress-circular indeterminate color="purple"></v-progress-circular>
@@ -132,9 +130,16 @@
             </tr>
             <tr v-for="associate in pdc" :key="associate">
               <td>
-                <p>
-                  {{ associate.full_name }}
-                </p>
+                <router-link
+                  :to="{
+                    name: 'FicheCollabView',
+                    params: { id: associate.id },
+                  }"
+                >
+                  <p>
+                    {{ associate.full_name }}
+                  </p>
+                </router-link>
               </td>
             </tr>
           </tbody>
@@ -204,7 +209,7 @@ export default {
     return {
       value: "",
       filtered: false,
-      type: 'Mois',
+      type: "Mois",
       researchCollab: null,
       currentPage: 1,
       totalPages: 0,
@@ -248,7 +253,7 @@ export default {
     },
     filterAssociates() {
       this.loading = true;
-      if(this.type == "Mois") {
+      if (this.type == "Mois") {
         Axios.get("pdc/months", {
           params: {
             year: this.selectedYear,
@@ -259,10 +264,10 @@ export default {
           },
         }).then((res) => {
           this.pdc = res.data?.pdc;
+          console.log(this.pdc)
           this.outWeeks = res.data?.outWeeks;
           this.loading = false;
         });
-        
       } else {
         Axios.get("pdc/weeks", {
           params: {
@@ -277,7 +282,6 @@ export default {
           this.outWeeks = res.data?.outWeeks;
           this.loading = false;
         });
-
       }
     },
     jsonToSheet() {
@@ -380,7 +384,7 @@ export default {
         this.selectedYear = res.data?.pdc.actual_year;
       })
       .then((year) => {
-        this.filterAssociates()
+        this.filterAssociates();
       });
 
     Axios.get("/associates").then((res) => {
@@ -393,8 +397,8 @@ export default {
 
   watch: {
     type() {
-      this.filterAssociates()
-    }
+      this.filterAssociates();
+    },
   },
 
   computed: {
@@ -406,6 +410,10 @@ export default {
 </script>
 
 <style scoped>
+
+a {
+  color: black;
+}
 p {
   font-weight: 600;
   font-size: 12px;

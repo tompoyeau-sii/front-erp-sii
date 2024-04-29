@@ -69,7 +69,7 @@
             <th>Projet</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody v-if="calculatedAssociates.length > 0">
           <tr v-for="associate in calculatedAssociates" :key="associate">
             <td style="display: flex; align-content: center">
               <v-avatar>
@@ -177,6 +177,15 @@
                 <v-icon start icon="mdi-open-in-new"></v-icon>
               </router-link>
             </td>
+          </tr>
+        </tbody>
+        <tbody v-else>
+          <tr class="mt-auto mb-auto">
+            <td>Aucun collaborateur</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
           </tr>
         </tbody>
       </table>

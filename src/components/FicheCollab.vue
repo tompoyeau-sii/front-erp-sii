@@ -158,20 +158,22 @@
       </v-row>
 
       <!-- Si en intercontrat -->
-      <v-row v-else>
-        <v-col cols="6">
-          <h5 class="pt-3 sub-title d-inline-block">
-            Ce collaborateur est en intercontrat.
-          </h5>
-          <AddMissionForm
-            :associate_id="associate.id"
-            :associate="associate.name"
-            :associate_start_date="associate.start_date"
-            :associate_end_date="associate.end_date"
-            @associateUpdated="handleAssociateUpdate"
-          />
-        </v-col>
-      </v-row>
+      <div v-else> 
+        <v-row>
+          <v-col cols="6">
+            <h5 class="pt-3 sub-title d-inline-block">
+              Ce collaborateur est en intercontrat.
+            </h5>
+          </v-col>
+        </v-row>
+        <AddMissionForm
+          :associate_id="associate.id"
+          :associate="associate.name"
+          :associate_start_date="associate.start_date"
+          :associate_end_date="associate.end_date"
+          @associateUpdated="handleAssociateUpdate"
+        />
+      </div>
 
       <v-row>
         <v-col lg="6" v-if="MissionsFutur.length > 0">

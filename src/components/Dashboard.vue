@@ -33,7 +33,7 @@
                 size="x-large"
               ></v-icon>
               <p class="data m-2">
-                {{ formatK(getCaOfAgence()) }} 
+                {{ formatK(getCaOfAgence()) }}
               </p>
             </v-row>
           </div>
@@ -52,7 +52,12 @@
               >
                 {{ getEvolutionCA(getCaOfAgence(), getCaLastYearOfAgence()) }}%
               </p>
-              <p v-else-if="getEvolutionCA(getCaOfAgence(), getCaLastYearOfAgence()) == 0" class="data text-red m-2">
+              <p
+                v-else-if="
+                  getEvolutionCA(getCaOfAgence(), getCaLastYearOfAgence()) == 0
+                "
+                class="data text-red m-2"
+              >
                 {{ getEvolutionCA(getCaOfAgence(), getCaLastYearOfAgence()) }}%
               </p>
               <p v-else class="data text-red m-2">
@@ -72,14 +77,61 @@
                 icon="mdi-account-group"
                 size="x-large"
               ></v-icon>
-              <p class="data m-2">{{ ageMoy + " ans" }}</p>
+              <p v-if="ageMoy" class="data m-2">{{ ageMoy + " ans" }}</p>
+              <p v-else class="data m-2">0 an</p>
+            </v-row>
+          </div>
+          <div class="bg-white shadow rounded-5 mt-5 p-4">
+            <p class="etiquette mb-2">État d'avancement</p>
+            <v-row v-if="goal > 5" justify="end" align="center">
+              <v-icon
+                v-if="goal > 5"
+                class="text-green"
+                icon="mdi-elevation-rise"
+                size="x-large"
+              ></v-icon>
+              <p class="data m-2 text-green">En avance</p>
+            </v-row>
+            <v-row v-else-if="goal < -5" justify="end" align="center">
+              <v-icon
+                class="text-red"
+                icon="mdi-elevation-decline"
+                size="x-large"
+              ></v-icon>
+              <p class="data m-2 text-red">En retard</p>
+            </v-row>
+            <v-row v-else justify="end" align="center">
+              <v-icon
+                class="text-orange"
+                icon="mdi-sine-wave"
+                size="x-large"
+              ></v-icon>
+              <p class="data m-2 text-orange">Conforme</p>
             </v-row>
           </div>
         </v-col>
 
         <v-col cols="12" lg="8" class="shadow rounded-5 mt-3 p-5 gradient">
-          <p class="pb-5">CA par client depuis le début de l'exercice</p>
           <v-row>
+            <v-col lg="6">
+              <p class="pb-5">CA par client depuis le début de l'exercice</p>
+            </v-col>
+            <v-row justify="end">
+              <v-col lg="6">
+                <v-btn-toggle
+                  v-model="type"
+                  color="white"
+                  variant="text"
+                  mandatory
+                  shaped
+                >
+                  <v-btn value="CA">CA</v-btn>
+                  <v-btn value="tjm">TJM/PRU</v-btn>
+                </v-btn-toggle>
+              </v-col>
+            </v-row>
+          </v-row>
+          <v-row v-if="type=='CA'">
             <v-col
               cols="12"
               lg="3"
@@ -94,6 +146,26 @@
               <span>{{ customer.label }}</span>
             </v-col>
           </v-row>
+          <v-row v-else>
+            <v-col
+              cols="12"
+              lg="3"
+              md="6"
+              sm="6"
+              v-for="customer in customers"
+              :key="customer.id"
+            >
+              <p style="font-weight: bold; font-size: 4vh">
+                <span v-if="customer.total_tjm">{{ customer.total_tjm }}€</span>
+                <span v-else>0€</span>
+                 / 
+                <span v-if="customer.total_pru">{{ customer.total_pru }}€</span>
+                <span v-else>0€</span>
+              </p>
+              <span>{{ customer.label }}</span>
+            </v-col>
+          </v-row>
+
         </v-col>
       </v-row>
     </div>
@@ -112,6 +184,8 @@ export default {
       date: [],
       associates: [],
       ageMoy: null,
+      type: "CA",
+      goal: 5,
       offDays: [],
       caOfCustomers: 0,
       agenceCa: 0,
@@ -119,7 +193,6 @@ export default {
       evolCa: 0,
       selectedYear: null,
       month: null,
-      customers: [],
       customers: [],
     };
   },
@@ -147,9 +220,7 @@ export default {
   },
 
   methods: {
-    ...mapActions([
-      "initApp",
-    ]),
+    ...mapActions(["initApp"]),
     todayDate() {
       return format(new Date(), "yyyy-MM-dd");
     },
@@ -229,6 +300,10 @@ export default {
 <style scoped>
 .etiquette {
   color: #a9a9a9;
+}
+
+p {
+  text-align: start;
 }
 
 .data {

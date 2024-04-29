@@ -32,30 +32,30 @@
         <div class="bg-white shadow rounded-5 p-4">
           <p class="etiquette mb-2">TJM Moyen</p>
           <v-row justify="end" align="center">
-             <v-icon
+            <v-icon
               class="title"
               icon="mdi-currency-eur"
               size="x-large"
             ></v-icon>
-            <p class="data m-2">{{ tjm_moyen }}</p>
+            <p v-if="tjm_moyen" class="data m-2">{{ tjm_moyen }}</p>
+            <p v-else class="data m-2">0</p>
           </v-row>
         </div>
       </v-col>
 
       <v-col cols="12" lg="4" md="6" sm="6">
         <div class="bg-white shadow rounded-5 p-4">
-          <p class="etiquette mb-2">
-            PRU Moyen
-          </p>
+          <p class="etiquette mb-2">PRU Moyen</p>
           <v-row justify="end" align="center">
             <v-icon
               class="title"
               icon="mdi-currency-eur"
               size="x-large"
             ></v-icon>
-            <p class="data m-2">
+            <p v-if="pru_moyen" class="data m-2">
               {{ pru_moyen }}
             </p>
+            <p v-else class="data m-2">0</p>
           </v-row>
         </div>
       </v-col>
@@ -77,16 +77,13 @@
     </v-row>
     <!-- Affichage de la liste de projet avec chaque collab assigné -->
     <div class="row">
-      <div v-for="project in projects" :key="project.id"> 
-      
-      </div>
+      <div v-for="project in projects" :key="project.id"></div>
       <div
         class="table-responsive p-3 col-lg-6 col-md-12"
         v-for="project in projects"
-       
         :key="project.id"
       >
-        <table class="table rounded-3 shadow bg-white" >
+        <table class="table rounded-3 shadow bg-white">
           <v-row justify="center" class="m-2">
             <h5 class="title" v-text="project.label"></h5>
           </v-row>
@@ -162,17 +159,17 @@ export default {
       customer: [],
       dialog: false,
       projects: [],
-      tjm_moyen:0,
-      pru_moyen:0,
+      tjm_moyen: 0,
+      pru_moyen: 0,
       SuccessState: false,
       error: "",
     };
   },
   created() {
-    this.tjm_moyen = this.$route.params.client.total_tjm
-    this.pru_moyen = this.$route.params.client.total_pru
+    this.tjm_moyen = this.$route.params.client.total_tjm;
+    this.pru_moyen = this.$route.params.client.total_pru;
     this.customer = this.$route.params.client.customer;
-    console.log(this.customer)
+    console.log(this.customer);
     this.projects = this.$route.params.client.customer.Projects;
   },
   methods: {
@@ -186,14 +183,22 @@ export default {
       this.fetchData();
     },
     fetchData() {
-      Axios.get(`/customer/${this.customer.id}`)
-        .then((response) => {
-          this.customer = response.data;
-          this.projects = response.data.Projects;
+      Axios.get("/pdc/year").then((res) => {
+        Axios.get(`/customer/${this.customer.id}`, {
+          params: {
+            year: res.data?.pdc.actual_year,
+          },
         })
-        .catch((error) => {
-          console.error(error);
-        });
+          .then((response) => {
+            console.log(response)
+            // Pass the client data as a prop to the component
+            this.customer = response.data.customer;
+            this.projects = response.data.customer.Projects;
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      });
     },
   },
 };

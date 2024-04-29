@@ -1,4 +1,5 @@
 <template>
+  <v-row justify="end" class="m-3">
   <v-dialog v-model="dialog" width="750px">
     <template v-slot:activator="{ props }">
       <v-btn
@@ -6,7 +7,7 @@
         color="deep-purple-darken-1"
         v-bind="props"
       >
-        Créer un nouveau projet
+        projet
       </v-btn>
     </template>
     <v-card class="gradient">
@@ -89,6 +90,7 @@
     <v-icon start icon="mdi-checkbox-marked-circle"></v-icon>
     {{ success }}
   </v-snackbar>
+  </v-row>
 </template>
 
 <script>

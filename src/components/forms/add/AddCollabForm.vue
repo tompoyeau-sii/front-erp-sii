@@ -223,7 +223,6 @@ export default {
               this.success = "Nouveau collaborateur ajouté.";
               this.$emit("associateAdded");
               this.error = "";
-              console.log("test");
             })
             .catch((err) => {
               console.log(err);

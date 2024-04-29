@@ -37,7 +37,6 @@
             <thead>
               <tr style="border: white">
                 <th>Collaborateur</th>
-                <th>Durée en jours ouvrés</th>
                 <th>PRU</th>
               </tr>
             </thead>
@@ -55,8 +54,6 @@
                     v-text="intercontrat.first_name + ' ' + intercontrat.name"
                   ></p>
                 </td>
-
-                <td class="mt-auto mb-auto" v-text="'Test'"></td>
                 <td
                   class="mt-auto mb-auto"
                   v-if="pruEnCours(intercontrat.id) != ''"

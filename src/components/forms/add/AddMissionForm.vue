@@ -140,7 +140,6 @@ export default {
         associate: this.associate_id,
         project: null,
         tjm: null,
-        imputation: null,
         start_date: null,
         end_date: null,
       },
@@ -209,6 +208,11 @@ export default {
             this.SuccessState = true;
             this.success = "Nouvelle mission créée";
             this.snackbar = true;
+            this.form.label = null,
+            this.form.project = null,
+            this.form.tjm = null,
+            this.form.start_date = null,
+            this.form.end_date = null,
             this.error = "";
             this.$emit("associateUpdated");
             this.$emit("customerUpdated");
