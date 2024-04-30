@@ -5,7 +5,7 @@
         <v-img
       style="text-align: center"
       class="sii"
-      src="../assets/img/Piscou-logo-primaire@2x.png"
+      src="../assets/img/Piscou-logo-primaire-svg.svg"
     ></v-img>
       </v-row>
       <v-col cols="12">

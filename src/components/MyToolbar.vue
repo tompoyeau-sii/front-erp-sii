@@ -9,7 +9,7 @@
       style="text-align: center"
       aspect-ratio
       class="sii"
-      src="../assets/img/Piscou-logo-primaire@2x.png"
+      src="../assets/img/Piscou-logo-primaire-svg.svg"
     ></v-img>
     <v-list nav>
       <router-link to="/dashboard">

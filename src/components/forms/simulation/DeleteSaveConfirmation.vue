@@ -22,6 +22,18 @@
               <v-col cols="12">
                 Voulez-vous supprimer le version suivante : <strong> {{ filename }} </strong>
               </v-col>
+              <v-col cols="12">
+                  <v-alert
+                    v-if="error != ''"
+                    class="mb-5 vibrate"
+                    icon="mdi-close"
+                    type="error"
+                    border
+                    :text="error"
+                    m-5
+                  ></v-alert>
+                </v-col>0.
+                
             </v-row>
           </v-container>
         </v-card-text>
@@ -89,7 +101,7 @@ export default {
           this.$emit("saveDeleted");
           this.error = "";
         })
-        .catch((err) => {
+        .catch(err => {
           console.log(err)
           this.error = err.response.data.error;
           this.loading = false;
