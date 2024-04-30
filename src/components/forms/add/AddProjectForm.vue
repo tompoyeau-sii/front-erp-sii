@@ -136,6 +136,8 @@ export default {
             this.dialog = false;
             this.CreateState = false;
             this.SuccessState = true;
+            this.form.label = null,
+            this.form.adv = null,
             this.success = "Nouveau projet créé";
             this.error = "";
             this.$emit("customerUpdated");

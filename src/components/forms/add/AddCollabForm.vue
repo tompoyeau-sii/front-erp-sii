@@ -221,6 +221,15 @@ export default {
               this.CreateState = false;
               this.SuccessState = true;
               this.success = "Nouveau collaborateur ajouté.";
+              this.form.name = "",
+              this.form.first_name = "",
+              this.form.sexe = "",
+              this.form.graduation = null,
+              this.form.job = null,
+              this.form.birthdate = "",
+              this.form.start_date = "",
+              this.form.pru = "",
+              this.form.manager = null,
               this.$emit("associateAdded");
               this.error = "";
             })
@@ -272,8 +281,7 @@ td {
   margin-top: auto;
   margin-bottom: auto;
   vertical-align: middle;
-  border-style
-  : none;
+  border-style: none;
 }
 
 .v-card {

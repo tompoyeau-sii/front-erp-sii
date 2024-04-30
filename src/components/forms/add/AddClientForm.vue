@@ -106,6 +106,7 @@ export default {
             this.dialog = false;
             this.SuccessState = true;
             this.success = "Nouveau client créé";
+            this.form.label = null;
             this.initApp();
             this.error = "";
           })
